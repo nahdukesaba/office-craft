@@ -9,38 +9,240 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as CalendarRouteImport } from './routes/calendar'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/_admin/route'
+import { Route as AuthenticatedResourcesIndexRouteImport } from './routes/_authenticated/resources.index'
+import { Route as AuthenticatedMyBookingsIndexRouteImport } from './routes/_authenticated/my-bookings.index'
+import { Route as AuthenticatedResourcesIdRouteImport } from './routes/_authenticated/resources.$id'
+import { Route as AuthenticatedMyBookingsIdRouteImport } from './routes/_authenticated/my-bookings.$id'
+import { Route as AuthenticatedAdminAdminIndexRouteImport } from './routes/_authenticated/_admin/admin.index'
+import { Route as AuthenticatedAdminAdminResourcesRouteImport } from './routes/_authenticated/_admin/admin.resources'
+import { Route as AuthenticatedAdminAdminBookingsIndexRouteImport } from './routes/_authenticated/_admin/admin.bookings.index'
+import { Route as AuthenticatedAdminAdminBookingsIdRouteImport } from './routes/_authenticated/_admin/admin.bookings.$id'
 
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalendarRoute = CalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
+  id: '/_admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedResourcesIndexRoute =
+  AuthenticatedResourcesIndexRouteImport.update({
+    id: '/resources/',
+    path: '/resources/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMyBookingsIndexRoute =
+  AuthenticatedMyBookingsIndexRouteImport.update({
+    id: '/my-bookings/',
+    path: '/my-bookings/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedResourcesIdRoute =
+  AuthenticatedResourcesIdRouteImport.update({
+    id: '/resources/$id',
+    path: '/resources/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMyBookingsIdRoute =
+  AuthenticatedMyBookingsIdRouteImport.update({
+    id: '/my-bookings/$id',
+    path: '/my-bookings/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminAdminIndexRoute =
+  AuthenticatedAdminAdminIndexRouteImport.update({
+    id: '/admin/',
+    path: '/admin/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminAdminResourcesRoute =
+  AuthenticatedAdminAdminResourcesRouteImport.update({
+    id: '/admin/resources',
+    path: '/admin/resources',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminAdminBookingsIndexRoute =
+  AuthenticatedAdminAdminBookingsIndexRouteImport.update({
+    id: '/admin/bookings/',
+    path: '/admin/bookings/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminAdminBookingsIdRoute =
+  AuthenticatedAdminAdminBookingsIdRouteImport.update({
+    id: '/admin/bookings/$id',
+    path: '/admin/bookings/$id',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/calendar': typeof CalendarRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/my-bookings/$id': typeof AuthenticatedMyBookingsIdRoute
+  '/resources/$id': typeof AuthenticatedResourcesIdRoute
+  '/my-bookings/': typeof AuthenticatedMyBookingsIndexRoute
+  '/resources/': typeof AuthenticatedResourcesIndexRoute
+  '/admin/resources': typeof AuthenticatedAdminAdminResourcesRoute
+  '/admin/': typeof AuthenticatedAdminAdminIndexRoute
+  '/admin/bookings/$id': typeof AuthenticatedAdminAdminBookingsIdRoute
+  '/admin/bookings/': typeof AuthenticatedAdminAdminBookingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/calendar': typeof CalendarRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/my-bookings/$id': typeof AuthenticatedMyBookingsIdRoute
+  '/resources/$id': typeof AuthenticatedResourcesIdRoute
+  '/my-bookings': typeof AuthenticatedMyBookingsIndexRoute
+  '/resources': typeof AuthenticatedResourcesIndexRoute
+  '/admin/resources': typeof AuthenticatedAdminAdminResourcesRoute
+  '/admin': typeof AuthenticatedAdminAdminIndexRoute
+  '/admin/bookings/$id': typeof AuthenticatedAdminAdminBookingsIdRoute
+  '/admin/bookings': typeof AuthenticatedAdminAdminBookingsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/calendar': typeof CalendarRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/_authenticated/_admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/my-bookings/$id': typeof AuthenticatedMyBookingsIdRoute
+  '/_authenticated/resources/$id': typeof AuthenticatedResourcesIdRoute
+  '/_authenticated/my-bookings/': typeof AuthenticatedMyBookingsIndexRoute
+  '/_authenticated/resources/': typeof AuthenticatedResourcesIndexRoute
+  '/_authenticated/_admin/admin/resources': typeof AuthenticatedAdminAdminResourcesRoute
+  '/_authenticated/_admin/admin/': typeof AuthenticatedAdminAdminIndexRoute
+  '/_authenticated/_admin/admin/bookings/$id': typeof AuthenticatedAdminAdminBookingsIdRoute
+  '/_authenticated/_admin/admin/bookings/': typeof AuthenticatedAdminAdminBookingsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/calendar'
+    | '/login'
+    | '/register'
+    | '/dashboard'
+    | '/my-bookings/$id'
+    | '/resources/$id'
+    | '/my-bookings/'
+    | '/resources/'
+    | '/admin/resources'
+    | '/admin/'
+    | '/admin/bookings/$id'
+    | '/admin/bookings/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/calendar'
+    | '/login'
+    | '/register'
+    | '/dashboard'
+    | '/my-bookings/$id'
+    | '/resources/$id'
+    | '/my-bookings'
+    | '/resources'
+    | '/admin/resources'
+    | '/admin'
+    | '/admin/bookings/$id'
+    | '/admin/bookings'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/calendar'
+    | '/login'
+    | '/register'
+    | '/_authenticated/_admin'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/my-bookings/$id'
+    | '/_authenticated/resources/$id'
+    | '/_authenticated/my-bookings/'
+    | '/_authenticated/resources/'
+    | '/_authenticated/_admin/admin/resources'
+    | '/_authenticated/_admin/admin/'
+    | '/_authenticated/_admin/admin/bookings/$id'
+    | '/_authenticated/_admin/admin/bookings/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  CalendarRoute: typeof CalendarRoute
+  LoginRoute: typeof LoginRoute
+  RegisterRoute: typeof RegisterRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calendar': {
+      id: '/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof CalendarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +250,130 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/_admin': {
+      id: '/_authenticated/_admin'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/resources/': {
+      id: '/_authenticated/resources/'
+      path: '/resources'
+      fullPath: '/resources/'
+      preLoaderRoute: typeof AuthenticatedResourcesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my-bookings/': {
+      id: '/_authenticated/my-bookings/'
+      path: '/my-bookings'
+      fullPath: '/my-bookings/'
+      preLoaderRoute: typeof AuthenticatedMyBookingsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/resources/$id': {
+      id: '/_authenticated/resources/$id'
+      path: '/resources/$id'
+      fullPath: '/resources/$id'
+      preLoaderRoute: typeof AuthenticatedResourcesIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my-bookings/$id': {
+      id: '/_authenticated/my-bookings/$id'
+      path: '/my-bookings/$id'
+      fullPath: '/my-bookings/$id'
+      preLoaderRoute: typeof AuthenticatedMyBookingsIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/_admin/admin/': {
+      id: '/_authenticated/_admin/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/_admin/admin/resources': {
+      id: '/_authenticated/_admin/admin/resources'
+      path: '/admin/resources'
+      fullPath: '/admin/resources'
+      preLoaderRoute: typeof AuthenticatedAdminAdminResourcesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/_admin/admin/bookings/': {
+      id: '/_authenticated/_admin/admin/bookings/'
+      path: '/admin/bookings'
+      fullPath: '/admin/bookings/'
+      preLoaderRoute: typeof AuthenticatedAdminAdminBookingsIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/_admin/admin/bookings/$id': {
+      id: '/_authenticated/_admin/admin/bookings/$id'
+      path: '/admin/bookings/$id'
+      fullPath: '/admin/bookings/$id'
+      preLoaderRoute: typeof AuthenticatedAdminAdminBookingsIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
   }
 }
 
+interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminAdminResourcesRoute: typeof AuthenticatedAdminAdminResourcesRoute
+  AuthenticatedAdminAdminIndexRoute: typeof AuthenticatedAdminAdminIndexRoute
+  AuthenticatedAdminAdminBookingsIdRoute: typeof AuthenticatedAdminAdminBookingsIdRoute
+  AuthenticatedAdminAdminBookingsIndexRoute: typeof AuthenticatedAdminAdminBookingsIndexRoute
+}
+
+const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
+  {
+    AuthenticatedAdminAdminResourcesRoute:
+      AuthenticatedAdminAdminResourcesRoute,
+    AuthenticatedAdminAdminIndexRoute: AuthenticatedAdminAdminIndexRoute,
+    AuthenticatedAdminAdminBookingsIdRoute:
+      AuthenticatedAdminAdminBookingsIdRoute,
+    AuthenticatedAdminAdminBookingsIndexRoute:
+      AuthenticatedAdminAdminBookingsIndexRoute,
+  }
+
+const AuthenticatedAdminRouteRouteWithChildren =
+  AuthenticatedAdminRouteRoute._addFileChildren(
+    AuthenticatedAdminRouteRouteChildren,
+  )
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedMyBookingsIdRoute: typeof AuthenticatedMyBookingsIdRoute
+  AuthenticatedResourcesIdRoute: typeof AuthenticatedResourcesIdRoute
+  AuthenticatedMyBookingsIndexRoute: typeof AuthenticatedMyBookingsIndexRoute
+  AuthenticatedResourcesIndexRoute: typeof AuthenticatedResourcesIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedMyBookingsIdRoute: AuthenticatedMyBookingsIdRoute,
+  AuthenticatedResourcesIdRoute: AuthenticatedResourcesIdRoute,
+  AuthenticatedMyBookingsIndexRoute: AuthenticatedMyBookingsIndexRoute,
+  AuthenticatedResourcesIndexRoute: AuthenticatedResourcesIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  CalendarRoute: CalendarRoute,
+  LoginRoute: LoginRoute,
+  RegisterRoute: RegisterRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
