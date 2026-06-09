@@ -13,7 +13,7 @@ export class ApiError extends Error {
 export function toApiError(e: unknown): ApiError {
   if (e instanceof ApiError) return e;
   if (e && typeof e === "object" && "isAxiosError" in e) {
-    const ax = e as { response?: { status?: number; data?: { message?: string; code?: string; fieldErrors?: Record<string, string> } }; message: string };
+    const ax = e as unknown as { response?: { status?: number; data?: { message?: string; code?: string; fieldErrors?: Record<string, string> } }; message?: string };
     return new ApiError({
       status: ax.response?.status ?? 500,
       message: ax.response?.data?.message ?? ax.message ?? "Request failed",
