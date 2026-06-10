@@ -146,7 +146,9 @@ export const mockDb = {
   // public
   async publicBookings(filters: BookingFilters = {}): Promise<Booking[]> {
     const { items } = await mockDb.listBookings(filters);
-    return items.filter((b) => b.status === "approved" || b.status === "completed");
+    return items.filter(
+      (b) => b.status === "approved" || b.status === "completed" || b.status === "pending",
+    );
   },
 
   // stats
