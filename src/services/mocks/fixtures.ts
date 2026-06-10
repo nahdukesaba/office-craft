@@ -81,4 +81,23 @@ export const seedBookings: Booking[] = [
   },
 ];
 
+// extra seeds so the public calendar feels alive
+seedBookings.push(
+  {
+    id: "b_5", resourceId: "r_room_2", userId: "u_user",
+    date: plus(0), startTime: "14:00", endTime: "15:30",
+    status: "pending", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+  },
+  {
+    id: "b_6", resourceId: "r_room_1", userId: "u_admin",
+    date: plus(3), startTime: "11:00", endTime: "12:00",
+    status: "approved", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+  },
+  {
+    id: "b_7", resourceId: "r_car_2", userId: "u_user",
+    date: plus(4), startTime: "09:30", endTime: "11:00",
+    status: "pending", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+  },
+);
+
 export const seedProofs: Proof[] = [];
