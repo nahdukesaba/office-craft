@@ -75,9 +75,11 @@ src/
 
 ## 2. Route structure
 
-Public: `/login`, `/register`, `/calendar`, `/` (landing → redirect).
-Authenticated (under `_authenticated/`): `/dashboard`, `/resources`, `/resources/:id`, `/my-bookings`, `/my-bookings/:id`.
+Public: `/` (public booking calendar — landing page for users and admins), `/login`, `/register`. `/calendar` redirects to `/`.
+Authenticated (under `_authenticated/`): `/dashboard`, `/resources`, `/resources/:id`, `/my-bookings`, `/my-bookings/:id`. Booking creation and proof upload only happen on these routes — the gate forces login.
 Admin (nested under `_authenticated/_admin/`): `/admin`, `/admin/resources`, `/admin/bookings`, `/admin/bookings/:id`.
+
+The public calendar (`/`) shows approved, completed AND pending (requested) bookings, with per-resource color coding, a legend, click-to-detail dialog, and Month / Week view toggle. Pending bookings render with a dashed outline; approved/completed render as filled blocks. CTAs to sign in / register appear for unauthenticated visitors.
 
 Gating:
 - `_authenticated/route.tsx` — `ssr:false`; `beforeLoad` checks Supabase session, else `redirect({ to: '/login', search: { redirect: location.href } })`.
