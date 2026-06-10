@@ -51,7 +51,7 @@ export function BookingDetailsDialog({
             </Button>
           ) : (
             <Button asChild>
-              <Link to="/login" search={{ redirect: "/resources/" + booking.resourceId }}>Sign in to book</Link>
+              <Link to="/login">Sign in to book</Link>
             </Button>
           )}
         </DialogFooter>
