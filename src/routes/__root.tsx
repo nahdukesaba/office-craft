@@ -78,14 +78,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "Booking Mobil dan Ruangan BP3KP Sumatera 2" },
+      { name: "description", content: "Resource Hub is a React-based frontend application for managing meeting rooms and office cars." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "Booking Mobil dan Ruangan BP3KP Sumatera 2" },
+      { property: "og:description", content: "Resource Hub is a React-based frontend application for managing meeting rooms and office cars." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Booking Mobil dan Ruangan BP3KP Sumatera 2" },
+      { name: "twitter:description", content: "Resource Hub is a React-based frontend application for managing meeting rooms and office cars." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/52df7f4c-70dd-4ff9-ab8d-886907264a3e/id-preview-a3b2beb3--18dbe614-c2ae-4610-9140-8a72681ea19c.lovable.app-1782283324158.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/52df7f4c-70dd-4ff9-ab8d-886907264a3e/id-preview-a3b2beb3--18dbe614-c2ae-4610-9140-8a72681ea19c.lovable.app-1782283324158.png" },
     ],
     links: [
       {
