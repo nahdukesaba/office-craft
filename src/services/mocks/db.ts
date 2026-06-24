@@ -66,9 +66,14 @@ export const mockDb = {
   async createResource(input: CreateResourceInput): Promise<Resource> {
     await delay();
     const base = { id: uid("r"), createdAt: nowIso(), name: input.name, description: input.description, photoUrl: input.photoUrl, isAvailable: input.isAvailable };
-    const r: Resource = input.type === "room"
-      ? { ...base, type: "room", location: input.location ?? "", capacity: input.capacity ?? 1, equipment: input.equipment ?? [] }
-      : { ...base, type: "car", licensePlate: input.licensePlate ?? "", fuelType: input.fuelType ?? "gasoline" };
+    let r: Resource;
+    if (input.type === "room") {
+      r = { ...base, type: "room", location: input.location ?? "", capacity: input.capacity ?? 1, equipment: input.equipment ?? [] };
+    } else if (input.type === "bike") {
+      r = { ...base, type: "bike", licensePlate: input.licensePlate ?? "", fuelType: (input.fuelType as "gasoline" | "electric") ?? "gasoline", engineCc: input.engineCc };
+    } else {
+      r = { ...base, type: "car", licensePlate: input.licensePlate ?? "", fuelType: (input.fuelType as "gasoline" | "diesel" | "electric" | "hybrid") ?? "gasoline" };
+    }
     resources.push(r);
     return r;
   },
