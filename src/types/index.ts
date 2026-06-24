@@ -1,5 +1,5 @@
 export type Role = "user" | "admin";
-export type ResourceType = "room" | "car";
+export type ResourceType = "room" | "car" | "bike";
 export type BookingStatus = "pending" | "approved" | "rejected" | "completed" | "cancelled";
 export type ProofKind = "before" | "after";
 
@@ -34,7 +34,14 @@ export interface Car extends ResourceBase {
   fuelType: "gasoline" | "diesel" | "electric" | "hybrid";
 }
 
-export type Resource = Room | Car;
+export interface Bike extends ResourceBase {
+  type: "bike";
+  licensePlate: string;
+  engineCc?: number;
+  fuelType: "gasoline" | "electric";
+}
+
+export type Resource = Room | Car | Bike;
 
 export interface BookingUserRef {
   id: string;
@@ -113,9 +120,10 @@ export interface CreateResourceInput {
   location?: string;
   capacity?: number;
   equipment?: string[];
-  // car
+  // car / bike
   licensePlate?: string;
-  fuelType?: Car["fuelType"];
+  fuelType?: Car["fuelType"] | Bike["fuelType"];
+  engineCc?: number;
 }
 
 export interface AuthSession {
