@@ -14,7 +14,7 @@ import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/my-bookings/$id")({
-  head: () => ({ meta: [{ title: "Booking · Resource Hub" }] }),
+  head: () => ({ meta: [{ title: "Booking · SILAP Aset" }] }),
   component: BookingDetail,
 });
 

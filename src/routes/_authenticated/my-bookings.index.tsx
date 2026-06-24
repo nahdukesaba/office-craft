@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { BookingStatus } from "@/types";
 
 export const Route = createFileRoute("/_authenticated/my-bookings/")({
-  head: () => ({ meta: [{ title: "My Bookings · Resource Hub" }] }),
+  head: () => ({ meta: [{ title: "My Bookings · SILAP Aset" }] }),
   component: MyBookingsPage,
 });
 

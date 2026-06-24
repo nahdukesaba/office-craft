@@ -8,7 +8,7 @@ import { BookingTable } from "@/components/bookings/BookingTable";
 import { LoadingSkeleton } from "@/components/common/LoadingSkeleton";
 
 export const Route = createFileRoute("/_authenticated/_admin/admin/")({
-  head: () => ({ meta: [{ title: "Admin · Resource Hub" }] }),
+  head: () => ({ meta: [{ title: "Admin · SILAP Aset" }] }),
   component: AdminDashboard,
 });
 

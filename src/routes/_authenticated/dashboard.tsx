@@ -9,7 +9,7 @@ import { LoadingSkeleton } from "@/components/common/LoadingSkeleton";
 import { Boxes, Clock, CheckCircle2, ClipboardList } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard · Resource Hub" }] }),
+  head: () => ({ meta: [{ title: "Dashboard · SILAP Aset" }] }),
   component: Dashboard,
 });
 

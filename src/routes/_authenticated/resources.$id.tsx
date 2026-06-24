@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/resources/$id")({
-  head: () => ({ meta: [{ title: "Resource · Resource Hub" }] }),
+  head: () => ({ meta: [{ title: "Resource · SILAP Aset" }] }),
   component: ResourceDetailPage,
 });
 
