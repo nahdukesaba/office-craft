@@ -2,9 +2,18 @@ import { Link } from "@tanstack/react-router";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { Resource } from "@/types";
-import { Car as CarIcon, DoorOpen } from "lucide-react";
+import { Car as CarIcon, DoorOpen, Bike as BikeIcon } from "lucide-react";
+import { useT } from "@/i18n/LanguageProvider";
 
 export function ResourceCard({ resource }: { resource: Resource }) {
+  const t = useT();
+  const Icon = resource.type === "car" ? CarIcon : resource.type === "bike" ? BikeIcon : DoorOpen;
+  const meta =
+    resource.type === "room"
+      ? `${t("resource.type.room")} · ${resource.location}`
+      : resource.type === "car"
+        ? `${t("resource.type.car")} · ${resource.licensePlate}`
+        : `${t("resource.type.bike")} · ${resource.licensePlate}`;
   return (
     <Link
       to="/resources/$id"
@@ -22,7 +31,7 @@ export function ResourceCard({ resource }: { resource: Resource }) {
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-              {resource.type === "car" ? <CarIcon className="size-8" /> : <DoorOpen className="size-8" />}
+              <Icon className="size-8" />
             </div>
           )}
         </div>
@@ -30,13 +39,11 @@ export function ResourceCard({ resource }: { resource: Resource }) {
           <div className="flex items-start justify-between gap-2">
             <h3 className="font-semibold leading-tight">{resource.name}</h3>
             <Badge variant={resource.isAvailable ? "default" : "secondary"}>
-              {resource.isAvailable ? "Available" : "Unavailable"}
+              {resource.isAvailable ? t("resource.available") : t("resource.unavailable")}
             </Badge>
           </div>
           <p className="line-clamp-2 text-sm text-muted-foreground">{resource.description}</p>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">
-            {resource.type === "room" ? `Room · ${resource.location}` : `Car · ${resource.licensePlate}`}
-          </p>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">{meta}</p>
         </CardContent>
       </Card>
     </Link>

@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({ meta: [{ title: "Sign in · Resource Hub" }] }),
+  head: () => ({ meta: [{ title: "Sign in · SILAP Aset" }] }),
   beforeLoad: () => {
     if (useAuthStore.getState().token) throw redirect({ to: "/dashboard" });
   },

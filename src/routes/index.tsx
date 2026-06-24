@@ -9,9 +9,9 @@ import { useAuth } from "@/hooks/useAuth";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Booking Calendar · Resource Hub" },
+      { title: "Booking Calendar · SILAP Aset" },
       { name: "description", content: "Browse the public booking calendar for rooms and cars. Sign in to request a booking or upload proofs." },
-      { property: "og:title", content: "Booking Calendar · Resource Hub" },
+      { property: "og:title", content: "Booking Calendar · SILAP Aset" },
       { property: "og:description", content: "See who has booked which resource and when." },
     ],
   }),

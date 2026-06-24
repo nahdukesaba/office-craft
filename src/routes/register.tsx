@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/register")({
-  head: () => ({ meta: [{ title: "Create account · Resource Hub" }] }),
+  head: () => ({ meta: [{ title: "Create account · SILAP Aset" }] }),
   beforeLoad: () => {
     if (useAuthStore.getState().token) throw redirect({ to: "/dashboard" });
   },

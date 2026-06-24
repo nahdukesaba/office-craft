@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import type { Resource } from "@/types";
+import { useT } from "@/i18n/LanguageProvider";
 
 export function ResourceForm({
   defaultValues,
@@ -23,7 +24,7 @@ export function ResourceForm({
   const form = useForm<ResourceValues>({
     resolver: zodResolver(resourceSchema),
     defaultValues: {
-      type: (defaultValues?.type as "room" | "car") ?? "room",
+      type: (defaultValues?.type as "room" | "car" | "bike") ?? "room",
       name: defaultValues?.name ?? "",
       description: defaultValues?.description ?? "",
       photoUrl: defaultValues?.photoUrl ?? "",
@@ -31,22 +32,25 @@ export function ResourceForm({
       location: defaultValues && defaultValues.type === "room" ? defaultValues.location : "",
       capacity: defaultValues && defaultValues.type === "room" ? defaultValues.capacity : 1,
       equipment: defaultValues && defaultValues.type === "room" ? defaultValues.equipment : [],
-      licensePlate: defaultValues && defaultValues.type === "car" ? defaultValues.licensePlate : "",
-      fuelType: defaultValues && defaultValues.type === "car" ? defaultValues.fuelType : "gasoline",
+      licensePlate: defaultValues && (defaultValues.type === "car" || defaultValues.type === "bike") ? defaultValues.licensePlate : "",
+      fuelType: defaultValues && (defaultValues.type === "car" || defaultValues.type === "bike") ? defaultValues.fuelType : "gasoline",
+      engineCc: defaultValues && defaultValues.type === "bike" ? defaultValues.engineCc : undefined,
     },
   });
   const type = form.watch("type");
+  const t = useT();
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label>Type</Label>
-          <Select value={type} onValueChange={(v) => form.setValue("type", v as "room" | "car")}>
+          <Select value={type} onValueChange={(v) => form.setValue("type", v as "room" | "car" | "bike")}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="room">Room</SelectItem>
-              <SelectItem value="car">Car</SelectItem>
+              <SelectItem value="room">{t("resource.type.room")}</SelectItem>
+              <SelectItem value="car">{t("resource.type.car")}</SelectItem>
+              <SelectItem value="bike">{t("resource.type.bike")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -74,7 +78,7 @@ export function ResourceForm({
             <Input type="number" min={1} {...form.register("capacity")} />
           </div>
         </div>
-      ) : (
+      ) : type === "car" ? (
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label>License plate</Label>
@@ -89,6 +93,27 @@ export function ResourceForm({
                 <SelectItem value="diesel">Diesel</SelectItem>
                 <SelectItem value="electric">Electric</SelectItem>
                 <SelectItem value="hybrid">Hybrid</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="space-y-2">
+            <Label>License plate</Label>
+            <Input {...form.register("licensePlate")} />
+          </div>
+          <div className="space-y-2">
+            <Label>Engine (cc)</Label>
+            <Input type="number" min={50} {...form.register("engineCc")} />
+          </div>
+          <div className="space-y-2">
+            <Label>Fuel</Label>
+            <Select value={form.watch("fuelType")} onValueChange={(v) => form.setValue("fuelType", v as "gasoline" | "electric")}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="gasoline">Gasoline</SelectItem>
+                <SelectItem value="electric">Electric</SelectItem>
               </SelectContent>
             </Select>
           </div>

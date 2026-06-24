@@ -52,6 +52,18 @@ export const seedResources: Resource[] = [
     fuelType: "hybrid",
     createdAt: new Date().toISOString(),
   },
+  {
+    id: "r_bike_1",
+    type: "bike",
+    name: "Honda Vario 160",
+    description: "Skutik kantor untuk perjalanan singkat dalam kota.",
+    photoUrl: "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800",
+    isAvailable: true,
+    licensePlate: "MT-789-CC",
+    fuelType: "gasoline",
+    engineCc: 160,
+    createdAt: new Date().toISOString(),
+  },
 ];
 
 const today = new Date();

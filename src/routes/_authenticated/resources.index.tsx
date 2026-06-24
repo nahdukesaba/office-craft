@@ -8,7 +8,7 @@ import { LoadingSkeleton } from "@/components/common/LoadingSkeleton";
 import { EmptyState } from "@/components/common/EmptyState";
 
 export const Route = createFileRoute("/_authenticated/resources/")({
-  head: () => ({ meta: [{ title: "Resources · Resource Hub" }] }),
+  head: () => ({ meta: [{ title: "Resources · SILAP Aset" }] }),
   component: ResourcesPage,
 });
 

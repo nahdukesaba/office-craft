@@ -35,7 +35,7 @@ export function BookingDetailsDialog({
           {booking.resource?.type === "room" && (
             <div className="flex justify-between"><span className="text-muted-foreground">Location</span><span>{booking.resource.location}</span></div>
           )}
-          {booking.resource?.type === "car" && (
+          {(booking.resource?.type === "car" || booking.resource?.type === "bike") && (
             <div className="flex justify-between"><span className="text-muted-foreground">Plate</span><span>{booking.resource.licensePlate}</span></div>
           )}
           {booking.adminNotes && (
