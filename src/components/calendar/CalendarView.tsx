@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import {
-  addDays, addMonths, addWeeks, endOfMonth, endOfWeek, format, isSameDay,
+  addDays, addMonths, addWeeks, endOfMonth, endOfWeek, format, isSameDay, parseISO,
   isSameMonth, isToday, startOfMonth, startOfWeek, subMonths, subWeeks,
 } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -110,9 +110,14 @@ function MonthGrid({
   const eventsByDay = useMemo(() => {
     const map = new Map<string, Booking[]>();
     bookings.forEach((b) => {
-      const list = map.get(b.date) ?? [];
-      list.push(b);
-      map.set(b.date, list);
+      const start = parseISO(b.date);
+      const end = b.endDate ? parseISO(b.endDate) : start;
+      for (let d = start; d <= end; d = addDays(d, 1)) {
+        const key = format(d, "yyyy-MM-dd");
+        const list = map.get(key) ?? [];
+        list.push(b);
+        map.set(key, list);
+      }
     });
     map.forEach((v) => v.sort((a, b) => a.startTime.localeCompare(b.startTime)));
     return map;
