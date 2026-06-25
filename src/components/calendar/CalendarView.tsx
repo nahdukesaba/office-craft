@@ -151,7 +151,7 @@ function MonthGrid({
               </div>
               <div className="space-y-1">
                 {events.slice(0, 3).map((e) => {
-                  const color = colorForResource(e.resourceId);
+                  const color = colorForResource(e.resourceId, e.resource);
                   const s = statusStyle(e.status);
                   return (
                     <button
@@ -245,7 +245,7 @@ function WeekGrid({
                     18,
                     ((minsFromTime(e.endTime) - minsFromTime(e.startTime)) / 60) * HOUR_HEIGHT - 2,
                   );
-                  const color = colorForResource(e.resourceId);
+                  const color = colorForResource(e.resourceId, e.resource);
                   const s = statusStyle(e.status);
                   return (
                     <button
