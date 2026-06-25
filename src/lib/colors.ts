@@ -1,4 +1,6 @@
-const RESOURCE_PALETTE = [
+import type { Resource } from "@/types";
+
+export const RESOURCE_PALETTE = [
   "#2563eb", // blue
   "#9333ea", // violet
   "#0d9488", // teal
@@ -11,7 +13,10 @@ const RESOURCE_PALETTE = [
 
 const cache = new Map<string, string>();
 
-export function colorForResource(id: string): string {
+export function colorForResource(idOrResource: string | Resource, resource?: Resource): string {
+  const id = typeof idOrResource === "string" ? idOrResource : idOrResource.id;
+  const r = typeof idOrResource === "string" ? resource : idOrResource;
+  if (r?.color) return r.color;
   const hit = cache.get(id);
   if (hit) return hit;
   let h = 0;
