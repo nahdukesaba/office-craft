@@ -12,11 +12,11 @@ Daily Build Credits remaining: **1.60 / 5.00**. The full scope is large, so the 
 5. **Bike resource type**: extend `Resource` types, schema, form, fixtures, badges, color logic.
 6. **Env feature flag**: `VITE_PROOF_CAMERA_ONLY` in `src/lib/env.ts` (consumed in Phase 3).
 
-### Phase 2 — Booking UX (next day)
-1. **Add Booking button** on `My Bookings` (opens dialog with `BookingForm`).
-2. **Circular 24h time picker** component (custom, no extra deps) replacing the native `<input type="time">`.
-3. **Multi-day bookings**: `numberOfDays` field (default 1) → derives `endDate`. Extend `Booking` type with `endDate`, update fixtures, calendar rendering, validation.
-4. **Resource color picker** in `ResourceForm` (stored on resource, overrides hash-based color in calendar/legend).
+### Phase 2 — Booking UX ✅
+1. **Add Booking button** on `My Bookings` opens a dialog with `BookingForm` (resource picker included).
+2. **Circular 24h time picker** at `src/components/bookings/CircularTimePicker.tsx` — SVG clock face, outer 0-11 / inner 12-23, minute ring 0–55 step 5, replaces native `<input type="time">`.
+3. **Multi-day bookings**: `numberOfDays` in `BookingForm` derives `endDate`; `Booking.endDate` added; `mockDb.createBooking` checks conflicts across the spanning range; `CalendarView` repeats the event for every day between `date` and `endDate`.
+4. **Resource color picker** in `ResourceForm` (palette + Auto + free `<input type="color">`); `Resource.color` stored and honored by `colorForResource(id, resource)` in calendar.
 
 ### Phase 3 — Usage lifecycle + camera capture (following day)
 1. New booking statuses: `in_use`, `finished` (added to `BookingStatus` union, status badges, filters, translations).
