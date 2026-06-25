@@ -8,6 +8,7 @@ export const bookingSchema = z
     date: z.string().min(1, "Required"),
     startTime: z.string().regex(/^\d{2}:\d{2}$/),
     endTime: z.string().regex(/^\d{2}:\d{2}$/),
+    numberOfDays: z.coerce.number().int().min(1).max(30).default(1),
   })
   .refine((v) => diffMinutes(v.startTime, v.endTime) > 0, {
     message: "End must be after start", path: ["endTime"],
