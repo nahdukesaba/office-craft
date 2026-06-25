@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import {
-  addDays, addMonths, addWeeks, endOfMonth, endOfWeek, format, isSameDay,
+  addDays, addMonths, addWeeks, endOfMonth, endOfWeek, format, isSameDay, parseISO,
   isSameMonth, isToday, startOfMonth, startOfWeek, subMonths, subWeeks,
 } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -110,9 +110,14 @@ function MonthGrid({
   const eventsByDay = useMemo(() => {
     const map = new Map<string, Booking[]>();
     bookings.forEach((b) => {
-      const list = map.get(b.date) ?? [];
-      list.push(b);
-      map.set(b.date, list);
+      const start = parseISO(b.date);
+      const end = b.endDate ? parseISO(b.endDate) : start;
+      for (let d = start; d <= end; d = addDays(d, 1)) {
+        const key = format(d, "yyyy-MM-dd");
+        const list = map.get(key) ?? [];
+        list.push(b);
+        map.set(key, list);
+      }
     });
     map.forEach((v) => v.sort((a, b) => a.startTime.localeCompare(b.startTime)));
     return map;
@@ -146,7 +151,7 @@ function MonthGrid({
               </div>
               <div className="space-y-1">
                 {events.slice(0, 3).map((e) => {
-                  const color = colorForResource(e.resourceId);
+                  const color = colorForResource(e.resourceId, e.resource);
                   const s = statusStyle(e.status);
                   return (
                     <button
@@ -225,7 +230,10 @@ function WeekGrid({
           </div>
           {days.map((d) => {
             const key = format(d, "yyyy-MM-dd");
-            const dayEvents = bookings.filter((b) => b.date === key);
+            const dayEvents = bookings.filter((b) => {
+              const end = b.endDate ?? b.date;
+              return b.date <= key && key <= end;
+            });
             return (
               <div key={key} className="relative border-r border-border">
                 {hours.map((h) => (
@@ -237,7 +245,7 @@ function WeekGrid({
                     18,
                     ((minsFromTime(e.endTime) - minsFromTime(e.startTime)) / 60) * HOUR_HEIGHT - 2,
                   );
-                  const color = colorForResource(e.resourceId);
+                  const color = colorForResource(e.resourceId, e.resource);
                   const s = statusStyle(e.status);
                   return (
                     <button

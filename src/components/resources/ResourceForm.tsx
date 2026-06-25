@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import type { Resource } from "@/types";
 import { useT } from "@/i18n/LanguageProvider";
+import { RESOURCE_PALETTE } from "@/lib/colors";
+import { cn } from "@/lib/utils";
 
 export function ResourceForm({
   defaultValues,
@@ -29,6 +31,7 @@ export function ResourceForm({
       description: defaultValues?.description ?? "",
       photoUrl: defaultValues?.photoUrl ?? "",
       isAvailable: defaultValues?.isAvailable ?? true,
+      color: defaultValues?.color ?? "",
       location: defaultValues && defaultValues.type === "room" ? defaultValues.location : "",
       capacity: defaultValues && defaultValues.type === "room" ? defaultValues.capacity : 1,
       equipment: defaultValues && defaultValues.type === "room" ? defaultValues.equipment : [],
@@ -38,6 +41,7 @@ export function ResourceForm({
     },
   });
   const type = form.watch("type");
+  const color = form.watch("color");
   const t = useT();
 
   return (
@@ -122,6 +126,40 @@ export function ResourceForm({
       <div className="flex items-center gap-3">
         <Switch checked={form.watch("isAvailable")} onCheckedChange={(v) => form.setValue("isAvailable", v)} />
         <Label>Available for booking</Label>
+      </div>
+      <div className="space-y-2">
+        <Label>Calendar color</Label>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => form.setValue("color", "")}
+            className={cn(
+              "h-7 rounded-md border px-2 text-xs",
+              !color ? "border-foreground" : "border-border text-muted-foreground",
+            )}
+          >
+            Auto
+          </button>
+          {RESOURCE_PALETTE.map((c) => (
+            <button
+              key={c}
+              type="button"
+              aria-label={c}
+              onClick={() => form.setValue("color", c)}
+              className={cn(
+                "size-7 rounded-md border-2",
+                color === c ? "border-foreground" : "border-transparent",
+              )}
+              style={{ background: c }}
+            />
+          ))}
+          <Input
+            type="color"
+            value={color || "#2563eb"}
+            onChange={(e) => form.setValue("color", e.target.value)}
+            className="h-7 w-12 p-1"
+          />
+        </div>
       </div>
       <div className="flex justify-end">
         <Button type="submit" disabled={loading}>{submitLabel}</Button>

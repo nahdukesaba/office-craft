@@ -18,6 +18,7 @@ export interface ResourceBase {
   type: ResourceType;
   photoUrl?: string;
   isAvailable: boolean;
+  color?: string;
   createdAt: string;
 }
 
@@ -56,6 +57,7 @@ export interface Booking {
   userId: string;
   user?: BookingUserRef;
   date: string; // YYYY-MM-DD
+  endDate?: string; // YYYY-MM-DD, inclusive; defaults to `date` (single-day)
   startTime: string; // HH:mm
   endTime: string;
   status: BookingStatus;
@@ -106,6 +108,7 @@ export interface RegisterInput {
 export interface CreateBookingInput {
   resourceId: string;
   date: string;
+  endDate?: string;
   startTime: string;
   endTime: string;
 }
@@ -116,6 +119,7 @@ export interface CreateResourceInput {
   type: ResourceType;
   photoUrl?: string;
   isAvailable: boolean;
+  color?: string;
   // room
   location?: string;
   capacity?: number;

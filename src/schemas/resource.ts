@@ -6,6 +6,7 @@ export const resourceSchema = z.object({
   type: z.enum(["room", "car", "bike"]),
   photoUrl: z.string().url().optional().or(z.literal("")),
   isAvailable: z.boolean(),
+  color: z.string().regex(/^#([0-9a-fA-F]{6})$/).optional().or(z.literal("")),
   location: z.string().optional(),
   capacity: z.coerce.number().int().min(1).optional(),
   equipment: z.array(z.string()).optional(),
