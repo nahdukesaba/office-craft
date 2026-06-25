@@ -230,7 +230,10 @@ function WeekGrid({
           </div>
           {days.map((d) => {
             const key = format(d, "yyyy-MM-dd");
-            const dayEvents = bookings.filter((b) => b.date === key);
+            const dayEvents = bookings.filter((b) => {
+              const end = b.endDate ?? b.date;
+              return b.date <= key && key <= end;
+            });
             return (
               <div key={key} className="relative border-r border-border">
                 {hours.map((h) => (
