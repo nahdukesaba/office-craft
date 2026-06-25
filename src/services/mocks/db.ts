@@ -65,7 +65,7 @@ export const mockDb = {
   },
   async createResource(input: CreateResourceInput): Promise<Resource> {
     await delay();
-    const base = { id: uid("r"), createdAt: nowIso(), name: input.name, description: input.description, photoUrl: input.photoUrl, isAvailable: input.isAvailable };
+    const base = { id: uid("r"), createdAt: nowIso(), name: input.name, description: input.description, photoUrl: input.photoUrl, isAvailable: input.isAvailable, color: input.color || undefined };
     let r: Resource;
     if (input.type === "room") {
       r = { ...base, type: "room", location: input.location ?? "", capacity: input.capacity ?? 1, equipment: input.equipment ?? [] };
