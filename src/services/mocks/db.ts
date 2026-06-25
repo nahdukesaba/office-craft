@@ -109,16 +109,22 @@ export const mockDb = {
   },
   async createBooking(input: CreateBookingInput & { userId: string }): Promise<Booking> {
     await delay();
-    const conflict = bookings.some((b) =>
-      b.resourceId === input.resourceId &&
-      b.date === input.date &&
-      b.status !== "cancelled" && b.status !== "rejected" &&
-      !(input.endTime <= b.startTime || input.startTime >= b.endTime)
-    );
+    const startDate = input.date;
+    const endDate = input.endDate ?? input.date;
+    const overlaps = (aStart: string, aEnd: string, bStart: string, bEnd: string) =>
+      !(aEnd < bStart || aStart > bEnd);
+    const conflict = bookings.some((b) => {
+      if (b.resourceId !== input.resourceId) return false;
+      if (b.status === "cancelled" || b.status === "rejected") return false;
+      const bEndDate = b.endDate ?? b.date;
+      if (!overlaps(startDate, endDate, b.date, bEndDate)) return false;
+      return !(input.endTime <= b.startTime || input.startTime >= b.endTime);
+    });
     if (conflict) throw { status: 409, message: "Time slot conflicts with another booking" };
     const b: Booking = {
       id: uid("b"), resourceId: input.resourceId, userId: input.userId,
-      date: input.date, startTime: input.startTime, endTime: input.endTime,
+      date: startDate, endDate: endDate !== startDate ? endDate : undefined,
+      startTime: input.startTime, endTime: input.endTime,
       status: "pending", createdAt: nowIso(), updatedAt: nowIso(),
     };
     bookings.push(b);
