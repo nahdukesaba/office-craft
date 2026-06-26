@@ -1,44 +1,46 @@
-## SILAP Aset — Phased Build Plan
+## Phase 3 — Usage Lifecycle + Camera Capture
 
-Daily Build Credits remaining: **1.60 / 5.00**. The full scope is large, so the work is split into phases. Each phase is independently shippable. I'll execute Phase 1 today and resume the next phases once daily credits reset.
+Daily credits look sufficient for this phase. Scope is locked to what was promised in `.lovable/plan.md`.
 
----
+### 1. New booking statuses
+- Extend `BookingStatus` in `src/types/index.ts` with `in_use` and `finished`.
+- Update `STATUS_LABEL` and `STATUS_COLOR` in `src/config/constants.ts` (EN + ID via i18n keys where applicable).
+- Add translations in `src/i18n/dictionaries.ts` for the two new statuses and the new action buttons (`booking.start`, `booking.finish`, `booking.cameraOnlyHint`, etc.).
+- Add the new statuses to status filter `<Select>` options in `BookingTable`, admin bookings index, my-bookings index, and calendar legend.
+- `StatusBadge` auto-picks up new entries from the constant maps.
 
-### Phase 1 — Foundation (today, fits in remaining credits)
-1. **Rebrand** "Resource Hub" → **SILAP Aset** with subtitle *Sistem Informasi Laporan Pemakaian Aset* (sidebar, public header, page titles, meta).
-2. **i18n scaffolding** (lightweight, no extra deps): `src/i18n/` with `en.ts` + `id.ts` dictionaries, `LanguageProvider` + `useT()` hook, persisted in `localStorage`.
-3. **Theme toggle** (light/dark) using existing Tailwind tokens — provider + persisted, with a toggle button.
-4. **Header controls** (EN/ID + theme) rendered in both `PublicHeader` and `AppSidebar` so they appear on every page.
-5. **Bike resource type**: extend `Resource` types, schema, form, fixtures, badges, color logic.
-6. **Env feature flag**: `VITE_PROOF_CAMERA_ONLY` in `src/lib/env.ts` (consumed in Phase 3).
+### 2. Lifecycle transitions in mock DB
+- `mockDb.updateBookingStatus` already accepts any `BookingStatus`; add two thin helpers `startBooking(id)` and `finishBooking(id)` enforcing legal transitions:
+  - `approved → in_use` requires a `before` proof to exist.
+  - `in_use → finished` requires an `after` proof to exist.
+- `cancelBooking` rejects when current status is `in_use` or `finished`.
+- Admin "Close" action restricted server-side to `finished` bookings (returns 409 otherwise).
+- Update `publicBookings` to also surface `in_use` and `finished` so the public calendar stays accurate.
 
-### Phase 2 — Booking UX ✅
-1. **Add Booking button** on `My Bookings` opens a dialog with `BookingForm` (resource picker included).
-2. **Circular 24h time picker** at `src/components/bookings/CircularTimePicker.tsx` — SVG clock face, outer 0-11 / inner 12-23, minute ring 0–55 step 5, replaces native `<input type="time">`.
-3. **Multi-day bookings**: `numberOfDays` in `BookingForm` derives `endDate`; `Booking.endDate` added; `mockDb.createBooking` checks conflicts across the spanning range; `CalendarView` repeats the event for every day between `date` and `endDate`.
-4. **Resource color picker** in `ResourceForm` (palette + Auto + free `<input type="color">`); `Resource.color` stored and honored by `colorForResource(id, resource)` in calendar.
+### 3. API + hooks
+- Add `bookingsApi.start(id)` / `bookingsApi.finish(id)` calling the new mock helpers.
+- Add `useStartBooking` / `useFinishBooking` mutations in `src/hooks/mutations/useBookingMutations.ts`, invalidating booking + proofs queries.
 
-### Phase 3 — Usage lifecycle + camera capture (following day)
-1. New booking statuses: `in_use`, `finished` (added to `BookingStatus` union, status badges, filters, translations).
-2. **Booking detail actions** for approved bookings: *Mulai Pemakaian* / *Selesai Pemakaian* with proof checks.
-3. **Camera-only capture component**: uses `<input capture="environment">` + MediaDevices fallback; gated by `VITE_PROOF_CAMERA_ONLY` flag (falls back to gallery when false).
-4. **Cancel rules**: user can cancel only if status not yet `in_use`; once `in_use`, only *Selesai Pemakaian* path is allowed.
-5. Admin **Close** restricted to `finished` bookings.
+### 4. Camera-only proof capture
+- New component `src/components/bookings/CameraCapture.tsx`:
+  - When `env.proofCameraOnly` is true, render `<input type="file" accept="image/*" capture="environment">` (forces rear camera on mobile, gallery-blocked) plus an optional `getUserMedia` live-preview fallback for desktop with a visible "camera-only" notice.
+  - When the flag is false, delegate to existing `FileDropzone`.
+- Refactor `ProofUploader` to use `CameraCapture` internally; keep its `bookingId` + `kind` API unchanged.
 
-### Phase 4 — Admin tools (following day)
-1. **Admin notification action** (mock API): "Remind to cancel" for unused approved bookings; "Remind to upload after-photo" for `in_use` bookings.
-2. **Export bookings** (CSV) with date-range picker on Admin dashboard.
-3. **Pending Requests / Review Booking grouped by resource type** (Mobil / Ruangan / Motor) with tabs or section headers.
+### 5. Booking detail UX (`src/routes/_authenticated/my-bookings.$id.tsx`)
+- Show "Mulai Pemakaian" button only when `status === "approved"` and a `before` proof exists; calls `useStartBooking`.
+- Show "Selesai Pemakaian" button only when `status === "in_use"` and an `after` proof exists; calls `useFinishBooking`.
+- Disable/hide "Cancel booking" when status is `in_use`, `finished`, `completed`, `cancelled`, or `rejected`.
+- Only show the `before` uploader while status is `pending`/`approved`; only show the `after` uploader while status is `in_use`. Both remain visible in the gallery afterwards.
 
----
+### 6. Admin "Close" guard
+- In `admin.bookings.$id.tsx`, only render the Close → `completed` action when status is `finished`; otherwise show a hint explaining it.
+
+### Out of scope (Phase 4)
+- Notification reminders, CSV export, grouping pending requests by resource type.
 
 ### Technical notes
-- i18n: zero-dependency module — `LanguageContext`, `t(key, vars?)` returning string from nested dict; fall back to `en`.
-- Theme: simple `theme` provider toggling `class="dark"` on `<html>`; tokens already exist in `styles.css`.
-- Camera capture: web standard `<input type="file" accept="image/*" capture="environment">` is sufficient for "force camera" on mobile; on desktop the flag falls back to gallery with a banner.
-- Resource color: optional `color?: string` on `ResourceBase`; `colorForResource()` prefers stored color, else hash.
-- Multi-day: store `endDate` separately from per-day `startTime/endTime`; calendar renders a spanning event.
-- Export CSV: client-side blob download from `bookingsApi.list({ from, to })`.
-- New statuses require updates to: `types/index.ts`, mock DB transitions, `StatusBadge`, status filter Selects, calendar legend.
-
-Phases 2–4 will each require a fresh daily credit budget; I'll confirm credits at the start of each.
+- No new dependencies. Camera capture relies on the standard `capture` attribute; desktop fallback uses `navigator.mediaDevices.getUserMedia` already supported by all evergreen browsers.
+- All new strings routed through `useT()` so EN/ID stay in sync.
+- Status colors reuse existing Tailwind tokens (e.g. `in_use` → amber, `finished` → indigo) defined in `STATUS_COLOR`.
+- Plan file `.lovable/plan.md` will be updated at the end of the phase to mark Phase 3 done.
