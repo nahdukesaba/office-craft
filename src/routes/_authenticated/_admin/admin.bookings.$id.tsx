@@ -62,8 +62,13 @@ function AdminBookingReview() {
             <div className="flex flex-wrap gap-2">
               <Button disabled={booking.status !== "pending"} onClick={() => act(() => approve.mutateAsync({ id: booking.id, notes }), "Approved")}>Approve</Button>
               <Button variant="destructive" disabled={booking.status !== "pending"} onClick={() => act(() => reject.mutateAsync({ id: booking.id, notes }), "Rejected")}>Reject</Button>
-              <Button variant="outline" disabled={booking.status !== "approved"} onClick={() => act(() => close.mutateAsync({ id: booking.id, notes }), "Closed")}>Mark completed</Button>
+              <Button variant="outline" disabled={booking.status !== "finished"} onClick={() => act(() => close.mutateAsync({ id: booking.id, notes }), "Closed")}>Mark completed</Button>
             </div>
+            {booking.status !== "finished" && booking.status !== "completed" && (
+              <p className="text-xs text-muted-foreground">
+                You can only close bookings that the user has finished.
+              </p>
+            )}
           </CardContent>
         </Card>
       </div>

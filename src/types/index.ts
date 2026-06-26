@@ -1,6 +1,13 @@
 export type Role = "user" | "admin";
 export type ResourceType = "room" | "car" | "bike";
-export type BookingStatus = "pending" | "approved" | "rejected" | "completed" | "cancelled";
+export type BookingStatus =
+  | "pending"
+  | "approved"
+  | "in_use"
+  | "finished"
+  | "rejected"
+  | "completed"
+  | "cancelled";
 export type ProofKind = "before" | "after";
 
 export interface AppUser {
