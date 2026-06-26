@@ -18,8 +18,8 @@ function minsFromTime(t: string) {
 }
 
 function statusStyle(status: Booking["status"]) {
-  // pending = dashed + lower opacity; approved/completed = solid
   if (status === "pending") return { opacity: 0.85, borderStyle: "dashed" as const };
+  if (status === "in_use") return { opacity: 1, borderStyle: "double" as const };
   return { opacity: 1, borderStyle: "solid" as const };
 }
 

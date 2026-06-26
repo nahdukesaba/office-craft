@@ -26,6 +26,8 @@ function AdminBookings() {
               <SelectItem value="all">All</SelectItem>
               <SelectItem value="pending">Pending</SelectItem>
               <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="in_use">In Use</SelectItem>
+              <SelectItem value="finished">Finished</SelectItem>
               <SelectItem value="rejected">Rejected</SelectItem>
               <SelectItem value="completed">Completed</SelectItem>
               <SelectItem value="cancelled">Cancelled</SelectItem>

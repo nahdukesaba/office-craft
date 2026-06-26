@@ -1,7 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useBooking } from "@/hooks/queries/useBookings";
 import { useProofs } from "@/hooks/queries/useProofs";
-import { useCancelBooking } from "@/hooks/mutations/useBookingMutations";
+import {
+  useCancelBooking,
+  useFinishBooking,
+  useStartBooking,
+} from "@/hooks/mutations/useBookingMutations";
 import { LoadingSkeleton } from "@/components/common/LoadingSkeleton";
 import { PageHeader } from "@/components/common/PageHeader";
 import { StatusBadge } from "@/components/common/StatusBadge";
@@ -23,8 +27,18 @@ function BookingDetail() {
   const { data: booking, isLoading } = useBooking(id);
   const { data: proofs } = useProofs(id);
   const cancel = useCancelBooking();
+  const start = useStartBooking();
+  const finish = useFinishBooking();
 
   if (isLoading || !booking) return <LoadingSkeleton rows={4} />;
+
+  const hasBefore = (proofs ?? []).some((p) => p.kind === "before");
+  const hasAfter = (proofs ?? []).some((p) => p.kind === "after");
+  const canCancel = booking.status === "pending" || booking.status === "approved";
+  const canStart = booking.status === "approved";
+  const canFinish = booking.status === "in_use";
+  const showBeforeUploader = booking.status === "pending" || booking.status === "approved";
+  const showAfterUploader = booking.status === "in_use";
 
   return (
     <div className="space-y-6">
@@ -43,28 +57,52 @@ function BookingDetail() {
         </CardContent>
       </Card>
 
-      {(booking.status === "pending" || booking.status === "approved") && (
-        <Button
-          variant="outline"
-          onClick={async () => {
-            try {
-              await cancel.mutateAsync(booking.id);
-              toast.success("Booking cancelled");
-            } catch (e: unknown) {
-              toast.error(e instanceof Error ? e.message : "Failed");
-            }
-          }}
-        >
-          Cancel booking
-        </Button>
-      )}
+      <div className="flex flex-wrap gap-2">
+        {canStart && (
+          <Button
+            disabled={!hasBefore}
+            title={!hasBefore ? "Upload a 'before' photo first" : undefined}
+            onClick={async () => {
+              try { await start.mutateAsync(booking.id); toast.success("Usage started"); }
+              catch (e: unknown) { toast.error(e instanceof Error ? e.message : "Failed"); }
+            }}
+          >
+            Mulai Pemakaian
+          </Button>
+        )}
+        {canFinish && (
+          <Button
+            disabled={!hasAfter}
+            title={!hasAfter ? "Upload an 'after' photo first" : undefined}
+            onClick={async () => {
+              try { await finish.mutateAsync(booking.id); toast.success("Usage finished"); }
+              catch (e: unknown) { toast.error(e instanceof Error ? e.message : "Failed"); }
+            }}
+          >
+            Selesai Pemakaian
+          </Button>
+        )}
+        {canCancel && (
+          <Button
+            variant="outline"
+            onClick={async () => {
+              try { await cancel.mutateAsync(booking.id); toast.success("Booking cancelled"); }
+              catch (e: unknown) { toast.error(e instanceof Error ? e.message : "Failed"); }
+            }}
+          >
+            Cancel booking
+          </Button>
+        )}
+      </div>
 
       <section className="space-y-4">
         <h2 className="text-lg font-semibold">Proof photos</h2>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <ProofUploader bookingId={booking.id} kind="before" />
-          <ProofUploader bookingId={booking.id} kind="after" />
-        </div>
+        {(showBeforeUploader || showAfterUploader) && (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {showBeforeUploader && <ProofUploader bookingId={booking.id} kind="before" />}
+            {showAfterUploader && <ProofUploader bookingId={booking.id} kind="after" />}
+          </div>
+        )}
         <ProofGallery proofs={proofs ?? []} />
       </section>
     </div>

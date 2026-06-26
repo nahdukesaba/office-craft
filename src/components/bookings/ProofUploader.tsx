@@ -1,4 +1,4 @@
-import { FileDropzone } from "@/components/common/FileDropzone";
+import { CameraCapture } from "@/components/bookings/CameraCapture";
 import { useUploadProof } from "@/hooks/mutations/useProofMutations";
 import { toast } from "sonner";
 import type { ProofKind } from "@/types";
@@ -8,7 +8,7 @@ export function ProofUploader({ bookingId, kind }: { bookingId: string; kind: Pr
   return (
     <div className="space-y-2">
       <p className="text-sm font-medium capitalize">{kind} photo</p>
-      <FileDropzone
+      <CameraCapture
         onFile={async (file) => {
           try {
             await upload.mutateAsync({ kind, file });
