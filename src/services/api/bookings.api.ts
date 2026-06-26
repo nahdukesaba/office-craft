@@ -30,13 +30,23 @@ export const bookingsApi = {
     return data;
   },
   async close(id: string, adminNotes?: string) {
-    if (env.useMocks) return mockDb.updateBookingStatus(id, "completed", adminNotes);
+    if (env.useMocks) return mockDb.closeBooking(id, adminNotes);
     const { data } = await http.put<Booking>(`/bookings/${id}/close`, { adminNotes });
     return data;
   },
   async cancel(id: string) {
     if (env.useMocks) return mockDb.cancelBooking(id);
     const { data } = await http.put<Booking>(`/bookings/${id}/cancel`);
+    return data;
+  },
+  async start(id: string) {
+    if (env.useMocks) return mockDb.startBooking(id);
+    const { data } = await http.put<Booking>(`/bookings/${id}/start`);
+    return data;
+  },
+  async finish(id: string) {
+    if (env.useMocks) return mockDb.finishBooking(id);
+    const { data } = await http.put<Booking>(`/bookings/${id}/finish`);
     return data;
   },
 };

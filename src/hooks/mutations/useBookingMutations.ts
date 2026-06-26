@@ -45,3 +45,19 @@ export const useCloseBooking = () => {
     onSuccess: () => qc.invalidateQueries({ queryKey: qk.bookings.all }),
   });
 };
+
+export const useStartBooking = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => bookingsApi.start(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: qk.bookings.all }),
+  });
+};
+
+export const useFinishBooking = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => bookingsApi.finish(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: qk.bookings.all }),
+  });
+};

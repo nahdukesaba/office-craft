@@ -42,6 +42,24 @@ const en: Dict = {
   "resource.available": "Available",
   "resource.unavailable": "Unavailable",
   "resource.search": "Search resources...",
+
+  "status.pending": "Pending",
+  "status.approved": "Approved",
+  "status.in_use": "In Use",
+  "status.finished": "Finished",
+  "status.rejected": "Rejected",
+  "status.completed": "Completed",
+  "status.cancelled": "Cancelled",
+
+  "booking.start": "Start Usage",
+  "booking.finish": "Finish Usage",
+  "booking.cancel": "Cancel booking",
+  "booking.cameraOnlyHint": "Photos must be captured live from the device camera.",
+  "booking.beforePhoto": "Before photo",
+  "booking.afterPhoto": "After photo",
+  "booking.needBeforePhoto": "Upload a 'before' photo to start usage.",
+  "booking.needAfterPhoto": "Upload an 'after' photo to finish usage.",
+  "booking.closeOnlyFinished": "You can only close bookings that the user has finished.",
 };
 
 const id: Dict = {
@@ -78,6 +96,24 @@ const id: Dict = {
   "resource.available": "Tersedia",
   "resource.unavailable": "Tidak tersedia",
   "resource.search": "Cari aset...",
+
+  "status.pending": "Menunggu",
+  "status.approved": "Disetujui",
+  "status.in_use": "Sedang Dipakai",
+  "status.finished": "Selesai Pemakaian",
+  "status.rejected": "Ditolak",
+  "status.completed": "Selesai",
+  "status.cancelled": "Dibatalkan",
+
+  "booking.start": "Mulai Pemakaian",
+  "booking.finish": "Selesai Pemakaian",
+  "booking.cancel": "Batalkan pemesanan",
+  "booking.cameraOnlyHint": "Foto harus diambil langsung dari kamera perangkat.",
+  "booking.beforePhoto": "Foto sebelum",
+  "booking.afterPhoto": "Foto sesudah",
+  "booking.needBeforePhoto": "Unggah foto 'sebelum' untuk memulai pemakaian.",
+  "booking.needAfterPhoto": "Unggah foto 'sesudah' untuk menyelesaikan pemakaian.",
+  "booking.closeOnlyFinished": "Hanya pemesanan yang telah diselesaikan pengguna yang dapat ditutup.",
 };
 
 export const dictionaries: Record<Language, Dict> = { en, id };

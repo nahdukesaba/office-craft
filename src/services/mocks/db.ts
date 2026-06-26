@@ -138,7 +138,36 @@ export const mockDb = {
     return hydrateBooking(bookings[idx]);
   },
   async cancelBooking(id: string) {
+    const b = bookings.find((x) => x.id === id);
+    if (!b) throw { status: 404, message: "Booking not found" };
+    if (b.status === "in_use" || b.status === "finished" || b.status === "completed") {
+      throw { status: 409, message: "Cannot cancel a booking that has been started or completed" };
+    }
     return mockDb.updateBookingStatus(id, "cancelled");
+  },
+  async startBooking(id: string): Promise<Booking> {
+    await delay();
+    const b = bookings.find((x) => x.id === id);
+    if (!b) throw { status: 404, message: "Booking not found" };
+    if (b.status !== "approved") throw { status: 409, message: "Only approved bookings can be started" };
+    const hasBefore = proofs.some((p) => p.bookingId === id && p.kind === "before");
+    if (!hasBefore) throw { status: 409, message: "Upload a 'before' photo first" };
+    return mockDb.updateBookingStatus(id, "in_use");
+  },
+  async finishBooking(id: string): Promise<Booking> {
+    await delay();
+    const b = bookings.find((x) => x.id === id);
+    if (!b) throw { status: 404, message: "Booking not found" };
+    if (b.status !== "in_use") throw { status: 409, message: "Only bookings in use can be finished" };
+    const hasAfter = proofs.some((p) => p.bookingId === id && p.kind === "after");
+    if (!hasAfter) throw { status: 409, message: "Upload an 'after' photo first" };
+    return mockDb.updateBookingStatus(id, "finished");
+  },
+  async closeBooking(id: string, adminNotes?: string): Promise<Booking> {
+    const b = bookings.find((x) => x.id === id);
+    if (!b) throw { status: 404, message: "Booking not found" };
+    if (b.status !== "finished") throw { status: 409, message: "Only finished bookings can be closed" };
+    return mockDb.updateBookingStatus(id, "completed", adminNotes);
   },
 
   // proofs
@@ -158,7 +187,12 @@ export const mockDb = {
   async publicBookings(filters: BookingFilters = {}): Promise<Booking[]> {
     const { items } = await mockDb.listBookings(filters);
     return items.filter(
-      (b) => b.status === "approved" || b.status === "completed" || b.status === "pending",
+      (b) =>
+        b.status === "approved" ||
+        b.status === "completed" ||
+        b.status === "pending" ||
+        b.status === "in_use" ||
+        b.status === "finished",
     );
   },
 
