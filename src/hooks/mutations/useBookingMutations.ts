@@ -61,3 +61,8 @@ export const useFinishBooking = () => {
     onSuccess: () => qc.invalidateQueries({ queryKey: qk.bookings.all }),
   });
 };
+
+export const useNotifyBooking = () =>
+  useMutation({
+    mutationFn: ({ id, message }: { id: string; message?: string }) => bookingsApi.notify(id, message),
+  });

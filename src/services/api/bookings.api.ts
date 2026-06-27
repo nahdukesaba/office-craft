@@ -49,4 +49,9 @@ export const bookingsApi = {
     const { data } = await http.put<Booking>(`/bookings/${id}/finish`);
     return data;
   },
+  async notify(id: string, message?: string) {
+    if (env.useMocks) return mockDb.notifyUser(id, message);
+    const { data } = await http.post<{ ok: true; sentAt: string; message: string }>(`/bookings/${id}/notify`, { message });
+    return data;
+  },
 };
