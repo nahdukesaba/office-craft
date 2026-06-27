@@ -170,6 +170,16 @@ export const mockDb = {
     return mockDb.updateBookingStatus(id, "completed", adminNotes);
   },
 
+  async notifyUser(id: string, message?: string): Promise<{ ok: true; sentAt: string; message: string }> {
+    await delay(300);
+    const b = bookings.find((x) => x.id === id);
+    if (!b) throw { status: 404, message: "Booking not found" };
+    const text = message ?? (b.status === "in_use"
+      ? "Reminder: please upload your 'after' photo to finish this booking."
+      : "Reminder: please cancel this booking if you no longer need the resource.");
+    return { ok: true, sentAt: nowIso(), message: text };
+  },
+
   // proofs
   async listProofs(bookingId: string): Promise<Proof[]> {
     await delay();

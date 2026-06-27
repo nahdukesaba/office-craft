@@ -60,6 +60,19 @@ const en: Dict = {
   "booking.needBeforePhoto": "Upload a 'before' photo to start usage.",
   "booking.needAfterPhoto": "Upload an 'after' photo to finish usage.",
   "booking.closeOnlyFinished": "You can only close bookings that the user has finished.",
+
+  "admin.export": "Export bookings",
+  "admin.exportTitle": "Export bookings (CSV)",
+  "admin.exportFrom": "From",
+  "admin.exportTo": "To",
+  "admin.exportDownload": "Download CSV",
+  "admin.notify": "Notify user",
+  "admin.notifyMessage": "Message (optional)",
+  "admin.notifySent": "Notification sent",
+  "admin.groupRoom": "Rooms",
+  "admin.groupCar": "Cars",
+  "admin.groupBike": "Bikes",
+  "admin.noneInGroup": "No bookings in this group.",
 };
 
 const id: Dict = {
@@ -114,6 +127,19 @@ const id: Dict = {
   "booking.needBeforePhoto": "Unggah foto 'sebelum' untuk memulai pemakaian.",
   "booking.needAfterPhoto": "Unggah foto 'sesudah' untuk menyelesaikan pemakaian.",
   "booking.closeOnlyFinished": "Hanya pemesanan yang telah diselesaikan pengguna yang dapat ditutup.",
+
+  "admin.export": "Ekspor pemesanan",
+  "admin.exportTitle": "Ekspor pemesanan (CSV)",
+  "admin.exportFrom": "Dari",
+  "admin.exportTo": "Sampai",
+  "admin.exportDownload": "Unduh CSV",
+  "admin.notify": "Beri tahu pengguna",
+  "admin.notifyMessage": "Pesan (opsional)",
+  "admin.notifySent": "Notifikasi terkirim",
+  "admin.groupRoom": "Ruangan",
+  "admin.groupCar": "Mobil",
+  "admin.groupBike": "Motor",
+  "admin.noneInGroup": "Tidak ada pemesanan pada grup ini.",
 };
 
 export const dictionaries: Record<Language, Dict> = { en, id };

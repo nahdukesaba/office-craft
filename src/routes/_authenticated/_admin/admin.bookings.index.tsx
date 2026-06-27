@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/common/PageHeader";
-import { BookingTable } from "@/components/bookings/BookingTable";
+import { GroupedBookingTable } from "@/components/bookings/GroupedBookingTable";
+import { ExportBookingsDialog } from "@/components/admin/ExportBookingsDialog";
 import { useBookings } from "@/hooks/queries/useBookings";
 import { LoadingSkeleton } from "@/components/common/LoadingSkeleton";
 import { useBookingStore } from "@/stores/bookingStore";
@@ -20,22 +21,25 @@ function AdminBookings() {
       <PageHeader
         title="Review Bookings"
         actions={
-          <Select value={filters.status ?? "all"} onValueChange={(v) => setFilter("status", v as BookingStatus | "all")}>
-            <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="approved">Approved</SelectItem>
-              <SelectItem value="in_use">In Use</SelectItem>
-              <SelectItem value="finished">Finished</SelectItem>
-              <SelectItem value="rejected">Rejected</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-2">
+            <Select value={filters.status ?? "all"} onValueChange={(v) => setFilter("status", v as BookingStatus | "all")}>
+              <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="approved">Approved</SelectItem>
+                <SelectItem value="in_use">In Use</SelectItem>
+                <SelectItem value="finished">Finished</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
+              </SelectContent>
+            </Select>
+            <ExportBookingsDialog />
+          </div>
         }
       />
-      {isLoading ? <LoadingSkeleton /> : <BookingTable bookings={data?.items ?? []} detailHrefBase="/admin/bookings" />}
+      {isLoading ? <LoadingSkeleton /> : <GroupedBookingTable bookings={data?.items ?? []} detailHrefBase="/admin/bookings" />}
     </div>
   );
 }

@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useBooking } from "@/hooks/queries/useBookings";
 import { useProofs } from "@/hooks/queries/useProofs";
-import { useApproveBooking, useCloseBooking, useRejectBooking } from "@/hooks/mutations/useBookingMutations";
+import { useApproveBooking, useCloseBooking, useRejectBooking, useNotifyBooking } from "@/hooks/mutations/useBookingMutations";
+import { useT } from "@/i18n/LanguageProvider";
 import { LoadingSkeleton } from "@/components/common/LoadingSkeleton";
 import { PageHeader } from "@/components/common/PageHeader";
 import { StatusBadge } from "@/components/common/StatusBadge";
@@ -26,7 +27,10 @@ function AdminBookingReview() {
   const approve = useApproveBooking();
   const reject = useRejectBooking();
   const close = useCloseBooking();
+  const notify = useNotifyBooking();
+  const t = useT();
   const [notes, setNotes] = useState("");
+  const canNotify = booking?.status === "approved" || booking?.status === "in_use" || booking?.status === "pending";
 
   if (isLoading || !booking) return <LoadingSkeleton rows={4} />;
 
@@ -63,6 +67,13 @@ function AdminBookingReview() {
               <Button disabled={booking.status !== "pending"} onClick={() => act(() => approve.mutateAsync({ id: booking.id, notes }), "Approved")}>Approve</Button>
               <Button variant="destructive" disabled={booking.status !== "pending"} onClick={() => act(() => reject.mutateAsync({ id: booking.id, notes }), "Rejected")}>Reject</Button>
               <Button variant="outline" disabled={booking.status !== "finished"} onClick={() => act(() => close.mutateAsync({ id: booking.id, notes }), "Closed")}>Mark completed</Button>
+              <Button
+                variant="secondary"
+                disabled={!canNotify || notify.isPending}
+                onClick={() => act(() => notify.mutateAsync({ id: booking.id, message: notes || undefined }), t("admin.notifySent"))}
+              >
+                {t("admin.notify")}
+              </Button>
             </div>
             {booking.status !== "finished" && booking.status !== "completed" && (
               <p className="text-xs text-muted-foreground">
