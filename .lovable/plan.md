@@ -1,4 +1,11 @@
-## Phase 3 — Usage Lifecycle + Camera Capture
+## Phase 4 — Admin Tools (DONE)
+
+- CSV export of bookings filtered by date range (`ExportBookingsDialog` in Admin Dashboard + Review Bookings).
+- Notify-user mock endpoint (`bookingsApi.notify`) with admin button on booking detail; backend will send the actual notification.
+- Pending / review lists grouped by resource type (Cars / Rooms / Bikes) via `GroupedBookingTable`.
+- i18n entries added for all new copy (EN/ID).
+
+## Phase 3 — Usage Lifecycle + Camera Capture (DONE)
 
 Daily credits look sufficient for this phase. Scope is locked to what was promised in `.lovable/plan.md`.
 
