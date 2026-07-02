@@ -11,6 +11,8 @@ import { useResources } from "@/hooks/queries/useResources";
 import { CircularTimePicker } from "./CircularTimePicker";
 import { toast } from "sonner";
 import { addDays, formatISO } from "date-fns";
+import { addHoursHHmm } from "@/lib/format";
+import { useEffect, useRef } from "react";
 
 export function BookingForm({
   resourceId,
@@ -33,6 +35,14 @@ export function BookingForm({
       numberOfDays: 1,
     },
   });
+  const startTime = form.watch("startTime");
+  const prevStartRef = useRef(startTime);
+  useEffect(() => {
+    if (prevStartRef.current !== startTime) {
+      prevStartRef.current = startTime;
+      form.setValue("endTime", addHoursHHmm(startTime, 1), { shouldValidate: true });
+    }
+  }, [startTime, form]);
 
   async function onSubmit(values: BookingValues) {
     if (!user) return;
@@ -54,8 +64,16 @@ export function BookingForm({
       form.reset({ ...values });
       onCreated?.();
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Failed to create booking";
-      toast.error(msg);
+      const err = e as { status?: number; message?: string; conflictWith?: { userFullName?: string; startTime?: string; endTime?: string; date?: string } };
+      if (err?.status === 409) {
+        const w = err.conflictWith;
+        const detail = w
+          ? ` — already approved for ${w.userFullName ?? "another user"} on ${w.date ?? ""} ${w.startTime ?? ""}–${w.endTime ?? ""}`
+          : "";
+        toast.error(`Booking conflict: this slot is already taken${detail}. Try a different time or date.`);
+      } else {
+        toast.error(err?.message ?? "Failed to create booking");
+      }
     }
   }
 
