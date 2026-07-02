@@ -113,14 +113,31 @@ export const mockDb = {
     const endDate = input.endDate ?? input.date;
     const overlaps = (aStart: string, aEnd: string, bStart: string, bEnd: string) =>
       !(aEnd < bStart || aStart > bEnd);
-    const conflict = bookings.some((b) => {
+    // Only APPROVED / in_use / finished bookings block a new request.
+    // Multiple pending bookings on the same slot are allowed.
+    const conflict = bookings.find((b) => {
       if (b.resourceId !== input.resourceId) return false;
-      if (b.status === "cancelled" || b.status === "rejected") return false;
+      if (b.status !== "approved" && b.status !== "in_use" && b.status !== "finished") return false;
       const bEndDate = b.endDate ?? b.date;
       if (!overlaps(startDate, endDate, b.date, bEndDate)) return false;
       return !(input.endTime <= b.startTime || input.startTime >= b.endTime);
     });
-    if (conflict) throw { status: 409, message: "Time slot conflicts with another booking" };
+    if (conflict) {
+      const owner = users.find((u) => u.id === conflict.userId);
+      throw {
+        status: 409,
+        error: "BOOKING_CONFLICT",
+        message: "This time slot is already approved for another booking",
+        conflictWith: {
+          id: conflict.id,
+          userFullName: owner?.fullName ?? "another user",
+          date: conflict.date,
+          endDate: conflict.endDate ?? conflict.date,
+          startTime: conflict.startTime,
+          endTime: conflict.endTime,
+        },
+      };
+    }
     const b: Booking = {
       id: uid("b"), resourceId: input.resourceId, userId: input.userId,
       date: startDate, endDate: endDate !== startDate ? endDate : undefined,
