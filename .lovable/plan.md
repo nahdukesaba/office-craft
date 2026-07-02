@@ -1,53 +1,111 @@
-## Phase 4 — Admin Tools (DONE)
+# Backend Changes Spec + Frontend Task Breakdown
 
-- CSV export of bookings filtered by date range (`ExportBookingsDialog` in Admin Dashboard + Review Bookings).
-- Notify-user mock endpoint (`bookingsApi.notify`) with admin button on booking detail; backend will send the actual notification.
-- Pending / review lists grouped by resource type (Cars / Rooms / Bikes) via `GroupedBookingTable`.
-- i18n entries added for all new copy (EN/ID).
+Only ~1.2 daily credits remain. I'll deliver the backend spec + task breakdown now, then implement in chunks over the next days.
 
-## Phase 3 — Usage Lifecycle + Camera Capture (DONE)
+---
 
-Daily credits look sufficient for this phase. Scope is locked to what was promised in `.lovable/plan.md`.
+## Part A — Backend Changes (hand to backend AI)
 
-### 1. New booking statuses
-- Extend `BookingStatus` in `src/types/index.ts` with `in_use` and `finished`.
-- Update `STATUS_LABEL` and `STATUS_COLOR` in `src/config/constants.ts` (EN + ID via i18n keys where applicable).
-- Add translations in `src/i18n/dictionaries.ts` for the two new statuses and the new action buttons (`booking.start`, `booking.finish`, `booking.cameraOnlyHint`, etc.).
-- Add the new statuses to status filter `<Select>` options in `BookingTable`, admin bookings index, my-bookings index, and calendar legend.
-- `StatusBadge` auto-picks up new entries from the constant maps.
+### 1. Booking overlap semantics (NEW RULE)
 
-### 2. Lifecycle transitions in mock DB
-- `mockDb.updateBookingStatus` already accepts any `BookingStatus`; add two thin helpers `startBooking(id)` and `finishBooking(id)` enforcing legal transitions:
-  - `approved → in_use` requires a `before` proof to exist.
-  - `in_use → finished` requires an `after` proof to exist.
-- `cancelBooking` rejects when current status is `in_use` or `finished`.
-- Admin "Close" action restricted server-side to `finished` bookings (returns 409 otherwise).
-- Update `publicBookings` to also surface `in_use` and `finished` so the public calendar stays accurate.
+Multiple `pending` bookings may exist on the same resource/time window. An `approved` booking is exclusive: it blocks any other approval on an overlapping window, and on approval **auto-rejects** every other `pending` booking that overlaps.
 
-### 3. API + hooks
-- Add `bookingsApi.start(id)` / `bookingsApi.finish(id)` calling the new mock helpers.
-- Add `useStartBooking` / `useFinishBooking` mutations in `src/hooks/mutations/useBookingMutations.ts`, invalidating booking + proofs queries.
+- `POST /bookings` — no longer rejects on overlap with `pending`. Still rejects if overlap with an `approved`/`in_use`/`finished` booking. Error response shape:
+  ```json
+  { "error": "BOOKING_CONFLICT",
+    "message": "Slot already approved for another user",
+    "conflictWith": { "id": "...", "userFullName": "...", "startTime": "...", "endTime": "...", "date": "...", "endDate": "..." } }
+  ```
+- `PUT /bookings/:id/approve` — server transaction:
+  1. verify no other overlapping booking is already `approved`/`in_use`/`finished`
+  2. set this booking `approved`
+  3. update all other `pending` bookings whose window overlaps → `rejected` with `adminNotes = "Auto-rejected: slot approved for another request"`
+  4. return `{ booking, autoRejectedIds: string[] }`
 
-### 4. Camera-only proof capture
-- New component `src/components/bookings/CameraCapture.tsx`:
-  - When `env.proofCameraOnly` is true, render `<input type="file" accept="image/*" capture="environment">` (forces rear camera on mobile, gallery-blocked) plus an optional `getUserMedia` live-preview fallback for desktop with a visible "camera-only" notice.
-  - When the flag is false, delegate to existing `FileDropzone`.
-- Refactor `ProofUploader` to use `CameraCapture` internally; keep its `bookingId` + `kind` API unchanged.
+### 2. Admin revoke approved booking (NEW ENDPOINT)
 
-### 5. Booking detail UX (`src/routes/_authenticated/my-bookings.$id.tsx`)
-- Show "Mulai Pemakaian" button only when `status === "approved"` and a `before` proof exists; calls `useStartBooking`.
-- Show "Selesai Pemakaian" button only when `status === "in_use"` and an `after` proof exists; calls `useFinishBooking`.
-- Disable/hide "Cancel booking" when status is `in_use`, `finished`, `completed`, `cancelled`, or `rejected`.
-- Only show the `before` uploader while status is `pending`/`approved`; only show the `after` uploader while status is `in_use`. Both remain visible in the gallery afterwards.
+`PUT /bookings/:id/revoke` (admin)
+- Allowed from statuses: `approved`, `in_use`
+- Body: `{ adminNotes?: string, reason?: string }`
+- Transitions booking → `cancelled` with `adminNotes` prefixed `"Revoked by admin: "`
+- Should trigger a notification to the owner (same channel as `/notify`).
+- Response: full `Booking`.
 
-### 6. Admin "Close" guard
-- In `admin.bookings.$id.tsx`, only render the Close → `completed` action when status is `finished`; otherwise show a hint explaining it.
+### 3. Proof upload gating (RULE CHANGE)
 
-### Out of scope (Phase 4)
-- Notification reminders, CSV export, grouping pending requests by resource type.
+`POST /bookings/:id/proofs`:
+- `kind: "before"` — allowed only when booking status ∈ {`approved`,`in_use`} **AND** current server date (Asia/Jakarta) is between `date` and `endDate` inclusive.
+- `kind: "after"` — allowed only when booking status = `in_use` AND today ≤ `endDate`.
+- Reject with `403 { error: "PROOF_NOT_ALLOWED", message: "..." }` otherwise.
 
-### Technical notes
-- No new dependencies. Camera capture relies on the standard `capture` attribute; desktop fallback uses `navigator.mediaDevices.getUserMedia` already supported by all evergreen browsers.
-- All new strings routed through `useT()` so EN/ID stay in sync.
-- Status colors reuse existing Tailwind tokens (e.g. `in_use` → amber, `finished` → indigo) defined in `STATUS_COLOR`.
-- Plan file `.lovable/plan.md` will be updated at the end of the phase to mark Phase 3 done.
+### 4. Start/Finish gating (RULE CHANGE)
+
+- `PUT /bookings/:id/start` — additionally requires `today (Asia/Jakarta) ∈ [date, endDate]`. Error `403 { error: "NOT_START_DAY" }` otherwise.
+- `PUT /bookings/:id/finish` — unchanged apart from photo requirement.
+
+### 5. Notify gating
+
+`POST /bookings/:id/notify` — restrict to bookings with status ∈ {`approved`,`in_use`,`finished`}. Reject otherwise with 400.
+
+### 6. Error contract
+
+All 4xx bodies should be `{ error: string, message: string, details?: any }` so the frontend can surface friendly toasts (currently the overlap error only returns a generic message; frontend can't tell "conflict" from "500").
+
+### 7. Database
+
+No schema changes required — existing `bookings.status` enum already covers `cancelled`/`rejected`. Recommended additions:
+- Index: `create index on public.bookings (resource_id, date, end_date, status);`
+- RLS on `bookings.update`: admin-only for `approve`/`reject`/`revoke`/`close`; owner-only for `cancel` (status ∈ pending|approved).
+
+### 8. TypeScript types delta (frontend will mirror)
+
+```ts
+// added to BookingStatus? — no, reuse "cancelled" for revoke.
+// New response shape from approve:
+export interface ApproveBookingResponse { booking: Booking; autoRejectedIds: string[] }
+// New error payload:
+export interface ApiError { error: string; message: string; details?: unknown }
+```
+
+No new tables, no new columns. Just endpoints + rules.
+
+---
+
+## Part B — Frontend Task Breakdown (credit-aware)
+
+### Chunk 1 — today (fits ≤1 credit)
+Small UX fixes only:
+1. Auto-shift `endTime` = `startTime + 1h` in `BookingForm` when start changes.
+2. Better overlap error toast: parse `error.response.data` and show conflict details.
+3. Gate "Notify User" button — only render when status ∈ {approved, in_use, finished}.
+4. Gate "Mulai Pemakaian" + before-photo uploader — hide unless today is within booking window.
+5. Gate all proof uploaders — hide unless status ∈ {approved, in_use}.
+6. Show "N days" in `my-bookings/$id` header and format range as `Jul 3 09:00 – Jul 6 10:00`.
+7. Make resource name a link in `BookingTable`.
+
+### Chunk 2 — next day
+i18n expansion:
+1. Move every hardcoded string in nav, sidebar, `PageHeader`s, login/register, dashboard, my-bookings, admin pages into `dictionaries.ts`.
+2. Wire `useT()` through all layouts and pages.
+
+### Chunk 3 — day after
+Booking form upgrade:
+1. Show selected resource photo + description under the picker.
+2. Show existing bookings on the chosen date for that resource (mini list).
+3. Add "New booking" dialog to Dashboard (reuse BookingForm).
+4. Update `BookingDetailsDialog` + calendar block rendering to span multi-day correctly.
+
+### Chunk 4 — final
+Business rule wiring (needs backend live OR mockDb update):
+1. Change `mockDb.createBooking` to allow overlapping `pending`.
+2. Change `mockDb.updateBookingStatus('approved')` to auto-reject conflicts + return list.
+3. Add `revokeBooking` mock + `bookingsApi.revoke` + admin "Revoke" button on approved bookings.
+4. Toast for auto-rejected count on approve.
+
+---
+
+## What I need from you
+
+1. Approve this plan → I'll start Chunk 1 immediately (fits today's credits).
+2. Hand Part A to your backend AI.
+3. Ping me tomorrow to continue Chunk 2, etc.

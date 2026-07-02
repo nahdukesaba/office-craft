@@ -28,7 +28,17 @@ export function BookingTable({
         <TableBody>
           {bookings.map((b) => (
             <TableRow key={b.id}>
-              <TableCell className="font-medium">{b.resource?.name ?? b.resourceId}</TableCell>
+              <TableCell className="font-medium">
+                {detailHrefBase === "/admin/bookings" ? (
+                  <Link to="/admin/bookings/$id" params={{ id: b.id }} className="hover:underline">
+                    {b.resource?.name ?? b.resourceId}
+                  </Link>
+                ) : (
+                  <Link to="/my-bookings/$id" params={{ id: b.id }} className="hover:underline">
+                    {b.resource?.name ?? b.resourceId}
+                  </Link>
+                )}
+              </TableCell>
               <TableCell className="hidden sm:table-cell">{b.user?.fullName ?? "-"}</TableCell>
               <TableCell>{fmtDate(b.date)}</TableCell>
               <TableCell className="hidden md:table-cell">{b.startTime} – {b.endTime}</TableCell>
