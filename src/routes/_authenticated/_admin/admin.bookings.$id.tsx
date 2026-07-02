@@ -30,7 +30,7 @@ function AdminBookingReview() {
   const notify = useNotifyBooking();
   const t = useT();
   const [notes, setNotes] = useState("");
-  const canNotify = booking?.status === "approved" || booking?.status === "in_use" || booking?.status === "pending";
+  const canNotify = booking?.status === "approved" || booking?.status === "in_use" || booking?.status === "finished";
 
   if (isLoading || !booking) return <LoadingSkeleton rows={4} />;
 
