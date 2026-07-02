@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProofUploader } from "@/components/bookings/ProofUploader";
 import { ProofGallery } from "@/components/bookings/ProofGallery";
-import { fmtDate, fmtDateTime } from "@/lib/format";
+import { fmtDateTime, fmtBookingRange, daysBetweenInclusive, isTodayInRange } from "@/lib/format";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
@@ -34,11 +34,14 @@ function BookingDetail() {
 
   const hasBefore = (proofs ?? []).some((p) => p.kind === "before");
   const hasAfter = (proofs ?? []).some((p) => p.kind === "after");
+  const inWindow = isTodayInRange(booking.date, booking.endDate);
   const canCancel = booking.status === "pending" || booking.status === "approved";
-  const canStart = booking.status === "approved";
+  const canStart = booking.status === "approved" && inWindow;
   const canFinish = booking.status === "in_use";
-  const showBeforeUploader = booking.status === "pending" || booking.status === "approved";
-  const showAfterUploader = booking.status === "in_use";
+  // Proofs only allowed once approved AND today is within booking window
+  const showBeforeUploader = booking.status === "approved" && inWindow;
+  const showAfterUploader = booking.status === "in_use" && inWindow;
+  const days = daysBetweenInclusive(booking.date, booking.endDate);
 
   return (
     <div className="space-y-6">
@@ -47,7 +50,7 @@ function BookingDetail() {
       </Button>
       <PageHeader
         title={booking.resource?.name ?? "Booking"}
-        description={`${fmtDate(booking.date)} · ${booking.startTime} – ${booking.endTime}`}
+        description={`${fmtBookingRange(booking.date, booking.endDate, booking.startTime, booking.endTime)}${days > 1 ? ` · ${days} days` : ""}`}
         actions={<StatusBadge status={booking.status} />}
       />
       <Card>
@@ -58,10 +61,10 @@ function BookingDetail() {
       </Card>
 
       <div className="flex flex-wrap gap-2">
-        {canStart && (
+        {booking.status === "approved" && (
           <Button
-            disabled={!hasBefore}
-            title={!hasBefore ? "Upload a 'before' photo first" : undefined}
+            disabled={!canStart || !hasBefore}
+            title={!inWindow ? "You can only start on the booked day" : !hasBefore ? "Upload a 'before' photo first" : undefined}
             onClick={async () => {
               try { await start.mutateAsync(booking.id); toast.success("Usage started"); }
               catch (e: unknown) { toast.error(e instanceof Error ? e.message : "Failed"); }
@@ -70,9 +73,9 @@ function BookingDetail() {
             Mulai Pemakaian
           </Button>
         )}
-        {canFinish && (
+        {booking.status === "in_use" && (
           <Button
-            disabled={!hasAfter}
+            disabled={!canFinish || !hasAfter}
             title={!hasAfter ? "Upload an 'after' photo first" : undefined}
             onClick={async () => {
               try { await finish.mutateAsync(booking.id); toast.success("Usage finished"); }
@@ -97,6 +100,12 @@ function BookingDetail() {
 
       <section className="space-y-4">
         <h2 className="text-lg font-semibold">Proof photos</h2>
+        {booking.status === "pending" && (
+          <p className="text-sm text-muted-foreground">Photos can be uploaded once your booking is approved.</p>
+        )}
+        {(booking.status === "approved" || booking.status === "in_use") && !inWindow && (
+          <p className="text-sm text-muted-foreground">Photo upload becomes available on your booked day.</p>
+        )}
         {(showBeforeUploader || showAfterUploader) && (
           <div className="grid gap-4 sm:grid-cols-2">
             {showBeforeUploader && <ProofUploader bookingId={booking.id} kind="before" />}
