@@ -8,6 +8,7 @@ import { LoadingSkeleton } from "@/components/common/LoadingSkeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { useT } from "@/i18n/LanguageProvider";
 
 export const Route = createFileRoute("/_authenticated/resources/$id")({
   head: () => ({ meta: [{ title: "Resource · SILAP Aset" }] }),
@@ -18,13 +19,14 @@ function ResourceDetailPage() {
   const { id } = Route.useParams();
   const { data: resource, isLoading } = useResource(id);
   const { data: bookings } = usePublicBookings({ resourceId: id });
+  const t = useT();
 
   if (isLoading || !resource) return <LoadingSkeleton rows={5} />;
 
   return (
     <div className="space-y-6">
       <Button asChild variant="ghost" size="sm" className="w-fit">
-        <Link to="/resources"><ArrowLeft className="mr-1 size-4" />Back</Link>
+        <Link to="/resources"><ArrowLeft className="mr-1 size-4" />{t("action.back")}</Link>
       </Button>
       <PageHeader title={resource.name} description={resource.description} />
       <div className="grid gap-4 lg:grid-cols-3">
@@ -35,27 +37,27 @@ function ResourceDetailPage() {
           <CardContent className="space-y-2 p-4 text-sm">
             {resource.type === "room" ? (
               <>
-                <p><span className="text-muted-foreground">Location:</span> {resource.location}</p>
-                <p><span className="text-muted-foreground">Capacity:</span> {resource.capacity}</p>
-                <p><span className="text-muted-foreground">Equipment:</span> {resource.equipment.join(", ") || "—"}</p>
+                <p><span className="text-muted-foreground">{t("resource.location")}:</span> {resource.location}</p>
+                <p><span className="text-muted-foreground">{t("resource.capacity")}:</span> {resource.capacity}</p>
+                <p><span className="text-muted-foreground">{t("resource.equipment")}:</span> {resource.equipment.join(", ") || "—"}</p>
               </>
             ) : (
               <>
-                <p><span className="text-muted-foreground">License:</span> {resource.licensePlate}</p>
-                <p><span className="text-muted-foreground">Fuel:</span> {resource.fuelType}</p>
+                <p><span className="text-muted-foreground">{t("resource.license")}:</span> {resource.licensePlate}</p>
+                <p><span className="text-muted-foreground">{t("resource.fuel")}:</span> {resource.fuelType}</p>
               </>
             )}
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <h3 className="mb-3 font-semibold">Request booking</h3>
+            <h3 className="mb-3 font-semibold">{t("resource.requestBooking")}</h3>
             <BookingForm resourceId={resource.id} />
           </CardContent>
         </Card>
       </div>
       <section>
-        <h2 className="mb-3 text-lg font-semibold">Availability</h2>
+        <h2 className="mb-3 text-lg font-semibold">{t("resource.availability")}</h2>
         <CalendarView bookings={bookings ?? []} />
       </section>
     </div>
