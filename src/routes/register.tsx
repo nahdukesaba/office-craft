@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useT } from "@/i18n/LanguageProvider";
 
 export const Route = createFileRoute("/register")({
   head: () => ({ meta: [{ title: "Create account · SILAP Aset" }] }),
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/register")({
 function RegisterPage() {
   const signUp = useSignUp();
   const navigate = useNavigate();
+  const t = useT();
   const form = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: { fullName: "", email: "", password: "" },
@@ -29,24 +31,24 @@ function RegisterPage() {
   async function onSubmit(v: RegisterValues) {
     try {
       await signUp.mutateAsync(v);
-      toast.success("Account created");
+      toast.success(t("auth.accountCreated"));
       navigate({ to: "/dashboard" });
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Registration failed");
+      toast.error(e instanceof Error ? e.message : t("auth.registrationFailed"));
     }
   }
 
   return (
-    <AuthLayout title="Create your account">
+    <AuthLayout title={t("auth.createTitle")}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="space-y-2"><Label>Full name</Label><Input {...form.register("fullName")} /></div>
-        <div className="space-y-2"><Label>Email</Label><Input type="email" {...form.register("email")} /></div>
-        <div className="space-y-2"><Label>Password</Label><Input type="password" {...form.register("password")} /></div>
+        <div className="space-y-2"><Label>{t("auth.fullNameLabel")}</Label><Input {...form.register("fullName")} /></div>
+        <div className="space-y-2"><Label>{t("auth.emailLabel")}</Label><Input type="email" {...form.register("email")} /></div>
+        <div className="space-y-2"><Label>{t("auth.passwordLabel")}</Label><Input type="password" {...form.register("password")} /></div>
         <Button type="submit" disabled={signUp.isPending} className="w-full">
-          {signUp.isPending ? "Creating..." : "Create account"}
+          {signUp.isPending ? t("auth.creating") : t("action.createAccount")}
         </Button>
         <p className="text-center text-sm text-muted-foreground">
-          Already have an account? <Link to="/login" className="text-primary hover:underline">Sign in</Link>
+          {t("auth.haveAccount")} <Link to="/login" className="text-primary hover:underline">{t("action.signIn")}</Link>
         </p>
       </form>
     </AuthLayout>
