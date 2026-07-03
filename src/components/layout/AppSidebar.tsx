@@ -36,7 +36,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild isActive={pathname === item.to || pathname.startsWith(item.to + "/")}>
                     <Link to={item.to} className="flex items-center gap-2">
                       <item.icon className="size-4" />
-                      <span>{item.label}</span>
+                      <span>{t(item.labelKey)}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -54,7 +54,7 @@ export function AppSidebar() {
                     <SidebarMenuButton asChild isActive={pathname === item.to}>
                       <Link to={item.to} className="flex items-center gap-2">
                         <item.icon className="size-4" />
-                        <span>{item.label}</span>
+                      <span>{t(item.labelKey)}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
