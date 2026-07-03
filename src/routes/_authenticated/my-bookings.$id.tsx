@@ -16,6 +16,7 @@ import { ProofGallery } from "@/components/bookings/ProofGallery";
 import { fmtDateTime, fmtBookingRange, daysBetweenInclusive, isTodayInRange } from "@/lib/format";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import { useT } from "@/i18n/LanguageProvider";
 
 export const Route = createFileRoute("/_authenticated/my-bookings/$id")({
   head: () => ({ meta: [{ title: "Booking · SILAP Aset" }] }),
@@ -29,6 +30,7 @@ function BookingDetail() {
   const cancel = useCancelBooking();
   const start = useStartBooking();
   const finish = useFinishBooking();
+  const t = useT();
 
   if (isLoading || !booking) return <LoadingSkeleton rows={4} />;
 
@@ -46,17 +48,17 @@ function BookingDetail() {
   return (
     <div className="space-y-6">
       <Button asChild variant="ghost" size="sm" className="w-fit">
-        <Link to="/my-bookings"><ArrowLeft className="mr-1 size-4" />Back</Link>
+        <Link to="/my-bookings"><ArrowLeft className="mr-1 size-4" />{t("action.back")}</Link>
       </Button>
       <PageHeader
         title={booking.resource?.name ?? "Booking"}
-        description={`${fmtBookingRange(booking.date, booking.endDate, booking.startTime, booking.endTime)}${days > 1 ? ` · ${days} days` : ""}`}
+        description={`${fmtBookingRange(booking.date, booking.endDate, booking.startTime, booking.endTime)}${days > 1 ? ` · ${days} ${t("bookingDetail.daysSuffix")}` : ""}`}
         actions={<StatusBadge status={booking.status} />}
       />
       <Card>
         <CardContent className="space-y-2 p-4 text-sm">
-          <p><span className="text-muted-foreground">Requested:</span> {fmtDateTime(booking.createdAt)}</p>
-          {booking.adminNotes && <p><span className="text-muted-foreground">Admin notes:</span> {booking.adminNotes}</p>}
+          <p><span className="text-muted-foreground">{t("bookingDetail.requested")}:</span> {fmtDateTime(booking.createdAt)}</p>
+          {booking.adminNotes && <p><span className="text-muted-foreground">{t("bookingDetail.adminNotes")}:</span> {booking.adminNotes}</p>}
         </CardContent>
       </Card>
 
@@ -64,47 +66,47 @@ function BookingDetail() {
         {booking.status === "approved" && (
           <Button
             disabled={!canStart || !hasBefore}
-            title={!inWindow ? "You can only start on the booked day" : !hasBefore ? "Upload a 'before' photo first" : undefined}
+            title={!inWindow ? t("bookingDetail.startTitleWindow") : !hasBefore ? t("bookingDetail.startTitleNeedBefore") : undefined}
             onClick={async () => {
-              try { await start.mutateAsync(booking.id); toast.success("Usage started"); }
-              catch (e: unknown) { toast.error(e instanceof Error ? e.message : "Failed"); }
+              try { await start.mutateAsync(booking.id); toast.success(t("bookingDetail.usageStarted")); }
+              catch (e: unknown) { toast.error(e instanceof Error ? e.message : t("bookingDetail.failed")); }
             }}
           >
-            Mulai Pemakaian
+            {t("booking.start")}
           </Button>
         )}
         {booking.status === "in_use" && (
           <Button
             disabled={!canFinish || !hasAfter}
-            title={!hasAfter ? "Upload an 'after' photo first" : undefined}
+            title={!hasAfter ? t("bookingDetail.finishTitleNeedAfter") : undefined}
             onClick={async () => {
-              try { await finish.mutateAsync(booking.id); toast.success("Usage finished"); }
-              catch (e: unknown) { toast.error(e instanceof Error ? e.message : "Failed"); }
+              try { await finish.mutateAsync(booking.id); toast.success(t("bookingDetail.usageFinished")); }
+              catch (e: unknown) { toast.error(e instanceof Error ? e.message : t("bookingDetail.failed")); }
             }}
           >
-            Selesai Pemakaian
+            {t("booking.finish")}
           </Button>
         )}
         {canCancel && (
           <Button
             variant="outline"
             onClick={async () => {
-              try { await cancel.mutateAsync(booking.id); toast.success("Booking cancelled"); }
-              catch (e: unknown) { toast.error(e instanceof Error ? e.message : "Failed"); }
+              try { await cancel.mutateAsync(booking.id); toast.success(t("bookingDetail.cancelled")); }
+              catch (e: unknown) { toast.error(e instanceof Error ? e.message : t("bookingDetail.failed")); }
             }}
           >
-            Cancel booking
+            {t("booking.cancel")}
           </Button>
         )}
       </div>
 
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold">Proof photos</h2>
+        <h2 className="text-lg font-semibold">{t("bookingDetail.proofPhotos")}</h2>
         {booking.status === "pending" && (
-          <p className="text-sm text-muted-foreground">Photos can be uploaded once your booking is approved.</p>
+          <p className="text-sm text-muted-foreground">{t("bookingDetail.pendingHint")}</p>
         )}
         {(booking.status === "approved" || booking.status === "in_use") && !inWindow && (
-          <p className="text-sm text-muted-foreground">Photo upload becomes available on your booked day.</p>
+          <p className="text-sm text-muted-foreground">{t("bookingDetail.windowHint")}</p>
         )}
         {(showBeforeUploader || showAfterUploader) && (
           <div className="grid gap-4 sm:grid-cols-2">
