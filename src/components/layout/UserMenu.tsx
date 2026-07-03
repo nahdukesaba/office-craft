@@ -7,11 +7,13 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { useQueryClient } from "@tanstack/react-query";
 import { LogOut } from "lucide-react";
+import { useT } from "@/i18n/LanguageProvider";
 
 export function UserMenu() {
   const { user, role, signOut } = useAuth();
   const qc = useQueryClient();
   const navigate = useNavigate();
+  const t = useT();
   if (!user) return null;
   const initials = user.fullName.split(" ").map((s) => s[0]).join("").slice(0, 2).toUpperCase();
   return (
@@ -36,7 +38,7 @@ export function UserMenu() {
             navigate({ to: "/login", replace: true });
           }}
         >
-          <LogOut className="mr-2 size-4" /> Sign out
+          <LogOut className="mr-2 size-4" /> {t("action.signOut")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -5,6 +5,7 @@ import { usePublicBookings } from "@/hooks/queries/useBookings";
 import { LoadingSkeleton } from "@/components/common/LoadingSkeleton";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { useT } from "@/i18n/LanguageProvider";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -21,24 +22,25 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   const { isAuthed } = useAuth();
   const { data, isLoading } = usePublicBookings();
+  const t = useT();
 
   return (
     <PublicLayout>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Booking Calendar</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{t("home.title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            See all approved and requested bookings. {isAuthed ? "Open a resource to request a new booking." : "Sign in to request a booking or upload proofs."}
+            {isAuthed ? t("home.descAuth") : t("home.descAnon")}
           </p>
         </div>
         {!isAuthed && (
           <div className="flex gap-2">
-            <Button asChild variant="outline"><Link to="/login">Sign in</Link></Button>
-            <Button asChild><Link to="/register">Create account</Link></Button>
+            <Button asChild variant="outline"><Link to="/login">{t("action.signIn")}</Link></Button>
+            <Button asChild><Link to="/register">{t("action.createAccount")}</Link></Button>
           </div>
         )}
         {isAuthed && (
-          <Button asChild><Link to="/resources">Browse resources</Link></Button>
+          <Button asChild><Link to="/resources">{t("action.browseResources")}</Link></Button>
         )}
       </div>
       {isLoading ? <LoadingSkeleton rows={6} /> : <CalendarView bookings={data ?? []} />}
