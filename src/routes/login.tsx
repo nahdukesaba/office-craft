@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useT } from "@/i18n/LanguageProvider";
 
 export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Sign in · SILAP Aset" }] }),
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/login")({
 function LoginPage() {
   const signIn = useSignIn();
   const navigate = useNavigate();
+  const t = useT();
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "user@example.com", password: "password" },
@@ -29,29 +31,29 @@ function LoginPage() {
   async function onSubmit(v: LoginValues) {
     try {
       await signIn.mutateAsync(v);
-      toast.success("Welcome back");
+      toast.success(t("auth.welcomeBack"));
       navigate({ to: "/dashboard" });
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Sign in failed");
+      toast.error(e instanceof Error ? e.message : t("auth.signInFailed"));
     }
   }
 
   return (
-    <AuthLayout title="Sign in" subtitle="Use admin@example.com or user@example.com to try the demo.">
+    <AuthLayout title={t("auth.signInTitle")} subtitle={t("auth.signInSubtitle")}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2">
-          <Label>Email</Label>
+          <Label>{t("auth.emailLabel")}</Label>
           <Input type="email" {...form.register("email")} />
         </div>
         <div className="space-y-2">
-          <Label>Password</Label>
+          <Label>{t("auth.passwordLabel")}</Label>
           <Input type="password" {...form.register("password")} />
         </div>
         <Button type="submit" disabled={signIn.isPending} className="w-full">
-          {signIn.isPending ? "Signing in..." : "Sign in"}
+          {signIn.isPending ? t("auth.signingIn") : t("action.signIn")}
         </Button>
         <p className="text-center text-sm text-muted-foreground">
-          Don't have an account? <Link to="/register" className="text-primary hover:underline">Create one</Link>
+          {t("auth.noAccount")} <Link to="/register" className="text-primary hover:underline">{t("auth.createOne")}</Link>
         </p>
       </form>
     </AuthLayout>
