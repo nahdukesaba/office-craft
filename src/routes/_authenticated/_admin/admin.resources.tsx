@@ -12,6 +12,7 @@ import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { toast } from "sonner";
 import type { Resource } from "@/types";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import { useT } from "@/i18n/LanguageProvider";
 
 export const Route = createFileRoute("/_authenticated/_admin/admin/resources")({
   head: () => ({ meta: [{ title: "Manage Resources · Admin" }] }),
@@ -26,21 +27,22 @@ function AdminResources() {
   const [createOpen, setCreateOpen] = useState(false);
   const [editing, setEditing] = useState<Resource | null>(null);
   const [deleting, setDeleting] = useState<Resource | null>(null);
+  const t = useT();
 
   return (
     <div className="space-y-4">
       <PageHeader
-        title="Manage Resources"
+        title={t("adminResources.title")}
         actions={
           <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-            <DialogTrigger asChild><Button><Plus className="mr-1 size-4" />New resource</Button></DialogTrigger>
+            <DialogTrigger asChild><Button><Plus className="mr-1 size-4" />{t("adminResources.new")}</Button></DialogTrigger>
             <DialogContent className="max-w-2xl">
-              <DialogHeader><DialogTitle>Create resource</DialogTitle></DialogHeader>
+              <DialogHeader><DialogTitle>{t("adminResources.create")}</DialogTitle></DialogHeader>
               <ResourceForm
                 loading={create.isPending}
                 onSubmit={async (v) => {
-                  try { await create.mutateAsync(v); toast.success("Resource created"); setCreateOpen(false); }
-                  catch (e: unknown) { toast.error(e instanceof Error ? e.message : "Failed"); }
+                  try { await create.mutateAsync(v); toast.success(t("adminResources.created")); setCreateOpen(false); }
+                  catch (e: unknown) { toast.error(e instanceof Error ? e.message : t("bookingDetail.failed")); }
                 }}
               />
             </DialogContent>
@@ -52,18 +54,18 @@ function AdminResources() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t("adminResources.name")}</TableHead>
+                <TableHead>{t("adminResources.type")}</TableHead>
+                <TableHead>{t("adminResources.status")}</TableHead>
+                <TableHead className="text-right">{t("adminResources.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {(data ?? []).map((r) => (
                 <TableRow key={r.id}>
                   <TableCell className="font-medium">{r.name}</TableCell>
-                  <TableCell className="capitalize">{r.type}</TableCell>
-                  <TableCell>{r.isAvailable ? "Available" : "Unavailable"}</TableCell>
+                  <TableCell className="capitalize">{t(`resource.type.${r.type}`)}</TableCell>
+                  <TableCell>{r.isAvailable ? t("resource.available") : t("resource.unavailable")}</TableCell>
                   <TableCell className="text-right space-x-1">
                     <Button size="icon" variant="ghost" onClick={() => setEditing(r)}><Pencil className="size-4" /></Button>
                     <Button size="icon" variant="ghost" onClick={() => setDeleting(r)}><Trash2 className="size-4" /></Button>
@@ -77,14 +79,14 @@ function AdminResources() {
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent className="max-w-2xl">
-          <DialogHeader><DialogTitle>Edit resource</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t("adminResources.edit")}</DialogTitle></DialogHeader>
           {editing && (
             <ResourceForm
               defaultValues={editing}
               loading={update.isPending}
               onSubmit={async (v) => {
-                try { await update.mutateAsync({ id: editing.id, input: v }); toast.success("Updated"); setEditing(null); }
-                catch (e: unknown) { toast.error(e instanceof Error ? e.message : "Failed"); }
+                try { await update.mutateAsync({ id: editing.id, input: v }); toast.success(t("adminResources.updated")); setEditing(null); }
+                catch (e: unknown) { toast.error(e instanceof Error ? e.message : t("bookingDetail.failed")); }
               }}
             />
           )}
@@ -94,13 +96,13 @@ function AdminResources() {
       <ConfirmDialog
         open={!!deleting}
         onOpenChange={(o) => !o && setDeleting(null)}
-        title="Delete resource?"
-        description="This cannot be undone."
-        confirmLabel="Delete"
+        title={t("adminResources.deleteQ")}
+        description={t("adminResources.deleteDesc")}
+        confirmLabel={t("action.delete")}
         onConfirm={async () => {
           if (!deleting) return;
-          try { await remove.mutateAsync(deleting.id); toast.success("Deleted"); }
-          catch (e: unknown) { toast.error(e instanceof Error ? e.message : "Failed"); }
+          try { await remove.mutateAsync(deleting.id); toast.success(t("adminResources.deleted")); }
+          catch (e: unknown) { toast.error(e instanceof Error ? e.message : t("bookingDetail.failed")); }
           setDeleting(null);
         }}
       />
