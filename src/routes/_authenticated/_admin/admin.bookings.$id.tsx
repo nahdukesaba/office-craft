@@ -42,7 +42,7 @@ function AdminBookingReview() {
   return (
     <div className="space-y-6">
       <Button asChild variant="ghost" size="sm" className="w-fit">
-        <Link to="/admin/bookings"><ArrowLeft className="mr-1 size-4" />Back</Link>
+        <Link to="/admin/bookings"><ArrowLeft className="mr-1 size-4" />{t("action.back")}</Link>
       </Button>
       <PageHeader
         title={booking.resource?.name ?? "Booking"}
@@ -52,21 +52,21 @@ function AdminBookingReview() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardContent className="space-y-2 p-4 text-sm">
-            <p className="font-semibold">Requester</p>
+            <p className="font-semibold">{t("adminBookingDetail.requester")}</p>
             <p>{booking.user?.fullName}</p>
             <p className="text-muted-foreground">{booking.user?.email}</p>
-            <p className="pt-2 text-muted-foreground">Requested {fmtDateTime(booking.createdAt)}</p>
-            {booking.adminNotes && <p>Notes: {booking.adminNotes}</p>}
+            <p className="pt-2 text-muted-foreground">{t("bookingDetail.requested")} {fmtDateTime(booking.createdAt)}</p>
+            {booking.adminNotes && <p>{t("bookingDetail.adminNotes")}: {booking.adminNotes}</p>}
           </CardContent>
         </Card>
         <Card>
           <CardContent className="space-y-3 p-4">
-            <p className="text-sm font-semibold">Admin notes</p>
-            <Textarea placeholder="Optional notes for the requester" value={notes} onChange={(e) => setNotes(e.target.value)} />
+            <p className="text-sm font-semibold">{t("bookingDetail.adminNotes")}</p>
+            <Textarea placeholder={t("adminBookingDetail.notesPlaceholder")} value={notes} onChange={(e) => setNotes(e.target.value)} />
             <div className="flex flex-wrap gap-2">
-              <Button disabled={booking.status !== "pending"} onClick={() => act(() => approve.mutateAsync({ id: booking.id, notes }), "Approved")}>Approve</Button>
-              <Button variant="destructive" disabled={booking.status !== "pending"} onClick={() => act(() => reject.mutateAsync({ id: booking.id, notes }), "Rejected")}>Reject</Button>
-              <Button variant="outline" disabled={booking.status !== "finished"} onClick={() => act(() => close.mutateAsync({ id: booking.id, notes }), "Closed")}>Mark completed</Button>
+              <Button disabled={booking.status !== "pending"} onClick={() => act(() => approve.mutateAsync({ id: booking.id, notes }), t("adminBookingDetail.approved"))}>{t("action.approve")}</Button>
+              <Button variant="destructive" disabled={booking.status !== "pending"} onClick={() => act(() => reject.mutateAsync({ id: booking.id, notes }), t("adminBookingDetail.rejected"))}>{t("action.reject")}</Button>
+              <Button variant="outline" disabled={booking.status !== "finished"} onClick={() => act(() => close.mutateAsync({ id: booking.id, notes }), t("adminBookingDetail.closed"))}>{t("action.markCompleted")}</Button>
               <Button
                 variant="secondary"
                 disabled={!canNotify || notify.isPending}
@@ -77,14 +77,14 @@ function AdminBookingReview() {
             </div>
             {booking.status !== "finished" && booking.status !== "completed" && (
               <p className="text-xs text-muted-foreground">
-                You can only close bookings that the user has finished.
+                {t("booking.closeOnlyFinished")}
               </p>
             )}
           </CardContent>
         </Card>
       </div>
       <section>
-        <h2 className="mb-3 text-lg font-semibold">Proof photos</h2>
+        <h2 className="mb-3 text-lg font-semibold">{t("bookingDetail.proofPhotos")}</h2>
         <ProofGallery proofs={proofs ?? []} />
       </section>
     </div>
