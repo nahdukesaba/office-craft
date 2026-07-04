@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/useAuth";
 import { useCreateBooking } from "@/hooks/mutations/useBookingMutations";
 import { useResources } from "@/hooks/queries/useResources";
-import { useResource } from "@/hooks/queries/useResources";
 import { usePublicBookings } from "@/hooks/queries/useBookings";
 import { CircularTimePicker } from "./CircularTimePicker";
 import { toast } from "sonner";
@@ -28,7 +27,7 @@ export function BookingForm({
   const { user } = useAuth();
   const create = useCreateBooking();
   const showResourcePicker = !resourceId;
-  const { data: resources } = useResources(showResourcePicker ? {} : { type: "all" });
+  const { data: resources } = useResources({});
   const form = useForm<BookingValues>({
     resolver: zodResolver(bookingSchema) as never,
     defaultValues: {
@@ -52,7 +51,7 @@ export function BookingForm({
   const selectedDate = form.watch("date");
   const numDays = form.watch("numberOfDays") || 1;
   const rangeEnd = formatISO(addDays(new Date(selectedDate || new Date()), Math.max(1, numDays) - 1), { representation: "date" });
-  const { data: selectedResource } = useResource(selectedResourceId || "__none__");
+  const selectedResource = (resources ?? []).find((r) => r.id === selectedResourceId);
   const { data: sameDayBookings } = usePublicBookings(
     selectedResourceId ? { resourceId: selectedResourceId } : {},
   );
