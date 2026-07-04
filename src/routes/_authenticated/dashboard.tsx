@@ -8,6 +8,7 @@ import { BookingTable } from "@/components/bookings/BookingTable";
 import { LoadingSkeleton } from "@/components/common/LoadingSkeleton";
 import { Boxes, Clock, CheckCircle2, ClipboardList } from "lucide-react";
 import { useT } from "@/i18n/LanguageProvider";
+import { NewBookingDialog } from "@/components/bookings/NewBookingDialog";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard · SILAP Aset" }] }),
@@ -22,7 +23,11 @@ function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title={`${t("dashboard.welcome")}, ${user?.fullName ?? ""}`} description={t("dashboard.subtitle")} />
+      <PageHeader
+        title={`${t("dashboard.welcome")}, ${user?.fullName ?? ""}`}
+        description={t("dashboard.subtitle")}
+        actions={<NewBookingDialog />}
+      />
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label={t("dashboard.stats.resources")} value={stats?.totalResources ?? "—"} icon={Boxes} />
         <StatCard label={t("dashboard.stats.pending")} value={stats?.pending ?? "—"} icon={Clock} />

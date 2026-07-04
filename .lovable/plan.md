@@ -88,7 +88,7 @@ i18n expansion:
 1. Move every hardcoded string in nav, sidebar, `PageHeader`s, login/register, dashboard, my-bookings, admin pages into `dictionaries.ts`.
 2. Wire `useT()` through all layouts and pages.
 
-### Chunk 3 — day after
+### Chunk 3 — DONE
 Booking form upgrade:
 1. Show selected resource photo + description under the picker.
 2. Show existing bookings on the chosen date for that resource (mini list).

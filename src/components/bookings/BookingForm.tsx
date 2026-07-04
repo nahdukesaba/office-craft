@@ -8,11 +8,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/useAuth";
 import { useCreateBooking } from "@/hooks/mutations/useBookingMutations";
 import { useResources } from "@/hooks/queries/useResources";
+import { usePublicBookings } from "@/hooks/queries/useBookings";
 import { CircularTimePicker } from "./CircularTimePicker";
 import { toast } from "sonner";
 import { addDays, formatISO } from "date-fns";
-import { addHoursHHmm } from "@/lib/format";
+import { addHoursHHmm, fmtBookingRange } from "@/lib/format";
 import { useEffect, useRef } from "react";
+import { StatusBadge } from "@/components/common/StatusBadge";
+import { colorForResource } from "@/lib/colors";
 
 export function BookingForm({
   resourceId,
@@ -24,7 +27,7 @@ export function BookingForm({
   const { user } = useAuth();
   const create = useCreateBooking();
   const showResourcePicker = !resourceId;
-  const { data: resources } = useResources(showResourcePicker ? {} : { type: "all" });
+  const { data: resources } = useResources({});
   const form = useForm<BookingValues>({
     resolver: zodResolver(bookingSchema) as never,
     defaultValues: {
@@ -43,6 +46,21 @@ export function BookingForm({
       form.setValue("endTime", addHoursHHmm(startTime, 1), { shouldValidate: true });
     }
   }, [startTime, form]);
+
+  const selectedResourceId = form.watch("resourceId");
+  const selectedDate = form.watch("date");
+  const numDays = form.watch("numberOfDays") || 1;
+  const rangeEnd = formatISO(addDays(new Date(selectedDate || new Date()), Math.max(1, numDays) - 1), { representation: "date" });
+  const selectedResource = (resources ?? []).find((r) => r.id === selectedResourceId);
+  const { data: sameDayBookings } = usePublicBookings(
+    selectedResourceId ? { resourceId: selectedResourceId } : {},
+  );
+  const overlappingBookings = (sameDayBookings ?? []).filter((b) => {
+    if (!selectedResourceId || b.resourceId !== selectedResourceId) return false;
+    const bEnd = b.endDate ?? b.date;
+    // any date overlap between [selectedDate, rangeEnd] and [b.date, bEnd]
+    return !(bEnd < selectedDate || b.date > rangeEnd);
+  });
 
   async function onSubmit(values: BookingValues) {
     if (!user) return;
@@ -101,6 +119,22 @@ export function BookingForm({
           )}
         </div>
       )}
+      {selectedResource && (
+        <div className="overflow-hidden rounded-lg border border-border bg-card">
+          {selectedResource.photoUrl && (
+            <img src={selectedResource.photoUrl} alt={selectedResource.name} className="aspect-video w-full object-cover" />
+          )}
+          <div className="space-y-1 p-3 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="inline-block size-3 rounded-full" style={{ background: colorForResource(selectedResource.id, selectedResource) }} />
+              <span className="font-medium">{selectedResource.name}</span>
+            </div>
+            {selectedResource.description && (
+              <p className="text-xs text-muted-foreground line-clamp-2">{selectedResource.description}</p>
+            )}
+          </div>
+        </div>
+      )}
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-2">
           <Label>Start date</Label>
@@ -132,6 +166,30 @@ export function BookingForm({
           )}
         </div>
       </div>
+      {selectedResourceId && overlappingBookings.length > 0 && (
+        <div className="space-y-2 rounded-md border border-border bg-muted/30 p-3">
+          <p className="text-xs font-medium text-muted-foreground">
+            Existing bookings overlapping this date range ({overlappingBookings.length})
+          </p>
+          <ul className="space-y-1.5 text-xs">
+            {overlappingBookings.slice(0, 5).map((b) => (
+              <li key={b.id} className="flex items-center justify-between gap-2">
+                <span className="truncate">
+                  {fmtBookingRange(b.date, b.endDate, b.startTime, b.endTime)}
+                  {b.user?.fullName && <span className="text-muted-foreground"> · {b.user.fullName}</span>}
+                </span>
+                <StatusBadge status={b.status} />
+              </li>
+            ))}
+            {overlappingBookings.length > 5 && (
+              <li className="text-[11px] text-muted-foreground">+{overlappingBookings.length - 5} more</li>
+            )}
+          </ul>
+          <p className="text-[11px] text-muted-foreground">
+            You may still submit a request; overlapping pending requests are allowed until one is approved.
+          </p>
+        </div>
+      )}
       <Button type="submit" disabled={create.isPending} className="w-full">
         {create.isPending ? "Submitting..." : "Request booking"}
       </Button>

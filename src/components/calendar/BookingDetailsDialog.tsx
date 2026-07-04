@@ -5,6 +5,7 @@ import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
 import type { Booking } from "@/types";
 import { colorForResource } from "@/lib/colors";
+import { fmtBookingRange, daysBetweenInclusive } from "@/lib/format";
 
 export function BookingDetailsDialog({
   booking,
@@ -28,8 +29,7 @@ export function BookingDetailsDialog({
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-2 text-sm">
-          <div className="flex justify-between"><span className="text-muted-foreground">Date</span><span>{booking.date}</span></div>
-          <div className="flex justify-between"><span className="text-muted-foreground">Time</span><span>{booking.startTime} – {booking.endTime}</span></div>
+          <div className="flex justify-between gap-3"><span className="text-muted-foreground">When</span><span className="text-right">{fmtBookingRange(booking.date, booking.endDate, booking.startTime, booking.endTime)}{daysBetweenInclusive(booking.date, booking.endDate) > 1 && ` · ${daysBetweenInclusive(booking.date, booking.endDate)} days`}</span></div>
           <div className="flex justify-between"><span className="text-muted-foreground">Status</span><StatusBadge status={booking.status} /></div>
           <div className="flex justify-between"><span className="text-muted-foreground">Booked by</span><span>{booking.user?.fullName ?? "—"}</span></div>
           {booking.resource?.type === "room" && (

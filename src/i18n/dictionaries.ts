@@ -159,6 +159,7 @@ const en: Dict = {
   "booking.needBeforePhoto": "Upload a 'before' photo to start usage.",
   "booking.needAfterPhoto": "Upload an 'after' photo to finish usage.",
   "booking.closeOnlyFinished": "You can only close bookings that the user has finished.",
+  "booking.new": "New booking",
 
   "admin.export": "Export bookings",
   "admin.exportTitle": "Export bookings (CSV)",
@@ -325,6 +326,7 @@ const id: Dict = {
   "booking.needBeforePhoto": "Unggah foto 'sebelum' untuk memulai pemakaian.",
   "booking.needAfterPhoto": "Unggah foto 'sesudah' untuk menyelesaikan pemakaian.",
   "booking.closeOnlyFinished": "Hanya pemesanan yang telah diselesaikan pengguna yang dapat ditutup.",
+  "booking.new": "Pemesanan baru",
 
   "admin.export": "Ekspor pemesanan",
   "admin.exportTitle": "Ekspor pemesanan (CSV)",
