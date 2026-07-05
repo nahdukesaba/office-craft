@@ -3,6 +3,8 @@ import { mockDb } from "@/services/mocks/db";
 import { http } from "@/services/http";
 import type { Booking, BookingFilters, CreateBookingInput, Paginated } from "@/types";
 
+export interface ApproveBookingResponse { booking: Booking; autoRejectedIds: string[] }
+
 export const bookingsApi = {
   async list(filters: BookingFilters & { userId?: string } = {}): Promise<Paginated<Booking>> {
     if (env.useMocks) return mockDb.listBookings(filters);
@@ -20,8 +22,8 @@ export const bookingsApi = {
     return data;
   },
   async approve(id: string, adminNotes?: string) {
-    if (env.useMocks) return mockDb.updateBookingStatus(id, "approved", adminNotes);
-    const { data } = await http.put<Booking>(`/bookings/${id}/approve`, { adminNotes });
+    if (env.useMocks) return mockDb.approveBooking(id, adminNotes);
+    const { data } = await http.put<ApproveBookingResponse>(`/bookings/${id}/approve`, { adminNotes });
     return data;
   },
   async reject(id: string, adminNotes?: string) {
@@ -37,6 +39,11 @@ export const bookingsApi = {
   async cancel(id: string) {
     if (env.useMocks) return mockDb.cancelBooking(id);
     const { data } = await http.put<Booking>(`/bookings/${id}/cancel`);
+    return data;
+  },
+  async revoke(id: string, adminNotes?: string) {
+    if (env.useMocks) return mockDb.revokeBooking(id, adminNotes);
+    const { data } = await http.put<Booking>(`/bookings/${id}/revoke`, { adminNotes });
     return data;
   },
   async start(id: string) {
