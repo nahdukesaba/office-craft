@@ -123,6 +123,9 @@ const en: Dict = {
   "adminBookingDetail.approved": "Approved",
   "adminBookingDetail.rejected": "Rejected",
   "adminBookingDetail.closed": "Closed",
+  "adminBookingDetail.revoked": "Booking revoked",
+  "adminBookingDetail.autoRejected": "other request(s) auto-rejected",
+  "action.revoke": "Revoke",
 
   "theme.toggle": "Toggle theme",
   "theme.light": "Light",
