@@ -26,7 +26,10 @@ export const useApproveBooking = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, notes }: { id: string; notes?: string }) => bookingsApi.approve(id, notes),
-    onSuccess: () => qc.invalidateQueries({ queryKey: qk.bookings.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.bookings.all });
+      qc.invalidateQueries({ queryKey: qk.public.bookings() });
+    },
   });
 };
 
@@ -35,6 +38,17 @@ export const useRejectBooking = () => {
   return useMutation({
     mutationFn: ({ id, notes }: { id: string; notes?: string }) => bookingsApi.reject(id, notes),
     onSuccess: () => qc.invalidateQueries({ queryKey: qk.bookings.all }),
+  });
+};
+
+export const useRevokeBooking = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, notes }: { id: string; notes?: string }) => bookingsApi.revoke(id, notes),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.bookings.all });
+      qc.invalidateQueries({ queryKey: qk.public.bookings() });
+    },
   });
 };
 
