@@ -123,6 +123,9 @@ const en: Dict = {
   "adminBookingDetail.approved": "Approved",
   "adminBookingDetail.rejected": "Rejected",
   "adminBookingDetail.closed": "Closed",
+  "adminBookingDetail.revoked": "Booking revoked",
+  "adminBookingDetail.autoRejected": "other request(s) auto-rejected",
+  "action.revoke": "Revoke",
 
   "theme.toggle": "Toggle theme",
   "theme.light": "Light",
@@ -290,6 +293,9 @@ const id: Dict = {
   "adminBookingDetail.approved": "Disetujui",
   "adminBookingDetail.rejected": "Ditolak",
   "adminBookingDetail.closed": "Ditutup",
+  "adminBookingDetail.revoked": "Pemesanan dibatalkan admin",
+  "adminBookingDetail.autoRejected": "permintaan lain ditolak otomatis",
+  "action.revoke": "Batalkan",
 
   "theme.toggle": "Ubah tema",
   "theme.light": "Terang",

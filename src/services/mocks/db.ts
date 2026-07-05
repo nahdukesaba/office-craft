@@ -154,6 +154,55 @@ export const mockDb = {
     bookings[idx] = { ...bookings[idx], status, adminNotes, updatedAt: nowIso() };
     return hydrateBooking(bookings[idx]);
   },
+  async approveBooking(id: string, adminNotes?: string): Promise<{ booking: Booking; autoRejectedIds: string[] }> {
+    await delay();
+    const idx = bookings.findIndex((b) => b.id === id);
+    if (idx === -1) throw { status: 404, message: "Booking not found" };
+    const target = bookings[idx];
+    const overlaps = (aStart: string, aEnd: string, bStart: string, bEnd: string) =>
+      !(aEnd < bStart || aStart > bEnd);
+    const tEndDate = target.endDate ?? target.date;
+    // Reject if any other booking on this resource is already approved/in_use/finished and overlaps
+    const blocking = bookings.find((b) => {
+      if (b.id === target.id) return false;
+      if (b.resourceId !== target.resourceId) return false;
+      if (b.status !== "approved" && b.status !== "in_use" && b.status !== "finished") return false;
+      const bEndDate = b.endDate ?? b.date;
+      if (!overlaps(target.date, tEndDate, b.date, bEndDate)) return false;
+      return !(target.endTime <= b.startTime || target.startTime >= b.endTime);
+    });
+    if (blocking) {
+      throw { status: 409, error: "BOOKING_CONFLICT", message: "Another booking is already approved for this slot" };
+    }
+    // Approve
+    bookings[idx] = { ...target, status: "approved", adminNotes, updatedAt: nowIso() };
+    // Auto-reject all other pending overlapping bookings
+    const autoRejectedIds: string[] = [];
+    bookings = bookings.map((b) => {
+      if (b.id === target.id) return b;
+      if (b.resourceId !== target.resourceId) return b;
+      if (b.status !== "pending") return b;
+      const bEndDate = b.endDate ?? b.date;
+      if (!overlaps(target.date, tEndDate, b.date, bEndDate)) return b;
+      if (target.endTime <= b.startTime || target.startTime >= b.endTime) return b;
+      autoRejectedIds.push(b.id);
+      return { ...b, status: "rejected", adminNotes: "Auto-rejected: slot approved for another request", updatedAt: nowIso() };
+    });
+    return { booking: hydrateBooking(bookings[idx]), autoRejectedIds };
+  },
+  async revokeBooking(id: string, adminNotes?: string): Promise<Booking> {
+    await delay();
+    const idx = bookings.findIndex((b) => b.id === id);
+    if (idx === -1) throw { status: 404, message: "Booking not found" };
+    const b = bookings[idx];
+    if (b.status !== "approved" && b.status !== "in_use") {
+      throw { status: 409, message: "Only approved or in-use bookings can be revoked" };
+    }
+    const prefix = "Revoked by admin";
+    const notes = adminNotes ? `${prefix}: ${adminNotes}` : prefix;
+    bookings[idx] = { ...b, status: "cancelled", adminNotes: notes, updatedAt: nowIso() };
+    return hydrateBooking(bookings[idx]);
+  },
   async cancelBooking(id: string) {
     const b = bookings.find((x) => x.id === id);
     if (!b) throw { status: 404, message: "Booking not found" };
