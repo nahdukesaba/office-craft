@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useBooking } from "@/hooks/queries/useBookings";
 import { useProofs } from "@/hooks/queries/useProofs";
-import { useApproveBooking, useCloseBooking, useRejectBooking, useNotifyBooking } from "@/hooks/mutations/useBookingMutations";
+import { useApproveBooking, useCloseBooking, useRejectBooking, useNotifyBooking, useRevokeBooking } from "@/hooks/mutations/useBookingMutations";
 import { useT } from "@/i18n/LanguageProvider";
 import { LoadingSkeleton } from "@/components/common/LoadingSkeleton";
 import { PageHeader } from "@/components/common/PageHeader";
@@ -28,6 +28,7 @@ function AdminBookingReview() {
   const reject = useRejectBooking();
   const close = useCloseBooking();
   const notify = useNotifyBooking();
+  const revoke = useRevokeBooking();
   const t = useT();
   const [notes, setNotes] = useState("");
   const canNotify = booking?.status === "approved" || booking?.status === "in_use" || booking?.status === "finished";
@@ -38,6 +39,8 @@ function AdminBookingReview() {
     try { await fn(); toast.success(msg); }
     catch (e: unknown) { toast.error(e instanceof Error ? e.message : "Failed"); }
   };
+
+  const canRevoke = booking.status === "approved" || booking.status === "in_use";
 
   return (
     <div className="space-y-6">
@@ -64,9 +67,33 @@ function AdminBookingReview() {
             <p className="text-sm font-semibold">{t("bookingDetail.adminNotes")}</p>
             <Textarea placeholder={t("adminBookingDetail.notesPlaceholder")} value={notes} onChange={(e) => setNotes(e.target.value)} />
             <div className="flex flex-wrap gap-2">
-              <Button disabled={booking.status !== "pending"} onClick={() => act(() => approve.mutateAsync({ id: booking.id, notes }), t("adminBookingDetail.approved"))}>{t("action.approve")}</Button>
+              <Button
+                disabled={booking.status !== "pending"}
+                onClick={async () => {
+                  try {
+                    const res = await approve.mutateAsync({ id: booking.id, notes });
+                    const count = res?.autoRejectedIds?.length ?? 0;
+                    toast.success(
+                      count > 0
+                        ? `${t("adminBookingDetail.approved")} · ${count} ${t("adminBookingDetail.autoRejected")}`
+                        : t("adminBookingDetail.approved"),
+                    );
+                  } catch (e: unknown) {
+                    toast.error(e instanceof Error ? e.message : "Failed");
+                  }
+                }}
+              >
+                {t("action.approve")}
+              </Button>
               <Button variant="destructive" disabled={booking.status !== "pending"} onClick={() => act(() => reject.mutateAsync({ id: booking.id, notes }), t("adminBookingDetail.rejected"))}>{t("action.reject")}</Button>
               <Button variant="outline" disabled={booking.status !== "finished"} onClick={() => act(() => close.mutateAsync({ id: booking.id, notes }), t("adminBookingDetail.closed"))}>{t("action.markCompleted")}</Button>
+              <Button
+                variant="destructive"
+                disabled={!canRevoke || revoke.isPending}
+                onClick={() => act(() => revoke.mutateAsync({ id: booking.id, notes: notes || undefined }), t("adminBookingDetail.revoked"))}
+              >
+                {t("action.revoke")}
+              </Button>
               <Button
                 variant="secondary"
                 disabled={!canNotify || notify.isPending}
