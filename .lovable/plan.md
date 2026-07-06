@@ -1,111 +1,116 @@
-# Backend Changes Spec + Frontend Task Breakdown
+# Backend Integration Plan — Office-Craft API
 
-Only ~1.2 daily credits remain. I'll deliver the backend spec + task breakdown now, then implement in chunks over the next days.
+Goal: replace the in-memory mock (`src/services/mocks/db.ts`) with real HTTP calls to `https://ephsilalahi.tailf32e23.ts.net/api`, add the new flows the backend requires (admin approval of registrations, real notifications, timeline, reports), and keep the UI working throughout.
 
----
-
-## Part A — Backend Changes (hand to backend AI)
-
-### 1. Booking overlap semantics (NEW RULE)
-
-Multiple `pending` bookings may exist on the same resource/time window. An `approved` booking is exclusive: it blocks any other approval on an overlapping window, and on approval **auto-rejects** every other `pending` booking that overlaps.
-
-- `POST /bookings` — no longer rejects on overlap with `pending`. Still rejects if overlap with an `approved`/`in_use`/`finished` booking. Error response shape:
-  ```json
-  { "error": "BOOKING_CONFLICT",
-    "message": "Slot already approved for another user",
-    "conflictWith": { "id": "...", "userFullName": "...", "startTime": "...", "endTime": "...", "date": "...", "endDate": "..." } }
-  ```
-- `PUT /bookings/:id/approve` — server transaction:
-  1. verify no other overlapping booking is already `approved`/`in_use`/`finished`
-  2. set this booking `approved`
-  3. update all other `pending` bookings whose window overlaps → `rejected` with `adminNotes = "Auto-rejected: slot approved for another request"`
-  4. return `{ booking, autoRejectedIds: string[] }`
-
-### 2. Admin revoke approved booking (NEW ENDPOINT)
-
-`PUT /bookings/:id/revoke` (admin)
-- Allowed from statuses: `approved`, `in_use`
-- Body: `{ adminNotes?: string, reason?: string }`
-- Transitions booking → `cancelled` with `adminNotes` prefixed `"Revoked by admin: "`
-- Should trigger a notification to the owner (same channel as `/notify`).
-- Response: full `Booking`.
-
-### 3. Proof upload gating (RULE CHANGE)
-
-`POST /bookings/:id/proofs`:
-- `kind: "before"` — allowed only when booking status ∈ {`approved`,`in_use`} **AND** current server date (Asia/Jakarta) is between `date` and `endDate` inclusive.
-- `kind: "after"` — allowed only when booking status = `in_use` AND today ≤ `endDate`.
-- Reject with `403 { error: "PROOF_NOT_ALLOWED", message: "..." }` otherwise.
-
-### 4. Start/Finish gating (RULE CHANGE)
-
-- `PUT /bookings/:id/start` — additionally requires `today (Asia/Jakarta) ∈ [date, endDate]`. Error `403 { error: "NOT_START_DAY" }` otherwise.
-- `PUT /bookings/:id/finish` — unchanged apart from photo requirement.
-
-### 5. Notify gating
-
-`POST /bookings/:id/notify` — restrict to bookings with status ∈ {`approved`,`in_use`,`finished`}. Reject otherwise with 400.
-
-### 6. Error contract
-
-All 4xx bodies should be `{ error: string, message: string, details?: any }` so the frontend can surface friendly toasts (currently the overlap error only returns a generic message; frontend can't tell "conflict" from "500").
-
-### 7. Database
-
-No schema changes required — existing `bookings.status` enum already covers `cancelled`/`rejected`. Recommended additions:
-- Index: `create index on public.bookings (resource_id, date, end_date, status);`
-- RLS on `bookings.update`: admin-only for `approve`/`reject`/`revoke`/`close`; owner-only for `cancel` (status ∈ pending|approved).
-
-### 8. TypeScript types delta (frontend will mirror)
-
-```ts
-// added to BookingStatus? — no, reuse "cancelled" for revoke.
-// New response shape from approve:
-export interface ApproveBookingResponse { booking: Booking; autoRejectedIds: string[] }
-// New error payload:
-export interface ApiError { error: string; message: string; details?: unknown }
-```
-
-No new tables, no new columns. Just endpoints + rules.
+Guiding rules
+- Field names / endpoints mirror the doc exactly — no invented shapes.
+- Flip `env.useMocks = false` only at the end of a chunk that leaves the app runnable; before that, wire endpoint-by-endpoint behind the existing `env.useMocks` switch.
+- Each chunk is sized to comfortably fit one day of free build credits (~roughly the size of previous Phase-4 chunks). If a chunk feels tight mid-build, stop at the last runnable checkpoint and resume next day.
 
 ---
 
-## Part B — Frontend Task Breakdown (credit-aware)
+## Chunk 1 — Types, HTTP client, auth wiring (small)
 
-### Chunk 1 — today (fits ≤1 credit)
-Small UX fixes only:
-1. Auto-shift `endTime` = `startTime + 1h` in `BookingForm` when start changes.
-2. Better overlap error toast: parse `error.response.data` and show conflict details.
-3. Gate "Notify User" button — only render when status ∈ {approved, in_use, finished}.
-4. Gate "Mulai Pemakaian" + before-photo uploader — hide unless today is within booking window.
-5. Gate all proof uploaders — hide unless status ∈ {approved, in_use}.
-6. Show "N days" in `my-bookings/$id` header and format range as `Jul 3 09:00 – Jul 6 10:00`.
-7. Make resource name a link in `BookingTable`.
+Foundational so every later chunk just calls `bookingsApi.x()` etc.
 
-### Chunk 2 — next day
-i18n expansion:
-1. Move every hardcoded string in nav, sidebar, `PageHeader`s, login/register, dashboard, my-bookings, admin pages into `dictionaries.ts`.
-2. Wire `useT()` through all layouts and pages.
+1. Update `src/types/index.ts`
+   - Add `phone`, `status: "pending"|"approved"|"rejected"` to `AppUser`.
+   - Change `Booking` to use ISO `startTime`/`endTime` (full timestamps) + `date`/`endDate` (YYYY-MM-DD, Asia/Jakarta), `purpose`, `adminNotes: string`.
+   - Add `BookingWithDetails`, `PaginatedBookings`, `PublicBooking`, `TimelineEntry`, `NotifyResult`, `ApproveBookingResponse`, `BookingInsights`, `ApiError`.
+2. `src/lib/env.ts` — read `VITE_API_BASE_URL`, default to the Tailscale URL; keep `useMocks` env-driven.
+3. `src/lib/errors.ts` — parse `{error, message, details}` shape into `ApiError` (keep `.code`, `.message`, `.details`); expose helper `isCode(e, "BOOKING_CONFLICT")`.
+4. `src/services/http.ts` — already correct shape; verify `Authorization: Bearer <token>` from `authStore` and 401 → signOut.
+5. Add `GET /health` smoke-test helper (used by a dev-only banner if it fails).
 
-### Chunk 3 — DONE
-Booking form upgrade:
-1. Show selected resource photo + description under the picker.
-2. Show existing bookings on the chosen date for that resource (mini list).
-3. Add "New booking" dialog to Dashboard (reuse BookingForm).
-4. Update `BookingDetailsDialog` + calendar block rendering to span multi-day correctly.
-
-### Chunk 4 — final
-Business rule wiring (needs backend live OR mockDb update):
-1. Change `mockDb.createBooking` to allow overlapping `pending`.
-2. Change `mockDb.updateBookingStatus('approved')` to auto-reject conflicts + return list.
-3. Add `revokeBooking` mock + `bookingsApi.revoke` + admin "Revoke" button on approved bookings.
-4. Toast for auto-rejected count on approve.
+Deliverable: build passes, no behavior change (mocks still on).
 
 ---
 
-## What I need from you
+## Chunk 2 — Auth + approval gating (medium)
 
-1. Approve this plan → I'll start Chunk 1 immediately (fits today's credits).
-2. Hand Part A to your backend AI.
-3. Ping me tomorrow to continue Chunk 2, etc.
+1. `src/services/api/auth.api.ts` — real `POST /auth/login`, `POST /auth/register`, `GET /auth/me`.
+   - Register no longer returns a token; do NOT auto-login.
+2. `src/stores/authStore.ts` — store `user.status`; add `isPending`, `isRejected` selectors.
+3. New routes:
+   - `src/routes/auth.pending.tsx` — "Awaiting admin approval" screen.
+   - `src/routes/auth.rejected.tsx` — "Access declined" screen.
+4. `login.tsx` — on 403 `ACCOUNT_PENDING_APPROVAL` → route to `/auth/pending`; on `ACCOUNT_REJECTED` → `/auth/rejected`; other errors → toast `message`.
+5. `register.tsx` — add optional `phone` field (digits-only hint, e.g. `6281234567890`), show pending screen on success.
+6. `_authenticated/route.tsx` — if `user.status !== "approved"` redirect to the matching screen.
+7. i18n keys for the new screens + phone hint.
+
+Turn off mocks for auth only (`if (env.useMocks && !endpointLive) …`), keep the rest on mocks.
+
+---
+
+## Chunk 3 — Users admin (small–medium)
+
+1. `src/services/api/users.api.ts` — `list({status})`, `approve(id)`, `reject(id)`.
+2. `src/hooks/queries/useUsers.ts` + `src/hooks/mutations/useUserMutations.ts`.
+3. New route `src/routes/_authenticated/_admin/admin.users.tsx`
+   - Tabs: Pending / Approved / Rejected.
+   - Table: name, email, phone, createdAt, actions (Approve/Reject with confirm).
+4. Add sidebar entry + i18n.
+
+---
+
+## Chunk 4 — Resources + Bookings core (large — split if credits run low)
+
+Split checkpoint: 4a resources, then 4b bookings.
+
+**4a Resources**
+- `resources.api.ts` → real `GET/POST/PUT/DELETE /resources`.
+- Reshape `Resource` union to match doc (`amenities`, `seats`, `location` required, `photoUrl` optional).
+- Update `ResourceForm`, `ResourceCard`, `resources.$id.tsx`, admin resources page.
+
+**4b Bookings CRUD + list/detail**
+- `bookings.api.ts` → real `GET /bookings` (paginated), `GET /bookings/:id`, `POST /bookings` (send `resourceId, startTime, endTime, purpose` — construct ISO timestamps from date+time inputs, Asia/Jakarta), `PUT cancel`.
+- `BookingForm` — add `purpose` textarea; compose `startTime`/`endTime` as ISO; on 409 `BOOKING_CONFLICT` show details dialog (owner name, window).
+- `BookingTable` / `GroupedBookingTable` / list pages — read `data` + `totalPages`; adopt server pagination.
+- `my-bookings.$id.tsx` / `admin.bookings.$id.tsx` — read new `Booking` shape (ISO times + `purpose`).
+
+Public calendar continues on mocks until chunk 6.
+
+---
+
+## Chunk 5 — Booking actions + proofs + timeline (medium–large)
+
+1. `bookings.api.ts` → `approve` (returns `{booking, autoRejectedIds}`), `reject({note})`, `revoke({adminNotes, reason})`, `start`, `finish`, `notify({note})`, `history()`.
+2. `useBookingMutations.ts` — surface `autoRejectedIds` in `useApproveBooking` toast; on notify show `emailSent` / `whatsAppSent` split status (with error hint when phone missing).
+3. Proofs — new flow:
+   - Upload file directly to Supabase Storage from browser (add `@supabase/supabase-js`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` as secrets), then `POST /bookings/:id/proofs` with `{kind, path}`.
+   - Gate Start button until `before` upload 201s.
+4. New `BookingTimeline` component consuming `GET /bookings/:id/history`; render on booking detail (both user and admin).
+5. Admin detail: add optional note textarea for reject / revoke / notify.
+6. Remove any client-side "click Notify after approving" step — approve/reject/revoke now auto-notify.
+
+---
+
+## Chunk 6 — Public calendar + stats + reports (medium)
+
+1. `public.api.ts` → `GET /public/bookings/all`, `/public/bookings/resource/:id`. Map `PublicBooking` into calendar block shape.
+2. Remove `usePublicBookings` mock fallback; calendar view now unauthenticated.
+3. `stats.api.ts` → `GET /stats/overview`; update admin dashboard cards to real fields (`totalUsers`, `bookingsByStatus`, etc.).
+4. New `src/routes/_authenticated/_admin/admin.reports.tsx`
+   - Date range picker (from/to).
+   - "Export CSV" button — fetch as blob with `Authorization` header, `URL.createObjectURL`, trigger download with the server-provided filename.
+   - Insights charts using existing `recharts`: byStatus (donut), byResourceType (bar), byDay (line), byResource (horizontal bar), topUsers (table), autoRejected % stat card.
+5. Delete `src/services/mocks/*` and remove `env.useMocks` branches; flip default to real API.
+
+---
+
+## Chunk 7 — Polish & verification (small)
+
+- Error boundaries: map every documented error code to a friendly toast (`VALIDATION_ERROR`, `PAST_BOOKING`, `NOT_START_DAY`, `PHOTO_REQUIRED`, `NOTIFY_NOT_ALLOWED`, …).
+- i18n sweep for all new strings (EN + ID).
+- README section: env vars (`VITE_API_BASE_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`), CORS reminder for the Tailscale host.
+- Manual smoke test checklist against a live backend: health, register → pending screen, admin approve, login, create booking, approve (autoReject toast), upload before → start, upload after → finish, notify, revoke, reports CSV download.
+
+---
+
+### Secrets/config to set before Chunk 2
+
+- `VITE_API_BASE_URL` = `https://ephsilalahi.tailf32e23.ts.net/api`
+- `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (Chunk 5, for direct Storage upload) — you'll need to paste these from your Supabase project.
+
+Tell me to start on **Chunk 1** whenever you're ready.
