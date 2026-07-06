@@ -10,12 +10,20 @@ export type BookingStatus =
   | "cancelled";
 export type ProofKind = "before" | "after";
 
+export type UserStatus = "pending" | "approved" | "rejected";
+
 export interface AppUser {
   id: string;
   email: string;
   fullName: string;
   role: Role;
   avatarUrl?: string;
+  /** Optional — backend registration flow. Undefined in legacy/mock users. */
+  phone?: string | null;
+  /** Optional — backend approval status. Undefined in legacy/mock users. */
+  status?: UserStatus;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ResourceBase {
@@ -140,4 +148,101 @@ export interface CreateResourceInput {
 export interface AuthSession {
   token: string;
   user: AppUser;
+}
+
+/* ---------------------------------------------------------------------------
+ * Backend-shaped types (Office-Craft API).
+ * These sit alongside the legacy mock-shaped types until later integration
+ * chunks migrate call sites over. Field names/shapes mirror the API doc.
+ * ------------------------------------------------------------------------- */
+
+export interface ApiBooking {
+  id: string;
+  resourceId: string;
+  userId: string;
+  startTime: string; // ISO 8601
+  endTime: string; // ISO 8601
+  date: string; // YYYY-MM-DD (Asia/Jakarta)
+  endDate: string; // YYYY-MM-DD (Asia/Jakarta)
+  status: Exclude<BookingStatus, "completed">;
+  purpose: string;
+  adminNotes: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BookingWithDetails extends ApiBooking {
+  resource?: Resource;
+  user?: AppUser;
+}
+
+export interface PaginatedBookings {
+  data: BookingWithDetails[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface PublicBooking {
+  id: string;
+  resourceId: string;
+  startTime: string;
+  endTime: string;
+  status: "pending" | "approved" | "in_use" | "finished";
+}
+
+export interface ApproveBookingResponse {
+  booking: BookingWithDetails;
+  autoRejectedIds: string[];
+}
+
+export interface NotifyResult {
+  booking: ApiBooking;
+  emailSent: boolean;
+  emailError?: string;
+  whatsAppSent: boolean;
+  whatsAppError?: string;
+}
+
+export type TimelineEntry =
+  | {
+      type: "status_change";
+      timestamp: string;
+      actorId?: string;
+      actor?: AppUser;
+      eventType:
+        | "created"
+        | "approved"
+        | "auto_rejected"
+        | "rejected"
+        | "started"
+        | "finished"
+        | "cancelled"
+        | "revoked";
+      fromStatus?: string;
+      toStatus: string;
+      notes?: string;
+    }
+  | {
+      type: "proof_uploaded";
+      timestamp: string;
+      actorId?: string;
+      actor?: AppUser;
+      proofId: string;
+      proofKind: ProofKind;
+      proofPath: string;
+    };
+
+export interface BookingInsights {
+  from: string;
+  to: string;
+  totalBookings: number;
+  byStatus: Record<string, number>;
+  byResourceType: Record<string, number>;
+  byResource: { resourceId: string; resourceName: string; count: number }[];
+  byDay: { date: string; count: number }[];
+  averageDurationMinutes: number;
+  topUsers: { userId: string; fullName: string; count: number }[];
+  autoRejectedCount: number;
 }
