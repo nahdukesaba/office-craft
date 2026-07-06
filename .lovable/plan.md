@@ -11,6 +11,8 @@ Guiding rules
 
 ## Chunk 1 — Types, HTTP client, auth wiring (small)
 
+**STATUS: DONE**
+
 Foundational so every later chunk just calls `bookingsApi.x()` etc.
 
 1. Update `src/types/index.ts`
