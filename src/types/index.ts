@@ -118,6 +118,7 @@ export interface RegisterInput {
   email: string;
   password: string;
   fullName: string;
+  phone?: string;
 }
 
 export interface CreateBookingInput {

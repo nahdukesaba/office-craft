@@ -28,3 +28,5 @@ export const useAuthStore = create<AuthState>()(
 
 export const selectIsAdmin = (s: AuthState) => s.role === "admin";
 export const selectIsAuthed = (s: AuthState) => !!s.token && !!s.user;
+export const selectIsPending = (s: AuthState) => s.user?.status === "pending";
+export const selectIsRejected = (s: AuthState) => s.user?.status === "rejected";
