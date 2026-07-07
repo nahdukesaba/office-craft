@@ -30,6 +30,8 @@ Deliverable: build passes, no behavior change (mocks still on).
 
 ## Chunk 2 — Auth + approval gating (medium)
 
+**STATUS: DONE**
+
 1. `src/services/api/auth.api.ts` — real `POST /auth/login`, `POST /auth/register`, `GET /auth/me`.
    - Register no longer returns a token; do NOT auto-login.
 2. `src/stores/authStore.ts` — store `user.status`; add `isPending`, `isRejected` selectors.
