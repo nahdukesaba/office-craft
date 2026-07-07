@@ -165,7 +165,7 @@ function MonthGrid({
                         borderStyle: s.borderStyle,
                         opacity: s.opacity,
                       }}
-                      className="block w-full truncate rounded border px-1 py-0.5 text-left text-[10px] hover:brightness-110"
+                      className="block w-full truncate rounded border px-1 py-0.5 text-left text-[10px] transition-[filter] hover:brightness-110"
                       title={`${e.resource?.name ?? ""} · ${e.startTime}-${e.endTime} · ${e.user?.fullName ?? ""}`}
                     >
                       <span className="font-medium">{e.startTime}</span>{" "}
@@ -252,7 +252,7 @@ function WeekGrid({
                       key={e.id}
                       type="button"
                       onClick={() => onSelect(e)}
-                      className="absolute left-1 right-1 overflow-hidden rounded-md border px-1.5 py-1 text-left text-[10px] leading-tight shadow-sm hover:brightness-110"
+                      className="absolute left-1 right-1 overflow-hidden rounded-md border px-1.5 py-1 text-left text-[10px] leading-tight shadow-sm transition-[filter] hover:brightness-110"
                       style={{
                         top,
                         height,
