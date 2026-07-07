@@ -5,7 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import type { Resource } from "@/types";
 import { useT } from "@/i18n/LanguageProvider";
@@ -35,8 +41,14 @@ export function ResourceForm({
       location: defaultValues && defaultValues.type === "room" ? defaultValues.location : "",
       capacity: defaultValues && defaultValues.type === "room" ? defaultValues.capacity : 1,
       equipment: defaultValues && defaultValues.type === "room" ? defaultValues.equipment : [],
-      licensePlate: defaultValues && (defaultValues.type === "car" || defaultValues.type === "bike") ? defaultValues.licensePlate : "",
-      fuelType: defaultValues && (defaultValues.type === "car" || defaultValues.type === "bike") ? defaultValues.fuelType : "gasoline",
+      licensePlate:
+        defaultValues && (defaultValues.type === "car" || defaultValues.type === "bike")
+          ? defaultValues.licensePlate
+          : "",
+      fuelType:
+        defaultValues && (defaultValues.type === "car" || defaultValues.type === "bike")
+          ? defaultValues.fuelType
+          : "gasoline",
       engineCc: defaultValues && defaultValues.type === "bike" ? defaultValues.engineCc : undefined,
     },
   });
@@ -49,8 +61,13 @@ export function ResourceForm({
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label>Type</Label>
-          <Select value={type} onValueChange={(v) => form.setValue("type", v as "room" | "car" | "bike")}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+          <Select
+            value={type}
+            onValueChange={(v) => form.setValue("type", v as "room" | "car" | "bike")}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="room">{t("resource.type.room")}</SelectItem>
               <SelectItem value="car">{t("resource.type.car")}</SelectItem>
@@ -90,8 +107,15 @@ export function ResourceForm({
           </div>
           <div className="space-y-2">
             <Label>Fuel</Label>
-            <Select value={form.watch("fuelType")} onValueChange={(v) => form.setValue("fuelType", v as "gasoline" | "diesel" | "electric" | "hybrid")}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+            <Select
+              value={form.watch("fuelType")}
+              onValueChange={(v) =>
+                form.setValue("fuelType", v as "gasoline" | "diesel" | "electric" | "hybrid")
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="gasoline">Gasoline</SelectItem>
                 <SelectItem value="diesel">Diesel</SelectItem>
@@ -113,8 +137,13 @@ export function ResourceForm({
           </div>
           <div className="space-y-2">
             <Label>Fuel</Label>
-            <Select value={form.watch("fuelType")} onValueChange={(v) => form.setValue("fuelType", v as "gasoline" | "electric")}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+            <Select
+              value={form.watch("fuelType")}
+              onValueChange={(v) => form.setValue("fuelType", v as "gasoline" | "electric")}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="gasoline">Gasoline</SelectItem>
                 <SelectItem value="electric">Electric</SelectItem>
@@ -124,7 +153,10 @@ export function ResourceForm({
         </div>
       )}
       <div className="flex items-center gap-3">
-        <Switch checked={form.watch("isAvailable")} onCheckedChange={(v) => form.setValue("isAvailable", v)} />
+        <Switch
+          checked={form.watch("isAvailable")}
+          onCheckedChange={(v) => form.setValue("isAvailable", v)}
+        />
         <Label>Available for booking</Label>
       </div>
       <div className="space-y-2">
@@ -153,16 +185,12 @@ export function ResourceForm({
               style={{ background: c }}
             />
           ))}
-          <Input
-            type="color"
-            value={color || "#2563eb"}
-            onChange={(e) => form.setValue("color", e.target.value)}
-            className="h-7 w-12 p-1"
-          />
         </div>
       </div>
       <div className="flex justify-end">
-        <Button type="submit" disabled={loading}>{submitLabel}</Button>
+        <Button type="submit" disabled={loading}>
+          {submitLabel}
+        </Button>
       </div>
     </form>
   );

@@ -11,9 +11,11 @@ export const bookingSchema = z
     numberOfDays: z.coerce.number().int().min(1).max(30).default(1),
   })
   .refine((v) => diffMinutes(v.startTime, v.endTime) > 0, {
-    message: "End must be after start", path: ["endTime"],
+    message: "End must be after start",
+    path: ["endTime"],
   })
   .refine((v) => diffMinutes(v.startTime, v.endTime) <= BOOKING_MAX_DURATION_MIN, {
-    message: `Max ${BOOKING_MAX_DURATION_MIN / 60}h`, path: ["endTime"],
+    message: `Max ${BOOKING_MAX_DURATION_MIN / 60}h`,
+    path: ["endTime"],
   });
 export type BookingValues = z.infer<typeof bookingSchema>;

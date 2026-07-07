@@ -18,7 +18,7 @@ export function ResourceCard({ resource }: { resource: Resource }) {
     <Link
       to="/resources/$id"
       params={{ id: resource.id }}
-      className="group block focus:outline-none"
+      className="group block rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
     >
       <Card className="overflow-hidden transition-shadow group-hover:shadow-md">
         <div className="aspect-video w-full overflow-hidden bg-muted">

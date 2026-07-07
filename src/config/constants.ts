@@ -4,12 +4,12 @@ export const BOOKING_TIME_STEP_MIN = 30;
 export const BOOKING_MAX_DURATION_MIN = 240;
 
 export const STATUS_COLOR: Record<BookingStatus, string> = {
-  pending: "bg-yellow-500/15 text-yellow-700 dark:text-yellow-300 border-yellow-500/30",
-  approved: "bg-green-500/15 text-green-700 dark:text-green-300 border-green-500/30",
-  in_use: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30",
-  finished: "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30",
-  rejected: "bg-red-500/15 text-red-700 dark:text-red-300 border-red-500/30",
-  completed: "bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30",
+  pending: "bg-chart-5/15 text-chart-5 border-chart-5/30",
+  approved: "bg-chart-2/15 text-chart-2 border-chart-2/30",
+  in_use: "bg-chart-1/15 text-chart-1 border-chart-1/30",
+  finished: "bg-chart-3/15 text-chart-3 border-chart-3/30",
+  rejected: "bg-destructive/15 text-destructive border-destructive/30",
+  completed: "bg-chart-4/15 text-chart-4 border-chart-4/30",
   cancelled: "bg-muted text-muted-foreground border-border",
 };
 
