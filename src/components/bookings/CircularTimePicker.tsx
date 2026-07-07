@@ -51,7 +51,7 @@ export function CircularTimePicker({
           <button
             type="button"
             onClick={() => setMode("hour")}
-            className={cn("rounded px-2 py-0.5", mode === "hour" ? "bg-primary text-primary-foreground" : "text-muted-foreground")}
+            className={cn("rounded px-2 py-0.5 transition-colors", mode === "hour" ? "bg-primary text-primary-foreground" : "text-muted-foreground")}
           >
             {String(h).padStart(2, "0")}
           </button>
@@ -59,7 +59,7 @@ export function CircularTimePicker({
           <button
             type="button"
             onClick={() => setMode("minute")}
-            className={cn("rounded px-2 py-0.5", mode === "minute" ? "bg-primary text-primary-foreground" : "text-muted-foreground")}
+            className={cn("rounded px-2 py-0.5 transition-colors", mode === "minute" ? "bg-primary text-primary-foreground" : "text-muted-foreground")}
           >
             {String(m).padStart(2, "0")}
           </button>
@@ -152,9 +152,9 @@ function ClockDial({
       onPointerMove={(e) => dragging && fromPointer(e)}
     >
       <circle cx={cx} cy={cy} r={rOuter + 12} className="fill-muted" />
-      <line x1={cx} y1={cy} x2={handPos.x} y2={handPos.y} className="stroke-primary" strokeWidth={2} />
+      <line x1={cx} y1={cy} x2={handPos.x} y2={handPos.y} className="stroke-primary transition-all duration-150 ease-out" strokeWidth={2} />
       <circle cx={cx} cy={cy} r={3} className="fill-primary" />
-      <circle cx={handPos.x} cy={handPos.y} r={14} className="fill-primary" />
+      <circle cx={handPos.x} cy={handPos.y} r={14} className="fill-primary transition-all duration-150 ease-out" />
       {outer.map((n, i) => {
         const p = pos(rOuter, i, outer.length);
         const isSel = n === selected;
