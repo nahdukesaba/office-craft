@@ -14,6 +14,8 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRejectedRouteImport } from './routes/auth.rejected'
+import { Route as AuthPendingRouteImport } from './routes/auth.pending'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/_admin/route'
 import { Route as AuthenticatedResourcesIndexRouteImport } from './routes/_authenticated/resources.index'
@@ -47,6 +49,16 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRejectedRoute = AuthRejectedRouteImport.update({
+  id: '/auth/rejected',
+  path: '/auth/rejected',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthPendingRoute = AuthPendingRouteImport.update({
+  id: '/auth/pending',
+  path: '/auth/pending',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
@@ -113,6 +125,8 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/auth/pending': typeof AuthPendingRoute
+  '/auth/rejected': typeof AuthRejectedRoute
   '/my-bookings/$id': typeof AuthenticatedMyBookingsIdRoute
   '/resources/$id': typeof AuthenticatedResourcesIdRoute
   '/my-bookings/': typeof AuthenticatedMyBookingsIndexRoute
@@ -128,6 +142,8 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/auth/pending': typeof AuthPendingRoute
+  '/auth/rejected': typeof AuthRejectedRoute
   '/my-bookings/$id': typeof AuthenticatedMyBookingsIdRoute
   '/resources/$id': typeof AuthenticatedResourcesIdRoute
   '/my-bookings': typeof AuthenticatedMyBookingsIndexRoute
@@ -146,6 +162,8 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/_authenticated/_admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/auth/pending': typeof AuthPendingRoute
+  '/auth/rejected': typeof AuthRejectedRoute
   '/_authenticated/my-bookings/$id': typeof AuthenticatedMyBookingsIdRoute
   '/_authenticated/resources/$id': typeof AuthenticatedResourcesIdRoute
   '/_authenticated/my-bookings/': typeof AuthenticatedMyBookingsIndexRoute
@@ -163,6 +181,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/dashboard'
+    | '/auth/pending'
+    | '/auth/rejected'
     | '/my-bookings/$id'
     | '/resources/$id'
     | '/my-bookings/'
@@ -178,6 +198,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/dashboard'
+    | '/auth/pending'
+    | '/auth/rejected'
     | '/my-bookings/$id'
     | '/resources/$id'
     | '/my-bookings'
@@ -195,6 +217,8 @@ export interface FileRouteTypes {
     | '/register'
     | '/_authenticated/_admin'
     | '/_authenticated/dashboard'
+    | '/auth/pending'
+    | '/auth/rejected'
     | '/_authenticated/my-bookings/$id'
     | '/_authenticated/resources/$id'
     | '/_authenticated/my-bookings/'
@@ -211,6 +235,8 @@ export interface RootRouteChildren {
   CalendarRoute: typeof CalendarRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
+  AuthPendingRoute: typeof AuthPendingRoute
+  AuthRejectedRoute: typeof AuthRejectedRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -248,6 +274,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/rejected': {
+      id: '/auth/rejected'
+      path: '/auth/rejected'
+      fullPath: '/auth/rejected'
+      preLoaderRoute: typeof AuthRejectedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/pending': {
+      id: '/auth/pending'
+      path: '/auth/pending'
+      fullPath: '/auth/pending'
+      preLoaderRoute: typeof AuthPendingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/dashboard': {
@@ -373,6 +413,8 @@ const rootRouteChildren: RootRouteChildren = {
   CalendarRoute: CalendarRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
+  AuthPendingRoute: AuthPendingRoute,
+  AuthRejectedRoute: AuthRejectedRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

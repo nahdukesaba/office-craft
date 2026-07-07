@@ -25,17 +25,26 @@ export const mockDb = {
   async signIn(email: string, _password: string) {
     await delay();
     const user = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
-    if (!user) throw { status: 401, message: "Invalid credentials" };
+    if (!user) throw { status: 401, message: "Invalid credentials", error: "INVALID_CREDENTIALS" };
+    if (user.status === "pending") throw { status: 403, message: "Account pending approval", error: "ACCOUNT_PENDING_APPROVAL" };
+    if (user.status === "rejected") throw { status: 403, message: "Account rejected", error: "ACCOUNT_REJECTED" };
     return { token: `mock-token.${user.id}`, user };
   },
-  async signUp(input: { email: string; password: string; fullName: string }) {
+  async signUp(input: { email: string; password: string; fullName: string; phone?: string }) {
     await delay();
     if (users.some((u) => u.email.toLowerCase() === input.email.toLowerCase())) {
-      throw { status: 409, message: "Email already exists" };
+      throw { status: 409, message: "Email already exists", error: "EMAIL_TAKEN" };
     }
-    const user: AppUser = { id: uid("u"), email: input.email, fullName: input.fullName, role: "user" };
+    const user: AppUser = {
+      id: uid("u"),
+      email: input.email,
+      fullName: input.fullName,
+      role: "user",
+      phone: input.phone,
+      status: "pending",
+    };
     users.push(user);
-    return { token: `mock-token.${user.id}`, user };
+    return { user };
   },
   async me(token: string | null) {
     await delay(50);

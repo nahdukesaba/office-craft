@@ -9,9 +9,10 @@ export const authApi = {
     const { data } = await http.post<AuthSession>("/auth/login", input);
     return data;
   },
-  async signUp(input: RegisterInput): Promise<AuthSession> {
+  /** Register returns just the created user (no token); admin must approve. */
+  async signUp(input: RegisterInput): Promise<{ user: AppUser }> {
     if (env.useMocks) return mockDb.signUp(input);
-    const { data } = await http.post<AuthSession>("/auth/register", input);
+    const { data } = await http.post<{ user: AppUser }>("/auth/register", input);
     return data;
   },
   async me(token: string | null): Promise<AppUser | null> {

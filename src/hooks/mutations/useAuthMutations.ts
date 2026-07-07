@@ -11,10 +11,11 @@ export const useSignIn = () => {
   });
 };
 
-export const useSignUp = () => {
-  const setSession = useAuthStore((s) => s.setSession);
-  return useMutation({
+/**
+ * Register does NOT auto-login. The backend returns just the created user;
+ * an admin must approve the account before it can sign in.
+ */
+export const useSignUp = () =>
+  useMutation({
     mutationFn: (input: RegisterInput) => authApi.signUp(input),
-    onSuccess: (s) => setSession(s),
   });
-};
