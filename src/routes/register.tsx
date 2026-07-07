@@ -25,14 +25,14 @@ function RegisterPage() {
   const t = useT();
   const form = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { fullName: "", email: "", password: "" },
+    defaultValues: { fullName: "", email: "", password: "", phone: "" },
   });
 
   async function onSubmit(v: RegisterValues) {
     try {
       await signUp.mutateAsync(v);
       toast.success(t("auth.accountCreated"));
-      navigate({ to: "/dashboard" });
+      navigate({ to: "/auth/pending" });
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : t("auth.registrationFailed"));
     }
@@ -44,6 +44,19 @@ function RegisterPage() {
         <div className="space-y-2"><Label>{t("auth.fullNameLabel")}</Label><Input {...form.register("fullName")} /></div>
         <div className="space-y-2"><Label>{t("auth.emailLabel")}</Label><Input type="email" {...form.register("email")} /></div>
         <div className="space-y-2"><Label>{t("auth.passwordLabel")}</Label><Input type="password" {...form.register("password")} /></div>
+        <div className="space-y-2">
+          <Label>{t("auth.phoneLabel")}</Label>
+          <Input
+            type="tel"
+            inputMode="numeric"
+            placeholder="6281234567890"
+            {...form.register("phone")}
+          />
+          {form.formState.errors.phone && (
+            <p className="text-xs text-destructive">{form.formState.errors.phone.message}</p>
+          )}
+          <p className="text-xs text-muted-foreground">{t("auth.phoneHint")}</p>
+        </div>
         <Button type="submit" disabled={signUp.isPending} className="w-full">
           {signUp.isPending ? t("auth.creating") : t("action.createAccount")}
         </Button>

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useT } from "@/i18n/LanguageProvider";
+import { isApiCode } from "@/lib/errors";
 
 export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Sign in · SILAP Aset" }] }),
@@ -34,6 +35,14 @@ function LoginPage() {
       toast.success(t("auth.welcomeBack"));
       navigate({ to: "/dashboard" });
     } catch (e: unknown) {
+      if (isApiCode(e, "ACCOUNT_PENDING_APPROVAL")) {
+        navigate({ to: "/auth/pending" });
+        return;
+      }
+      if (isApiCode(e, "ACCOUNT_REJECTED")) {
+        navigate({ to: "/auth/rejected" });
+        return;
+      }
       toast.error(e instanceof Error ? e.message : t("auth.signInFailed"));
     }
   }

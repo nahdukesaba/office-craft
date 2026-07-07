@@ -9,6 +9,8 @@ export const Route = createFileRoute("/_authenticated")({
     if (!token || !user) {
       throw redirect({ to: "/login", search: { redirect: location.href } });
     }
+    if (user.status === "pending") throw redirect({ to: "/auth/pending" });
+    if (user.status === "rejected") throw redirect({ to: "/auth/rejected" });
   },
   component: () => (
     <MainLayout>
