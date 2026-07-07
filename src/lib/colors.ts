@@ -1,14 +1,14 @@
 import type { Resource } from "@/types";
 
 export const RESOURCE_PALETTE = [
-  "#2563eb", // blue
-  "#9333ea", // violet
-  "#0d9488", // teal
-  "#ea580c", // orange
-  "#db2777", // pink
-  "#65a30d", // lime
-  "#0891b2", // cyan
-  "#b45309", // amber
+  "#86700A", // gold   — brand hue (Khaki family)
+  "#4C8141", // green
+  "#007D71", // cyan
+  "#007EA2", // teal   — brand hue (Midnight Green family)
+  "#5F6BB1", // indigo
+  "#8E5B99", // magenta
+  "#A65469", // red
+  "#A45C31", // orange
 ];
 
 const cache = new Map<string, string>();
