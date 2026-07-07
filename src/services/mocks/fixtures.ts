@@ -1,8 +1,8 @@
 import type { AppUser, Booking, Proof, Resource } from "@/types";
 
 export const seedUsers: AppUser[] = [
-  { id: "u_admin", email: "admin@example.com", fullName: "Alex Admin", role: "admin" },
-  { id: "u_user", email: "user@example.com", fullName: "Uma User", role: "user" },
+  { id: "u_admin", email: "admin@example.com", fullName: "Alex Admin", role: "admin", status: "approved" },
+  { id: "u_user", email: "user@example.com", fullName: "Uma User", role: "user", status: "approved" },
 ];
 
 export const seedResources: Resource[] = [
