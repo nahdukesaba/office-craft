@@ -1,5 +1,4 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Boxes } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarHeader, SidebarFooter, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
@@ -7,6 +6,7 @@ import {
 import { NAV_ITEMS } from "@/config/nav";
 import { useAuth } from "@/hooks/useAuth";
 import { HeaderControls } from "@/components/common/HeaderControls";
+import { BrandMark } from "@/components/layout/BrandMark";
 import { useT } from "@/i18n/LanguageProvider";
 
 export function AppSidebar() {
@@ -19,12 +19,8 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="flex flex-row items-start gap-2 px-3 py-3">
-        <Boxes className="mt-0.5 size-5 shrink-0 text-primary" />
-        <span className="flex min-w-0 flex-col leading-tight">
-          <span className="truncate text-sm font-semibold">{t("app.name")}</span>
-          <span className="truncate text-[10px] text-muted-foreground">{t("app.fullName")}</span>
-        </span>
+      <SidebarHeader className="px-3 py-3">
+        <BrandMark />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
