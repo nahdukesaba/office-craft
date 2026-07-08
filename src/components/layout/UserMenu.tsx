@@ -35,7 +35,7 @@ export function UserMenu() {
             await qc.cancelQueries();
             qc.clear();
             signOut();
-            navigate({ to: "/login", replace: true });
+            navigate({ to: "/", replace: true });
           }}
         >
           <LogOut className="mr-2 size-4" /> {t("action.signOut")}

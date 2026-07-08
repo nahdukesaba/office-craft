@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PublicLayout } from "@/layouts/PublicLayout";
+import { MainLayout } from "@/layouts/MainLayout";
 import { CalendarView } from "@/components/calendar/CalendarView";
 import { usePublicBookings } from "@/hooks/queries/useBookings";
 import { LoadingSkeleton } from "@/components/common/LoadingSkeleton";
@@ -11,7 +12,11 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Booking Calendar · SILAP Aset" },
-      { name: "description", content: "Browse the public booking calendar for rooms and cars. Sign in to request a booking or upload proofs." },
+      {
+        name: "description",
+        content:
+          "Browse the public booking calendar for rooms and cars. Sign in to request a booking or upload proofs.",
+      },
       { property: "og:title", content: "Booking Calendar · SILAP Aset" },
       { property: "og:description", content: "See who has booked which resource and when." },
     ],
@@ -23,9 +28,10 @@ function HomePage() {
   const { isAuthed } = useAuth();
   const { data, isLoading } = usePublicBookings();
   const t = useT();
+  const Layout = isAuthed ? MainLayout : PublicLayout;
 
   return (
-    <PublicLayout>
+    <Layout>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">{t("home.title")}</h1>
@@ -35,15 +41,21 @@ function HomePage() {
         </div>
         {!isAuthed && (
           <div className="flex gap-2">
-            <Button asChild variant="outline"><Link to="/login">{t("action.signIn")}</Link></Button>
-            <Button asChild><Link to="/register">{t("action.createAccount")}</Link></Button>
+            <Button asChild variant="outline">
+              <Link to="/login">{t("action.signIn")}</Link>
+            </Button>
+            <Button asChild>
+              <Link to="/register">{t("action.createAccount")}</Link>
+            </Button>
           </div>
         )}
         {isAuthed && (
-          <Button asChild><Link to="/resources">{t("action.browseResources")}</Link></Button>
+          <Button asChild>
+            <Link to="/resources">{t("action.browseResources")}</Link>
+          </Button>
         )}
       </div>
       {isLoading ? <LoadingSkeleton rows={6} /> : <CalendarView bookings={data ?? []} />}
-    </PublicLayout>
+    </Layout>
   );
 }
