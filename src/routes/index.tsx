@@ -49,11 +49,6 @@ function HomePage() {
             </Button>
           </div>
         )}
-        {isAuthed && (
-          <Button asChild>
-            <Link to="/resources">{t("action.browseResources")}</Link>
-          </Button>
-        )}
       </div>
       {isLoading ? <LoadingSkeleton rows={6} /> : <CalendarView bookings={data ?? []} />}
     </Layout>
