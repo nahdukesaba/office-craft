@@ -11,7 +11,7 @@ import { useT } from "@/i18n/LanguageProvider";
 import { NewBookingDialog } from "@/components/bookings/NewBookingDialog";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard · SILAP Aset" }] }),
+  head: () => ({ meta: [{ title: "Dashboard · SILAPET" }] }),
   component: Dashboard,
 });
 

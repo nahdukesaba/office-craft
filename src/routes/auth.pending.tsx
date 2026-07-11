@@ -5,7 +5,7 @@ import { useT } from "@/i18n/LanguageProvider";
 import { useAuthStore } from "@/stores/authStore";
 
 export const Route = createFileRoute("/auth/pending")({
-  head: () => ({ meta: [{ title: "Awaiting approval · SILAP Aset" }] }),
+  head: () => ({ meta: [{ title: "Awaiting approval · SILAPET" }] }),
   component: PendingPage,
 });
 

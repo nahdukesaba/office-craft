@@ -5,7 +5,7 @@ import { useT } from "@/i18n/LanguageProvider";
 import { useAuthStore } from "@/stores/authStore";
 
 export const Route = createFileRoute("/auth/rejected")({
-  head: () => ({ meta: [{ title: "Access declined · SILAP Aset" }] }),
+  head: () => ({ meta: [{ title: "Access declined · SILAPET" }] }),
   component: RejectedPage,
 });
 

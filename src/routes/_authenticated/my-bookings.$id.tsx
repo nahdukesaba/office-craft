@@ -19,7 +19,7 @@ import { toast } from "sonner";
 import { useT } from "@/i18n/LanguageProvider";
 
 export const Route = createFileRoute("/_authenticated/my-bookings/$id")({
-  head: () => ({ meta: [{ title: "Booking · SILAP Aset" }] }),
+  head: () => ({ meta: [{ title: "Booking · SILAPET" }] }),
   component: BookingDetail,
 });
 

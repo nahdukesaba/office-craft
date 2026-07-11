@@ -9,7 +9,7 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { useT } from "@/i18n/LanguageProvider";
 
 export const Route = createFileRoute("/_authenticated/resources/")({
-  head: () => ({ meta: [{ title: "Resources · SILAP Aset" }] }),
+  head: () => ({ meta: [{ title: "Resources · SILAPET" }] }),
   component: ResourcesPage,
 });
 

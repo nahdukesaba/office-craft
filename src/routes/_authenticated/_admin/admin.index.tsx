@@ -11,7 +11,7 @@ import { ExportBookingsDialog } from "@/components/admin/ExportBookingsDialog";
 import { useT } from "@/i18n/LanguageProvider";
 
 export const Route = createFileRoute("/_authenticated/_admin/admin/")({
-  head: () => ({ meta: [{ title: "Admin · SILAP Aset" }] }),
+  head: () => ({ meta: [{ title: "Admin · SILAPET" }] }),
   component: AdminDashboard,
 });
 

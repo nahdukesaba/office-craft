@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { useT } from "@/i18n/LanguageProvider";
 
 export const Route = createFileRoute("/register")({
-  head: () => ({ meta: [{ title: "Create account · SILAP Aset" }] }),
+  head: () => ({ meta: [{ title: "Create account · SILAPET" }] }),
   beforeLoad: () => {
     if (useAuthStore.getState().token) throw redirect({ to: "/dashboard" });
   },

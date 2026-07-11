@@ -10,9 +10,9 @@ import { useT } from "@/i18n/LanguageProvider";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Booking Calendar · SILAP Aset" },
+      { title: "Booking Calendar · SILAPET" },
       { name: "description", content: "Browse the public booking calendar for rooms and cars. Sign in to request a booking or upload proofs." },
-      { property: "og:title", content: "Booking Calendar · SILAP Aset" },
+      { property: "og:title", content: "Booking Calendar · SILAPET" },
       { property: "og:description", content: "See who has booked which resource and when." },
     ],
   }),

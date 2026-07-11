@@ -16,7 +16,7 @@ import type { BookingStatus } from "@/types";
 import { useT } from "@/i18n/LanguageProvider";
 
 export const Route = createFileRoute("/_authenticated/my-bookings/")({
-  head: () => ({ meta: [{ title: "My Bookings · SILAP Aset" }] }),
+  head: () => ({ meta: [{ title: "My Bookings · SILAPET" }] }),
   component: MyBookingsPage,
 });
 

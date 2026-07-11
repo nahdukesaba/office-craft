@@ -9,7 +9,7 @@ export const LANGUAGE_LABEL: Record<Language, string> = {
 type Dict = Record<string, string>;
 
 const en: Dict = {
-  "app.name": "SILAP Aset",
+  "app.name": "SILAPET",
   "app.fullName": "Sistem Informasi Laporan Pemakaian Aset",
   "app.tagline": "Public booking calendar",
 
@@ -187,7 +187,7 @@ const en: Dict = {
 };
 
 const id: Dict = {
-  "app.name": "SILAP Aset",
+  "app.name": "SILAPET",
   "app.fullName": "Sistem Informasi Laporan Pemakaian Aset",
   "app.tagline": "Kalender pemesanan publik",
 

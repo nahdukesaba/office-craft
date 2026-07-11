@@ -13,7 +13,7 @@ import { useT } from "@/i18n/LanguageProvider";
 import { isApiCode } from "@/lib/errors";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({ meta: [{ title: "Sign in · SILAP Aset" }] }),
+  head: () => ({ meta: [{ title: "Sign in · SILAPET" }] }),
   beforeLoad: () => {
     if (useAuthStore.getState().token) throw redirect({ to: "/dashboard" });
   },

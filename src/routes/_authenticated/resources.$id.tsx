@@ -11,7 +11,7 @@ import { ArrowLeft } from "lucide-react";
 import { useT } from "@/i18n/LanguageProvider";
 
 export const Route = createFileRoute("/_authenticated/resources/$id")({
-  head: () => ({ meta: [{ title: "Resource · SILAP Aset" }] }),
+  head: () => ({ meta: [{ title: "Resource · SILAPET" }] }),
   component: ResourceDetailPage,
 });
 
