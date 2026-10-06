@@ -15,7 +15,13 @@ import { isApiCode } from "@/lib/errors";
 export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Sign in · SILAPET" }] }),
   beforeLoad: () => {
-    if (useAuthStore.getState().token) throw redirect({ to: "/dashboard" });
+    const { token, role } = useAuthStore.getState();
+
+    if (token) {
+      throw redirect({
+        to: role === "admin" ? "/admin" : "/dashboard",
+      });
+    }
   },
   component: LoginPage,
 });
@@ -31,9 +37,12 @@ function LoginPage() {
 
   async function onSubmit(v: LoginValues) {
     try {
-      await signIn.mutateAsync(v);
+      const session = await signIn.mutateAsync(v);
       toast.success(t("auth.welcomeBack"));
-      navigate({ to: "/dashboard" });
+
+      navigate({
+        to: session.user.role === "admin" ? "/admin" : "/dashboard",
+      });
     } catch (e: unknown) {
       if (isApiCode(e, "ACCOUNT_PENDING_APPROVAL")) {
         navigate({ to: "/auth/pending" });
@@ -62,7 +71,10 @@ function LoginPage() {
           {signIn.isPending ? t("auth.signingIn") : t("action.signIn")}
         </Button>
         <p className="text-center text-sm text-muted-foreground">
-          {t("auth.noAccount")} <Link to="/register" className="text-primary hover:underline">{t("auth.createOne")}</Link>
+          {t("auth.noAccount")}{" "}
+          <Link to="/register" className="text-primary hover:underline">
+            {t("auth.createOne")}
+          </Link>
         </p>
       </form>
     </AuthLayout>

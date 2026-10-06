@@ -25,9 +25,8 @@ export const authApi = {
    * (PUT under /auth for actions on the caller's own account). Confirm
    * this route exists on the backend, or update it to match.
    */
-  async updatePhone(input: { phone: string }): Promise<AppUser> {
-    const { data } = await http.put<AppUser>("/auth/phone", input);
-    return data;
+  async updatePhone(input: { phone: string }): Promise<void> {
+    await http.put("/auth/phone", input);
   },
   async resetPassword(userId: string): Promise<void> {
     await http.put("/auth/reset", { userId });

@@ -9,34 +9,33 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as RegisterRouteImport } from './routes/register'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as CalendarRouteImport } from './routes/calendar'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthRejectedRouteImport } from './routes/auth.rejected'
-import { Route as AuthPendingRouteImport } from './routes/auth.pending'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as CalendarRouteImport } from './routes/calendar'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as RegisterRouteImport } from './routes/register'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/_admin/route'
-import { Route as AuthenticatedResourcesIndexRouteImport } from './routes/_authenticated/resources.index'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthPendingRouteImport } from './routes/auth.pending'
+import { Route as AuthRejectedRouteImport } from './routes/auth.rejected'
 import { Route as AuthenticatedMyBookingsIndexRouteImport } from './routes/_authenticated/my-bookings.index'
-import { Route as AuthenticatedResourcesIdRouteImport } from './routes/_authenticated/resources.$id'
 import { Route as AuthenticatedMyBookingsIdRouteImport } from './routes/_authenticated/my-bookings.$id'
+import { Route as AuthenticatedResourcesIndexRouteImport } from './routes/_authenticated/resources.index'
+import { Route as AuthenticatedResourcesIdRouteImport } from './routes/_authenticated/resources.$id'
 import { Route as AuthenticatedAdminAdminIndexRouteImport } from './routes/_authenticated/_admin/admin.index'
-import { Route as AuthenticatedAdminAdminUsersRouteImport } from './routes/_authenticated/_admin/admin.users'
-import { Route as AuthenticatedAdminAdminResourcesRouteImport } from './routes/_authenticated/_admin/admin.resources'
 import { Route as AuthenticatedAdminAdminReportsRouteImport } from './routes/_authenticated/_admin/admin.reports'
+import { Route as AuthenticatedAdminAdminResourcesRouteImport } from './routes/_authenticated/_admin/admin.resources'
+import { Route as AuthenticatedAdminAdminUsersRouteImport } from './routes/_authenticated/_admin/admin.users'
 import { Route as AuthenticatedAdminAdminBookingsIndexRouteImport } from './routes/_authenticated/_admin/admin.bookings.index'
 import { Route as AuthenticatedAdminAdminBookingsIdRouteImport } from './routes/_authenticated/_admin/admin.bookings.$id'
 
-const RegisterRoute = RegisterRouteImport.update({
-  id: '/register',
-  path: '/register',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CalendarRoute = CalendarRouteImport.update({
@@ -44,13 +43,28 @@ const CalendarRoute = CalendarRouteImport.update({
   path: '/calendar',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
-  id: '/_authenticated',
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
+  id: '/_admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthPendingRoute = AuthPendingRouteImport.update({
+  id: '/auth/pending',
+  path: '/auth/pending',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRejectedRoute = AuthRejectedRouteImport.update({
@@ -58,36 +72,10 @@ const AuthRejectedRoute = AuthRejectedRouteImport.update({
   path: '/auth/rejected',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthPendingRoute = AuthPendingRouteImport.update({
-  id: '/auth/pending',
-  path: '/auth/pending',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
-  id: '/_admin',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedResourcesIndexRoute =
-  AuthenticatedResourcesIndexRouteImport.update({
-    id: '/resources/',
-    path: '/resources/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedMyBookingsIndexRoute =
   AuthenticatedMyBookingsIndexRouteImport.update({
     id: '/my-bookings/',
     path: '/my-bookings/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedResourcesIdRoute =
-  AuthenticatedResourcesIdRouteImport.update({
-    id: '/resources/$id',
-    path: '/resources/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedMyBookingsIdRoute =
@@ -96,16 +84,28 @@ const AuthenticatedMyBookingsIdRoute =
     path: '/my-bookings/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedResourcesIndexRoute =
+  AuthenticatedResourcesIndexRouteImport.update({
+    id: '/resources/',
+    path: '/resources/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedResourcesIdRoute =
+  AuthenticatedResourcesIdRouteImport.update({
+    id: '/resources/$id',
+    path: '/resources/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminAdminIndexRoute =
   AuthenticatedAdminAdminIndexRouteImport.update({
     id: '/admin/',
     path: '/admin/',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
-const AuthenticatedAdminAdminUsersRoute =
-  AuthenticatedAdminAdminUsersRouteImport.update({
-    id: '/admin/users',
-    path: '/admin/users',
+const AuthenticatedAdminAdminReportsRoute =
+  AuthenticatedAdminAdminReportsRouteImport.update({
+    id: '/admin/reports',
+    path: '/admin/reports',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminAdminResourcesRoute =
@@ -114,10 +114,10 @@ const AuthenticatedAdminAdminResourcesRoute =
     path: '/admin/resources',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
-const AuthenticatedAdminAdminReportsRoute =
-  AuthenticatedAdminAdminReportsRouteImport.update({
-    id: '/admin/reports',
-    path: '/admin/reports',
+const AuthenticatedAdminAdminUsersRoute =
+  AuthenticatedAdminAdminUsersRouteImport.update({
+    id: '/admin/users',
+    path: '/admin/users',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminAdminBookingsIndexRoute =
@@ -267,25 +267,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/register': {
-      id: '/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof RegisterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/calendar': {
-      id: '/calendar'
-      path: '/calendar'
-      fullPath: '/calendar'
-      preLoaderRoute: typeof CalendarRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -295,11 +281,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
+    '/calendar': {
+      id: '/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof CalendarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/_admin': {
+      id: '/_authenticated/_admin'
+      path: ''
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/auth/pending': {
+      id: '/auth/pending'
+      path: '/auth/pending'
+      fullPath: '/auth/pending'
+      preLoaderRoute: typeof AuthPendingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/rejected': {
@@ -309,46 +330,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRejectedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/pending': {
-      id: '/auth/pending'
-      path: '/auth/pending'
-      fullPath: '/auth/pending'
-      preLoaderRoute: typeof AuthPendingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/_admin': {
-      id: '/_authenticated/_admin'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/resources/': {
-      id: '/_authenticated/resources/'
-      path: '/resources'
-      fullPath: '/resources/'
-      preLoaderRoute: typeof AuthenticatedResourcesIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/my-bookings/': {
       id: '/_authenticated/my-bookings/'
       path: '/my-bookings'
       fullPath: '/my-bookings/'
       preLoaderRoute: typeof AuthenticatedMyBookingsIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/resources/$id': {
-      id: '/_authenticated/resources/$id'
-      path: '/resources/$id'
-      fullPath: '/resources/$id'
-      preLoaderRoute: typeof AuthenticatedResourcesIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/my-bookings/$id': {
@@ -358,6 +344,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMyBookingsIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/resources/': {
+      id: '/_authenticated/resources/'
+      path: '/resources'
+      fullPath: '/resources/'
+      preLoaderRoute: typeof AuthenticatedResourcesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/resources/$id': {
+      id: '/_authenticated/resources/$id'
+      path: '/resources/$id'
+      fullPath: '/resources/$id'
+      preLoaderRoute: typeof AuthenticatedResourcesIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/_admin/admin/': {
       id: '/_authenticated/_admin/admin/'
       path: '/admin'
@@ -365,11 +365,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
-    '/_authenticated/_admin/admin/users': {
-      id: '/_authenticated/_admin/admin/users'
-      path: '/admin/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AuthenticatedAdminAdminUsersRouteImport
+    '/_authenticated/_admin/admin/reports': {
+      id: '/_authenticated/_admin/admin/reports'
+      path: '/admin/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AuthenticatedAdminAdminReportsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/_admin/admin/resources': {
@@ -379,11 +379,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAdminResourcesRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
-    '/_authenticated/_admin/admin/reports': {
-      id: '/_authenticated/_admin/admin/reports'
-      path: '/admin/reports'
-      fullPath: '/admin/reports'
-      preLoaderRoute: typeof AuthenticatedAdminAdminReportsRouteImport
+    '/_authenticated/_admin/admin/users': {
+      id: '/_authenticated/_admin/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminAdminUsersRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/_admin/admin/bookings/': {
