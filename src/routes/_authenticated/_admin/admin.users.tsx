@@ -6,11 +6,18 @@ import { LoadingSkeleton } from "@/components/common/LoadingSkeleton";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useUsers } from "@/hooks/queries/useUsers";
-import { useApproveUser, useRejectUser, useResetUserPassword } from "@/hooks/mutations/useUserMutations";
+import { useApproveUser, useRejectUser } from "@/hooks/mutations/useUserMutations";
 import { useT } from "@/i18n/LanguageProvider";
 
 import type { AppUser, UserStatus } from "@/types";
@@ -53,14 +60,17 @@ function UsersTable({ status }: { status: UserStatus }) {
   const { data, isLoading, error } = useUsers(status);
   const approve = useApproveUser();
   const reject = useRejectUser();
-  const resetPassword = useResetUserPassword();
-  const [confirm, setConfirm] = useState<{ action: "approve" | "reject" | "reset"; user: AppUser } | null>(null);
+  const [confirm, setConfirm] = useState<{ action: "approve" | "reject"; user: AppUser } | null>(
+    null,
+  );
 
   if (isLoading) return <LoadingSkeleton />;
   if (error) return <p className="text-sm text-destructive">{(error as Error).message}</p>;
   const users = data ?? [];
   if (users.length === 0) {
-    return <EmptyState title={t("adminUsers.emptyTitle")} description={t("adminUsers.emptyDesc")} />;
+    return (
+      <EmptyState title={t("adminUsers.emptyTitle")} description={t("adminUsers.emptyDesc")} />
+    );
   }
 
   async function run() {
@@ -69,12 +79,9 @@ function UsersTable({ status }: { status: UserStatus }) {
       if (confirm.action === "approve") {
         await approve.mutateAsync(confirm.user.id);
         toast.success(t("adminUsers.approved"));
-      } else if (confirm.action === "reject") {
+      } else {
         await reject.mutateAsync(confirm.user.id);
         toast.success(t("adminUsers.rejected"));
-      } else {
-        await resetPassword.mutateAsync(confirm.user.id);
-        toast.success(t("adminUsers.passwordReset"));
       }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed");
@@ -103,7 +110,9 @@ function UsersTable({ status }: { status: UserStatus }) {
                 <TableCell className="font-medium">{u.fullName}</TableCell>
                 <TableCell>{u.email}</TableCell>
                 <TableCell>{u.phone ?? "—"}</TableCell>
-                <TableCell><Badge variant="outline">{u.role}</Badge></TableCell>
+                <TableCell>
+                  <Badge variant="outline">{u.role}</Badge>
+                </TableCell>
                 <TableCell>{u.createdAt ? fmtDate(u.createdAt) : "—"}</TableCell>
                 <TableCell className="text-right space-x-2">
                   {status !== "approved" && (
@@ -111,12 +120,12 @@ function UsersTable({ status }: { status: UserStatus }) {
                       {t("action.approve")}
                     </Button>
                   )}
-                  {status === "approved" ? (
-                    <Button size="sm" variant="outline" onClick={() => setConfirm({ action: "reset", user: u })}>
-                      {t("adminUsers.resetPassword")}
-                    </Button>
-                  ) : status !== "rejected" && (
-                    <Button size="sm" variant="outline" onClick={() => setConfirm({ action: "reject", user: u })}>
+                  {status === "pending" && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setConfirm({ action: "reject", user: u })}
+                    >
                       {t("action.reject")}
                     </Button>
                   )}
@@ -129,21 +138,9 @@ function UsersTable({ status }: { status: UserStatus }) {
       <ConfirmDialog
         open={!!confirm}
         onOpenChange={(o) => !o && setConfirm(null)}
-        title={
-          confirm?.action === "approve"
-            ? t("adminUsers.approveQ")
-            : confirm?.action === "reject"
-              ? t("adminUsers.rejectQ")
-              : t("adminUsers.resetPasswordQ")
-        }
+        title={confirm?.action === "approve" ? t("adminUsers.approveQ") : t("adminUsers.rejectQ")}
         description={confirm ? `${confirm.user.fullName} · ${confirm.user.email}` : undefined}
-        confirmLabel={
-          confirm?.action === "approve"
-            ? t("action.approve")
-            : confirm?.action === "reject"
-              ? t("action.reject")
-              : t("adminUsers.resetPassword")
-        }
+        confirmLabel={confirm?.action === "approve" ? t("action.approve") : t("action.reject")}
         onConfirm={run}
       />
     </>

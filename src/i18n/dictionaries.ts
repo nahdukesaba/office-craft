@@ -262,9 +262,6 @@ const en: Dict = {
   "adminUsers.rejected": "User rejected",
   "adminUsers.approveQ": "Approve this user?",
   "adminUsers.rejectQ": "Reject this user?",
-  "adminUsers.resetPassword": "Reset password",
-  "adminUsers.resetPasswordQ": "Reset this user's password?",
-  "adminUsers.passwordReset": "Password reset",
 
   "calendar.when": "When",
   "calendar.status": "Status",
@@ -532,9 +529,6 @@ const id: Dict = {
   "adminUsers.rejected": "Pengguna ditolak",
   "adminUsers.approveQ": "Setujui pengguna ini?",
   "adminUsers.rejectQ": "Tolak pengguna ini?",
-  "adminUsers.resetPassword": "Atur ulang kata sandi",
-  "adminUsers.resetPasswordQ": "Atur ulang kata sandi pengguna ini?",
-  "adminUsers.passwordReset": "Kata sandi diatur ulang",
 
   "calendar.when": "Waktu",
   "calendar.status": "Status",

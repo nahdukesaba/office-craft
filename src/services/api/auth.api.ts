@@ -28,7 +28,4 @@ export const authApi = {
   async updatePhone(input: { phone: string }): Promise<void> {
     await http.put("/auth/phone", input);
   },
-  async resetPassword(userId: string): Promise<void> {
-    await http.put("/auth/reset", { userId });
-  },
 };
