@@ -94,7 +94,14 @@ http.interceptors.request.use((config) => {
 
   if (token) {
     config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
+
+    const headers = config.headers as Record<string, string>;
+    const url = config.url ?? "";
+    const isRecoveryReset = url.includes("/auth/reset-password");
+
+    if (!isRecoveryReset) {
+      headers.Authorization = `Bearer ${token}`;
+    }
   }
 
   return config;

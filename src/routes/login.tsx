@@ -102,6 +102,12 @@ function LoginPage() {
           </div>
         </div>
 
+        <div className="text-right">
+          <Link to="/forgot-password" className="text-sm text-primary hover:underline">
+            {t("auth.forgotPassword")}
+          </Link>
+        </div>
+
         <Button type="submit" disabled={signIn.isPending} className="w-full">
           {signIn.isPending ? t("auth.signingIn") : t("action.signIn")}
         </Button>
