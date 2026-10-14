@@ -16,6 +16,9 @@ export const authApi = {
     const { data } = await http.get<AppUser>("/auth/me");
     return data;
   },
+  async logout(): Promise<void> {
+    await http.post("/auth/logout");
+  },
   async changePassword(input: ChangePasswordInput): Promise<void> {
     await http.put("/auth/password", input);
   },
