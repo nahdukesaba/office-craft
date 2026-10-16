@@ -17,7 +17,7 @@ export const Route = createFileRoute("/reset-password")({
   component: ResetPasswordPage,
 });
 
-function readRecoveryToken(): string | null {
+function readRecoveryTokenHash(): string | null {
   if (typeof window === "undefined") return null;
 
   const hash = new URLSearchParams(
@@ -25,13 +25,18 @@ function readRecoveryToken(): string | null {
   );
 
   const query = new URLSearchParams(window.location.search);
+  const recoveryType = hash.get("type") ?? query.get("type");
 
-  return hash.get("access_token") ?? query.get("access_token") ?? null;
+  if (recoveryType !== "recovery") {
+    return null;
+  }
+
+  return hash.get("token_hash") ?? query.get("token_hash") ?? null;
 }
 
 function ResetPasswordPage() {
   const t = useT();
-  const [recoveryToken, setRecoveryToken] = useState<string | null>(null);
+  const [recoveryTokenHash, setRecoveryTokenHash] = useState<string | null>(null);
   const [tokenChecked, setTokenChecked] = useState(false);
   const [success, setSuccess] = useState(false);
   const [requestError, setRequestError] = useState<string | null>(null);
@@ -47,24 +52,24 @@ function ResetPasswordPage() {
   });
 
   useEffect(() => {
-    const token = readRecoveryToken();
+    const tokenHash = readRecoveryTokenHash();
 
-    setRecoveryToken(token);
+    setRecoveryTokenHash(tokenHash);
     setTokenChecked(true);
 
-    if (token) {
+    if (tokenHash) {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
 
   async function onSubmit(values: ResetPasswordValues) {
-    if (!recoveryToken) return;
+    if (!recoveryTokenHash) return;
 
     setRequestError(null);
 
     try {
-      await authApi.resetPassword(recoveryToken, values.password);
-      setRecoveryToken(null);
+      await authApi.resetPassword(recoveryTokenHash, values.password);
+      setRecoveryTokenHash(null);
       setSuccess(true);
       form.reset();
     } catch (error) {
@@ -73,7 +78,7 @@ function ResetPasswordPage() {
         isApiCode(error, "invalid_token") ||
         isApiCode(error, "missing_token")
       ) {
-        setRecoveryToken(null);
+        setRecoveryTokenHash(null);
         setRequestError(t("auth.invalidRecoveryToken"));
         return;
       }
@@ -103,7 +108,7 @@ function ResetPasswordPage() {
     );
   }
 
-  if (!recoveryToken) {
+  if (!recoveryTokenHash) {
     return (
       <AuthLayout
         title={t("auth.resetPasswordTitle")}

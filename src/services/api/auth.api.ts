@@ -19,16 +19,11 @@ export const authApi = {
   async forgotPassword(email: string): Promise<void> {
     await http.post("/auth/forgot-password", { email });
   },
-  async resetPassword(recoveryToken: string, password: string): Promise<void> {
-    await http.post(
-      "/auth/reset-password",
-      { password },
-      {
-        headers: {
-          Authorization: `Bearer ${recoveryToken}`,
-        },
-      },
-    );
+  async resetPassword(tokenHash: string, password: string): Promise<void> {
+    await http.post("/auth/reset-password", {
+      tokenHash,
+      password,
+    });
   },
   async logout(): Promise<void> {
     await http.post("/auth/logout");
