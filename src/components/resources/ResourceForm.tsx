@@ -12,8 +12,7 @@ import type { Resource } from "@/types";
 import { useT } from "@/i18n/LanguageProvider";
 import { RESOURCE_PALETTE } from "@/lib/colors";
 import { cn } from "@/lib/utils";
-import { getSupabaseClient } from "@/integrations/supabase/client";
-import { env } from "@/lib/env";
+import { resourcesApi } from "@/services/api/resources.api";
 import { toast } from "sonner";
 import { Upload, Loader2 } from "lucide-react";
 
@@ -51,21 +50,18 @@ export function ResourceForm({
   const [uploading, setUploading] = useState(false);
 
   async function handlePhotoUpload(file: File) {
-    const supabase = await getSupabaseClient();
-    if (!supabase) {
-      toast.error("Storage not configured");
+    if (!file || file.size <= 0 || file.size > 10 * 1024 * 1024) {
+      toast.error("Image must be between 1 byte and 10 MiB");
+      return;
+    }
+    if (file.type && !file.type.startsWith("image/")) {
+      toast.error("Please select a valid image file");
       return;
     }
     setUploading(true);
     try {
-      const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase();
-      const path = `resources/${crypto.randomUUID()}.${ext}`;
-      const { error } = await supabase.storage
-        .from(env.resourcesBucket)
-        .upload(path, file, { contentType: file.type || "image/jpeg", upsert: false });
-      if (error) throw new Error(error.message);
-      const { data } = supabase.storage.from(env.resourcesBucket).getPublicUrl(path);
-      form.setValue("photoUrl", data.publicUrl, { shouldDirty: true });
+      const publicUrl = await resourcesApi.uploadPhoto(file);
+      form.setValue("photoUrl", publicUrl, { shouldDirty: true });
       toast.success("Photo uploaded");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Upload failed");

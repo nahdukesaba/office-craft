@@ -41,16 +41,17 @@ export const useAuthStore = create<AuthState>()(
         }),
 
       updateUser: (patch) =>
-        set((state) =>
-          state.user
-            ? {
-                user: {
-                  ...state.user,
-                  ...patch,
-                },
-              }
-            : state,
-        ),
+        set((state) => {
+          if (!state.user) return state;
+          const updatedUser = {
+            ...state.user,
+            ...patch,
+          };
+          return {
+            user: updatedUser,
+            role: updatedUser.role ?? state.role,
+          };
+        }),
 
       signOut: () =>
         set({
@@ -72,3 +73,42 @@ export const selectIsAdmin = (state: AuthState) => state.role === "admin";
 export const selectIsAuthed = (state: AuthState) => !!state.token && !!state.user;
 export const selectIsPending = (state: AuthState) => state.user?.status === "pending";
 export const selectIsRejected = (state: AuthState) => state.user?.status === "rejected";
+
+export function syncAuthStoreFromStorage(): void {
+  if (typeof window === "undefined") return;
+  try {
+    const raw = window.localStorage?.getItem("auth-storage");
+    if (!raw) return;
+    const parsed = JSON.parse(raw) as { state?: Partial<AuthState> };
+    const stored = parsed?.state;
+    if (!stored || typeof stored !== "object") return;
+
+    const current = useAuthStore.getState();
+    if (
+      stored.token !== current.token ||
+      stored.refreshToken !== current.refreshToken ||
+      stored.status !== current.status
+    ) {
+      useAuthStore.setState({
+        user: stored.user ?? null,
+        token: stored.token ?? null,
+        refreshToken: stored.refreshToken ?? null,
+        tokenType: stored.tokenType ?? null,
+        expiresIn: stored.expiresIn ?? null,
+        expiresAt: stored.expiresAt ?? null,
+        role: stored.role ?? null,
+        status: stored.status ?? "idle",
+      });
+    }
+  } catch {
+    // Ignore storage access errors in restricted environments
+  }
+}
+
+if (typeof window !== "undefined" && typeof window.addEventListener === "function") {
+  window.addEventListener("storage", (event) => {
+    if (event.key === "auth-storage" || event.key === null) {
+      syncAuthStoreFromStorage();
+    }
+  });
+}
