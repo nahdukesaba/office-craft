@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { useBooking } from "@/hooks/queries/useBookings";
 import { useProofs } from "@/hooks/queries/useProofs";
 import {
@@ -14,9 +15,15 @@ import { StatusBadge } from "@/components/common/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProofGallery } from "@/components/bookings/ProofGallery";
+import { ProofUploader } from "@/components/bookings/ProofUploader";
 import { UsageActionDialog } from "@/components/bookings/UsageActionDialog";
 import { BookingTimeline } from "@/components/bookings/BookingTimeline";
-import { fmtDateTime, fmtBookingRange, daysBetweenInclusive, isTodayInRange } from "@/lib/format";
+import {
+  fmtDateTime,
+  fmtBookingRange,
+  daysBetweenInclusive,
+  getBookingProofLifecycle,
+} from "@/lib/format";
 import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { friendlyError } from "@/lib/errors";
@@ -30,6 +37,7 @@ export const Route = createFileRoute("/_authenticated/my-bookings/$id")({
 
 function BookingDetail() {
   const { id } = Route.useParams();
+  const { user } = useAuth();
   const { data: booking, isLoading } = useBooking(id);
   const { data: proofs } = useProofs(id);
   const cancel = useCancelBooking();
@@ -37,16 +45,31 @@ function BookingDetail() {
   const finish = useFinishBooking();
   const t = useT();
   const [captureAction, setCaptureAction] = useState<"start" | "finish" | null>(null);
+  const [revisionUploaded, setRevisionUploaded] = useState(false);
 
   if (isLoading || !booking) return <LoadingSkeleton rows={4} />;
 
-  const hasBefore = (proofs ?? []).some((p) => p.kind === "before");
-  const hasAfter = (proofs ?? []).some((p) => p.kind === "after");
-  const inWindow = isTodayInRange(booking.date, booking.endDate);
-  const canCancel = booking.status === "pending" || booking.status === "approved";
-  const canStart = booking.status === "approved" && inWindow;
-  const canFinish = booking.status === "in_use" || booking.status === "needs_revision";
-  const needRevision = booking.status === "needs_revision";
+  const isOwner = Boolean(user?.id && booking.userId === user.id);
+  const {
+    inWindow,
+    hasBefore,
+    hasAfter,
+    hasRevisedAfter,
+    showBeforeUploader,
+    showAfterUploader,
+    showWindowHint,
+    canStart,
+    canFinish,
+    canCancel,
+    needRevision,
+  } = getBookingProofLifecycle({
+    status: booking.status,
+    date: booking.date,
+    endDate: booking.endDate,
+    proofs: proofs ?? [],
+    isOwner,
+    updatedAt: booking.updatedAt,
+  });
   const days = daysBetweenInclusive(booking.date, booking.endDate);
 
   return (
@@ -86,18 +109,24 @@ function BookingDetail() {
       </Card>
 
       <div className="flex flex-wrap gap-2">
-        {booking.status === "approved" && (
+        {isOwner && booking.status === "approved" && (
           <Button
-            disabled={!canStart}
+            disabled={!canStart || start.isPending}
             className={canStart ? "glow-green" : undefined}
-            title={!inWindow ? t("bookingDetail.startTitleWindow") : undefined}
+            title={
+              !inWindow
+                ? t("bookingDetail.startTitleWindow")
+                : !hasBefore
+                  ? t("booking.needBeforePhoto")
+                  : undefined
+            }
             onClick={async () => {
               if (hasBefore) {
                 try {
                   await start.mutateAsync(booking.id);
                   toast.success(t("bookingDetail.usageStarted"));
                 } catch (e: unknown) {
-                  toast.error(e instanceof Error ? e.message : t("bookingDetail.failed"));
+                  toast.error(friendlyError(e, t("bookingDetail.failed")));
                 }
               } else {
                 setCaptureAction("start");
@@ -107,13 +136,14 @@ function BookingDetail() {
             {t("booking.start")}
           </Button>
         )}
-        {(booking.status === "in_use" || booking.status === "needs_revision") && (
+        {isOwner && (booking.status === "in_use" || booking.status === "needs_revision") && (
           <Button
-            disabled={!canFinish}
+            disabled={!canFinish || finish.isPending}
             className={canFinish ? "glow-red" : undefined}
+            title={!hasAfter ? t("booking.needAfterPhoto") : undefined}
             onClick={async () => {
-              if (needRevision) {
-                // Always re-capture on revision — never reuse the old proof.
+              if (needRevision && !hasRevisedAfter && !revisionUploaded) {
+                // Re-capture on revision when a new after-proof has not been uploaded yet.
                 setCaptureAction("finish");
                 return;
               }
@@ -122,7 +152,7 @@ function BookingDetail() {
                   await finish.mutateAsync(booking.id);
                   toast.success(t("bookingDetail.usageFinished"));
                 } catch (e: unknown) {
-                  toast.error(e instanceof Error ? e.message : t("bookingDetail.failed"));
+                  toast.error(friendlyError(e, t("bookingDetail.failed")));
                 }
               } else {
                 setCaptureAction("finish");
@@ -140,7 +170,7 @@ function BookingDetail() {
                 await cancel.mutateAsync(booking.id);
                 toast.success(t("bookingDetail.cancelled"));
               } catch (e: unknown) {
-                toast.error(e instanceof Error ? e.message : t("bookingDetail.failed"));
+                toast.error(friendlyError(e, t("bookingDetail.failed")));
               }
             }}
           >
@@ -164,8 +194,26 @@ function BookingDetail() {
         {booking.status === "pending" && (
           <p className="text-sm text-muted-foreground">{t("bookingDetail.pendingHint")}</p>
         )}
-        {(booking.status === "approved" || booking.status === "in_use") && !inWindow && (
+        {showWindowHint && (
           <p className="text-sm text-muted-foreground">{t("bookingDetail.windowHint")}</p>
+        )}
+        {showBeforeUploader && !hasBefore && (
+          <p className="text-sm text-muted-foreground">{t("booking.needBeforePhoto")}</p>
+        )}
+        {showAfterUploader && !hasAfter && !needRevision && (
+          <p className="text-sm text-muted-foreground">{t("booking.needAfterPhoto")}</p>
+        )}
+        {(showBeforeUploader || showAfterUploader) && (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {showBeforeUploader && <ProofUploader bookingId={booking.id} kind="before" />}
+            {showAfterUploader && (
+              <ProofUploader
+                bookingId={booking.id}
+                kind="after"
+                onUploaded={() => setRevisionUploaded(true)}
+              />
+            )}
+          </div>
         )}
         <ProofGallery proofs={proofs ?? []} />
       </section>
