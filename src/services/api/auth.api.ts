@@ -16,6 +16,18 @@ export const authApi = {
     const { data } = await http.get<AppUser>("/auth/me");
     return data;
   },
+  async forgotPassword(email: string): Promise<void> {
+    await http.post("/auth/forgot-password", { email });
+  },
+  async resetPassword(tokenHash: string, password: string): Promise<void> {
+    await http.post("/auth/reset-password", {
+      tokenHash,
+      password,
+    });
+  },
+  async logout(): Promise<void> {
+    await http.post("/auth/logout");
+  },
   async changePassword(input: ChangePasswordInput): Promise<void> {
     await http.put("/auth/password", input);
   },
@@ -25,11 +37,7 @@ export const authApi = {
    * (PUT under /auth for actions on the caller's own account). Confirm
    * this route exists on the backend, or update it to match.
    */
-  async updatePhone(input: { phone: string }): Promise<AppUser> {
-    const { data } = await http.put<AppUser>("/auth/phone", input);
-    return data;
-  },
-  async resetPassword(userId: string): Promise<void> {
-    await http.put("/auth/reset", { userId });
+  async updatePhone(input: { phone: string }): Promise<void> {
+    await http.put("/auth/phone", input);
   },
 };

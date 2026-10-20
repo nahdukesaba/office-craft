@@ -26,4 +26,23 @@ export const resourcesApi = {
   async remove(id: string): Promise<void> {
     await http.delete(`/resources/${id}`);
   },
+  async uploadPhoto(file: File): Promise<string> {
+    if (!file || file.size <= 0 || file.size > 10 * 1024 * 1024) {
+      throw new Error("Image must be between 1 byte and 10 MiB");
+    }
+    if (file.type && !file.type.startsWith("image/")) {
+      throw new Error("Please select a valid image file");
+    }
+    const formData = new FormData();
+    formData.append("file", file);
+    const { data } = await http.post<{ photoUrl?: string; data?: { photoUrl?: string } }>(
+      "/resources/photos/upload",
+      formData,
+    );
+    const photoUrl = data.photoUrl ?? data.data?.photoUrl;
+    if (!photoUrl) {
+      throw new Error("Upload did not return a photo URL");
+    }
+    return photoUrl;
+  },
 };

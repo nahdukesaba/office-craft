@@ -163,6 +163,10 @@ export interface CreateResourceInput {
 
 export interface AuthSession {
   token: string;
+  refreshToken: string;
+  tokenType: string;
+  expiresIn: number;
+  expiresAt: number;
   user: AppUser;
 }
 
@@ -216,7 +220,6 @@ export interface PublicBooking {
   resource?: Resource;
   user?: BookingUserRef | AppUser;
 }
-
 
 export interface ApproveBookingResponse {
   booking: BookingWithDetails;

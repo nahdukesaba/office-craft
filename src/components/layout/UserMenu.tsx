@@ -105,10 +105,15 @@ export function UserMenu() {
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={async () => {
-              await qc.cancelQueries();
-              qc.clear();
-              signOut();
-              navigate({ to: "/", replace: true });
+              await qc.cancelQueries().catch(() => undefined);
+
+              try {
+                await authApi.logout();
+              } finally {
+                qc.clear();
+                signOut();
+                navigate({ to: "/", replace: true });
+              }
             }}
           >
             <LogOut className="mr-2 size-4" /> {t("action.signOut")}

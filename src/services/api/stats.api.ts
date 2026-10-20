@@ -1,6 +1,4 @@
 import { http } from "@/services/http";
-import { env } from "@/lib/env";
-import { useAuthStore } from "@/stores/authStore";
 import type { BookingInsights, BookingStatus } from "@/types";
 
 export interface StatsOverview {
@@ -34,19 +32,16 @@ export const statsApi = {
    * text/csv payload with a Content-Disposition filename.
    */
   async exportCsv(params: { from: string; to: string }): Promise<{ blob: Blob; filename: string }> {
-    const token = useAuthStore.getState().token;
-    const qs = new URLSearchParams(params).toString();
-    const res = await fetch(`${env.apiBaseUrl}/reports/bookings/export?${qs}`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    const response = await http.get<Blob>("/reports/bookings/export", {
+      params,
+      responseType: "blob",
     });
-    if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      throw new Error(`Export failed [${res.status}]: ${text || res.statusText}`);
-    }
-    const blob = await res.blob();
-    const cd = res.headers.get("content-disposition") ?? "";
-    const match = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(cd);
+
+    const blob = response.data;
+    const contentDisposition = String(response.headers["content-disposition"] ?? "");
+    const match = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(contentDisposition);
     const filename = match?.[1] ?? `bookings-${params.from}_${params.to}.csv`;
+
     return { blob, filename };
   },
 };

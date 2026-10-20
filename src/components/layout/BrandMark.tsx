@@ -12,7 +12,7 @@ export function BrandMark({ size = "sm" }: { size?: "sm" | "lg" }) {
   const name = size === "lg" ? "text-lg" : "text-sm";
 
   return (
-    <span className="flex items-center gap-2">
+    <span className="flex min-w-0 items-center gap-2">
       <span
         className={cn(
           "flex shrink-0 items-center justify-center rounded-md bg-primary font-display font-bold text-primary-foreground border-2",
@@ -23,10 +23,12 @@ export function BrandMark({ size = "sm" }: { size?: "sm" | "lg" }) {
         SA
       </span>
       <span className="flex min-w-0 flex-col leading-tight">
-        <span className={cn("truncate font-display font-semibold tracking-tight text-foreground", name)}>
+        <span
+          className={cn("truncate font-display font-semibold tracking-tight text-foreground", name)}
+        >
           {t("app.name")}
         </span>
-        <span className="truncate text-[10px] uppercase tracking-wide text-muted-foreground">
+        <span className="hidden truncate text-[10px] uppercase tracking-wide text-muted-foreground sm:block">
           {t("app.fullName")}
         </span>
       </span>
