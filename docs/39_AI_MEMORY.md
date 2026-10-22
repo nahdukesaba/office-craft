@@ -123,3 +123,20 @@ through the shared HTTP interceptor when an access token receives `401`.
 Resource photos and booking proofs are uploaded through backend endpoints.
 The legacy browser Supabase wrapper remains in the tree for later cleanup but
 has no active call site.
+
+## Browser SSO Rule
+
+As of 2026-10-22, browser SSO is an optional login path in addition to direct
+login. The frontend starts it through `GET /auth/sso/start` and handles only
+`code`, `state`, or a safe membership status at `/auth/sso/callback`. Never add
+Supabase tokens to callback URLs or share auth state across applications via
+localStorage. The callback exchanges through `office-craft-api`, stores the
+normal `AuthSession`, and reuses the existing pending/rejected routes.
+
+The only user-facing logout action is **Keluar**. It performs best-effort app
+logout and always clears SILAPET local state. The backend derives the source
+from the verified Supabase `amr` claim and returns `centralLogoutRequired`.
+Direct sessions go straight to `/login`; Browser SSO sessions navigate to the
+backend-owned Central logout start URL. Do not infer the source from URL,
+referrer, or localStorage, add separate application/SSO logout buttons, or
+replace the Central CSRF-protected browser navigation with cross-origin XHR.

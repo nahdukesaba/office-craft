@@ -1,5 +1,14 @@
 import { http, sessionHttp } from "@/services/http";
-import type { AppUser, AuthSession, ChangePasswordInput, LoginInput, RegisterInput } from "@/types";
+import type {
+  AppUser,
+  AuthSession,
+  BrowserSSOExchangeInput,
+  BrowserSSOExchangeResponse,
+  ChangePasswordInput,
+  LoginInput,
+  LogoutResponse,
+  RegisterInput,
+} from "@/types";
 
 /** Auth is always live against the backend (per Chunk 2 plan). */
 export const authApi = {
@@ -20,6 +29,13 @@ export const authApi = {
     const { data } = await sessionHttp.post<AuthSession>("/auth/refresh", { refreshToken });
     return data;
   },
+  async exchangeBrowserSSO(input: BrowserSSOExchangeInput): Promise<BrowserSSOExchangeResponse> {
+    const { data } = await sessionHttp.post<BrowserSSOExchangeResponse>(
+      "/auth/sso/exchange",
+      input,
+    );
+    return data;
+  },
   async forgotPassword(email: string): Promise<void> {
     await http.post("/auth/forgot-password", { email });
   },
@@ -29,8 +45,9 @@ export const authApi = {
       password,
     });
   },
-  async logout(): Promise<void> {
-    await http.post("/auth/logout");
+  async logout(): Promise<LogoutResponse> {
+    const { data } = await http.post<LogoutResponse>("/auth/logout");
+    return data;
   },
   async changePassword(input: ChangePasswordInput): Promise<void> {
     await http.put("/auth/password", input);

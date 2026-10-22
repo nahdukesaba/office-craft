@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { useT } from "@/i18n/LanguageProvider";
 import { isApiCode } from "@/lib/errors";
 import { useAuthBootstrap } from "@/hooks/useAuthBootstrap";
+import { env } from "@/lib/env";
 
 export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Sign in · SILAPET" }] }),
@@ -137,6 +138,23 @@ function LoginPage() {
 
         <Button type="submit" disabled={signIn.isPending} className="w-full">
           {signIn.isPending ? t("auth.signingIn") : t("action.signIn")}
+        </Button>
+
+        <div className="flex items-center gap-3" aria-hidden="true">
+          <span className="h-px flex-1 bg-border" />
+          <span className="text-xs uppercase text-muted-foreground">{t("auth.or")}</span>
+          <span className="h-px flex-1 bg-border" />
+        </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          onClick={() => {
+            window.location.assign(`${env.apiBaseUrl.replace(/\/$/, "")}/auth/sso/start`);
+          }}
+        >
+          {t("auth.signInWithSSO")}
         </Button>
 
         <p className="text-center text-sm text-muted-foreground">

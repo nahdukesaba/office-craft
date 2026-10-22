@@ -160,6 +160,33 @@ The frontend calls `POST /auth/logout` before local cleanup so the backend can
 revoke the Supabase session. Local credentials and query state are still
 cleared if that request fails, with a non-sensitive warning to the user.
 
+The single visible **Keluar** action first asks the backend to revoke the
+SILAPET Supabase session. The backend derives the login source from the signed,
+verified Supabase session claim and returns `centralLogoutRequired`; the
+frontend never guesses from URL, referrer, or local storage.
+
+For direct password login, local auth/query state is cleared and the browser
+goes directly to `/login`. Any unrelated Central browser cookie remains. For a
+Browser SSO session, the browser instead continues through
+`GET /auth/sso/logout`; Central confirms and revokes only the current Central
+browser session before returning to the registered SILAPET `/login` URI.
+Sessions in other applications are not revoked by either flow.
+
+---
+
+## Browser SSO Balai
+
+Direct email/password login remains available. The secondary **Masuk dengan
+SSO Balai** button navigates to the backend start endpoint, which creates a
+one-time state and PKCE flow before redirecting to Central SSO.
+
+Central returns only `code` plus `state`, or `state` plus a safe membership
+status, to `/auth/sso/callback`. The callback immediately removes its query
+string from browser history and sends the values to the SILAPET backend. It
+never reads access or refresh tokens from the URL. A successful exchange is
+stored through the same `AuthSession` store as direct login; pending and denied
+results use the existing status pages.
+
 ---
 
 ## Token Handling
@@ -180,8 +207,7 @@ Authenticated users can change their password from the account menu. The
 frontend validates the current password, new password, and confirmation before
 calling `PUT /auth/password` with `{ oldPassword, newPassword }` through the
 shared API client. New passwords use the backend policy of 8 through 128
-characters. Request-access passwords are only required to be non-empty because
-an existing account may predate the current creation policy.
+characters.
 
 Administrators can reset an approved user's password from Manage Users after a
 confirmation. This calls `PUT /auth/reset` with `{ userId }`. Both requests use

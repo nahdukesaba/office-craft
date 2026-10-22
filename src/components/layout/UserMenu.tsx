@@ -1,4 +1,3 @@
-import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useForm, type UseFormRegisterReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,11 +32,12 @@ import {
 } from "@/schemas/auth";
 import { authApi } from "@/services/api/auth.api";
 import { toast } from "sonner";
+import { env } from "@/lib/env";
+import { logoutDestination } from "@/lib/auth/logout";
 
 export function UserMenu() {
   const { user, role, signOut, updateUser } = useAuth();
   const qc = useQueryClient();
-  const navigate = useNavigate();
   const t = useT();
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [phoneOpen, setPhoneOpen] = useState(false);
@@ -107,20 +107,23 @@ export function UserMenu() {
             onClick={async () => {
               await qc.cancelQueries().catch(() => undefined);
               let serverLogoutFailed = false;
+              let centralLogoutRequired = false;
 
               try {
-                await authApi.logout();
+                const result = await authApi.logout();
+                centralLogoutRequired = result.centralLogoutRequired;
               } catch {
                 serverLogoutFailed = true;
               } finally {
                 qc.clear();
                 signOut();
-                navigate({ to: "/", replace: true });
               }
 
               if (serverLogoutFailed) {
                 toast.warning(t("auth.logoutServerWarning"));
               }
+
+              window.location.assign(logoutDestination({ centralLogoutRequired }, env.apiBaseUrl));
             }}
           >
             <LogOut className="mr-2 size-4" /> {t("action.signOut")}

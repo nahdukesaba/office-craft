@@ -26,6 +26,7 @@ const unauthenticatedAuthPaths = [
   "/auth/forgot-password",
   "/auth/reset-password",
   "/auth/refresh",
+  "/auth/sso/exchange",
 ];
 
 const nonRefreshableAuthPaths = [...unauthenticatedAuthPaths, "/auth/logout"];

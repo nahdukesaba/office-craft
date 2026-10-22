@@ -24,6 +24,7 @@ import { Route as AuthenticatedMyBookingsIndexRouteImport } from './routes/_auth
 import { Route as AuthenticatedMyBookingsIdRouteImport } from './routes/_authenticated/my-bookings.$id'
 import { Route as AuthenticatedResourcesIndexRouteImport } from './routes/_authenticated/resources.index'
 import { Route as AuthenticatedResourcesIdRouteImport } from './routes/_authenticated/resources.$id'
+import { Route as AuthSsoCallbackRouteImport } from './routes/auth.sso.callback'
 import { Route as AuthenticatedAdminAdminIndexRouteImport } from './routes/_authenticated/_admin/admin.index'
 import { Route as AuthenticatedAdminAdminReportsRouteImport } from './routes/_authenticated/_admin/admin.reports'
 import { Route as AuthenticatedAdminAdminResourcesRouteImport } from './routes/_authenticated/_admin/admin.resources'
@@ -108,6 +109,11 @@ const AuthenticatedResourcesIdRoute =
     path: '/resources/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthSsoCallbackRoute = AuthSsoCallbackRouteImport.update({
+  id: '/auth/sso/callback',
+  path: '/auth/sso/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminAdminIndexRoute =
   AuthenticatedAdminAdminIndexRouteImport.update({
     id: '/admin/',
@@ -157,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/auth/rejected': typeof AuthRejectedRoute
   '/my-bookings/$id': typeof AuthenticatedMyBookingsIdRoute
   '/resources/$id': typeof AuthenticatedResourcesIdRoute
+  '/auth/sso/callback': typeof AuthSsoCallbackRoute
   '/my-bookings/': typeof AuthenticatedMyBookingsIndexRoute
   '/resources/': typeof AuthenticatedResourcesIndexRoute
   '/admin/reports': typeof AuthenticatedAdminAdminReportsRoute
@@ -178,6 +185,7 @@ export interface FileRoutesByTo {
   '/auth/rejected': typeof AuthRejectedRoute
   '/my-bookings/$id': typeof AuthenticatedMyBookingsIdRoute
   '/resources/$id': typeof AuthenticatedResourcesIdRoute
+  '/auth/sso/callback': typeof AuthSsoCallbackRoute
   '/my-bookings': typeof AuthenticatedMyBookingsIndexRoute
   '/resources': typeof AuthenticatedResourcesIndexRoute
   '/admin/reports': typeof AuthenticatedAdminAdminReportsRoute
@@ -202,6 +210,7 @@ export interface FileRoutesById {
   '/auth/rejected': typeof AuthRejectedRoute
   '/_authenticated/my-bookings/$id': typeof AuthenticatedMyBookingsIdRoute
   '/_authenticated/resources/$id': typeof AuthenticatedResourcesIdRoute
+  '/auth/sso/callback': typeof AuthSsoCallbackRoute
   '/_authenticated/my-bookings/': typeof AuthenticatedMyBookingsIndexRoute
   '/_authenticated/resources/': typeof AuthenticatedResourcesIndexRoute
   '/_authenticated/_admin/admin/reports': typeof AuthenticatedAdminAdminReportsRoute
@@ -225,6 +234,7 @@ export interface FileRouteTypes {
     | '/auth/rejected'
     | '/my-bookings/$id'
     | '/resources/$id'
+    | '/auth/sso/callback'
     | '/my-bookings/'
     | '/resources/'
     | '/admin/reports'
@@ -246,6 +256,7 @@ export interface FileRouteTypes {
     | '/auth/rejected'
     | '/my-bookings/$id'
     | '/resources/$id'
+    | '/auth/sso/callback'
     | '/my-bookings'
     | '/resources'
     | '/admin/reports'
@@ -269,6 +280,7 @@ export interface FileRouteTypes {
     | '/auth/rejected'
     | '/_authenticated/my-bookings/$id'
     | '/_authenticated/resources/$id'
+    | '/auth/sso/callback'
     | '/_authenticated/my-bookings/'
     | '/_authenticated/resources/'
     | '/_authenticated/_admin/admin/reports'
@@ -289,6 +301,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   AuthPendingRoute: typeof AuthPendingRoute
   AuthRejectedRoute: typeof AuthRejectedRoute
+  AuthSsoCallbackRoute: typeof AuthSsoCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -398,6 +411,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedResourcesIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/auth/sso/callback': {
+      id: '/auth/sso/callback'
+      path: '/auth/sso/callback'
+      fullPath: '/auth/sso/callback'
+      preLoaderRoute: typeof AuthSsoCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/_admin/admin/': {
       id: '/_authenticated/_admin/admin/'
       path: '/admin'
@@ -501,6 +521,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   AuthPendingRoute: AuthPendingRoute,
   AuthRejectedRoute: AuthRejectedRoute,
+  AuthSsoCallbackRoute: AuthSsoCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

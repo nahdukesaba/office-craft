@@ -173,6 +173,18 @@ export interface AuthSession {
   user: AppUser;
 }
 
+export interface LogoutResponse {
+  centralLogoutRequired: boolean;
+}
+
+export interface BrowserSSOExchangeInput {
+  code?: string;
+  state: string;
+  status?: "pending" | "denied";
+}
+
+export type BrowserSSOExchangeResponse = AuthSession | { status: "pending" };
+
 /* ---------------------------------------------------------------------------
  * Backend-shaped types (Office-Craft API).
  * These sit alongside the legacy mock-shaped types until later integration

@@ -461,6 +461,69 @@ No
 
 ---
 
+## 2026-10-22 - Add Authorization-Code Browser SSO
+
+### Category
+
+Authentication and authorization
+
+### Summary
+
+Added **Masuk dengan SSO Balai** as an optional login path while retaining
+direct email/password login. The callback receives only a one-time code, state,
+or membership status and exchanges through the SILAPET backend.
+
+### Reason
+
+Users with an active Central browser session should enter SILAPET without
+retyping credentials, while tokens remain out of URLs and application storage
+is not shared across origins.
+
+### Impact
+
+- Login page and `/auth/sso/callback`
+- Existing `AuthSession` store and pending/rejected routing
+- Backend-managed state and PKCE flow
+- SILAPET logout remains separate from the Central browser session
+
+### Breaking Change
+
+No
+
+---
+
+## 2026-10-22 - Coordinate Application and Central Browser Logout
+
+### Category
+
+Authentication and authorization
+
+### Summary
+
+The single SILAPET **Keluar** action revokes the application session and clears
+local state. It continues through Central's CSRF-protected browser logout only
+when the backend identifies the signed Supabase session as Browser SSO;
+direct-login sessions return straight to the SILAPET login page.
+
+### Reason
+
+Users should not need to understand separate application and Central browser
+sessions. A Browser SSO logout must not leave its reusable Central session
+behind, while direct logout must not terminate an unrelated Central session.
+
+### Impact
+
+- User menu logout navigation
+- Backend Central logout start route
+- Backend login-source decision from verified Supabase `amr`
+- Current Central browser session only; other application sessions remain
+
+### Breaking Change
+
+No
+
+---
+
 # Definition of Done
 
 A significant project change is not complete until:
