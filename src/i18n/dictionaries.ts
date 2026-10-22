@@ -49,6 +49,7 @@ const en: Dict = {
 
   "action.signIn": "Sign in",
   "action.signOut": "Sign out",
+  "action.retry": "Try again",
   "action.createAccount": "Create account",
   "action.goHome": "Go home",
   "action.back": "Back",
@@ -109,12 +110,12 @@ const en: Dict = {
   "auth.createOne": "Create one",
   "auth.createTitle": "Create your account",
   "auth.creating": "Creating...",
-  "auth.accountCreated": "Account created",
+  "auth.accountCreated": "Account created. Awaiting administrator approval.",
   "auth.registrationFailed": "Registration failed",
   "auth.haveAccount": "Already have an account?",
   "auth.phoneLabel": "Phone (optional)",
-  "auth.phoneHint":
-    "Digits only with country code, e.g. 6281234567890. Used for WhatsApp notifications.",
+  "auth.phoneHint": "Optional. A number starting with 0 is stored with the 62 country code.",
+  "auth.passwordPolicyHint": "Use 8–128 characters.",
   "auth.pendingTitle": "Awaiting approval",
   "auth.pendingSubtitle": "Your account is under review.",
   "auth.pendingDesc":
@@ -127,6 +128,13 @@ const en: Dict = {
   "auth.updatePhoneDesc": "Used for booking notifications.",
   "auth.phoneUpdated": "Phone number updated",
   "auth.phoneUpdateFailed": "Failed to update phone number",
+  "auth.validatingSession": "Checking your session",
+  "auth.pleaseWait": "Please wait while we verify your SILAPET access.",
+  "auth.serviceUnavailable": "Authentication service unavailable",
+  "auth.bootstrapUnavailable":
+    "We could not verify your session. Your saved session was kept; please try again.",
+  "auth.logoutServerWarning":
+    "You were signed out locally, but the server could not confirm session revocation.",
 
   "home.title": "Booking Calendar",
   "home.descAuth":
@@ -337,6 +345,7 @@ const id: Dict = {
 
   "action.signIn": "Masuk",
   "action.signOut": "Keluar",
+  "action.retry": "Coba lagi",
   "action.createAccount": "Buat akun",
   "action.goHome": "Ke beranda",
   "action.back": "Kembali",
@@ -397,12 +406,12 @@ const id: Dict = {
   "auth.createOne": "Buat akun",
   "auth.createTitle": "Buat akun Anda",
   "auth.creating": "Membuat...",
-  "auth.accountCreated": "Akun dibuat",
+  "auth.accountCreated": "Akun berhasil dibuat. Menunggu persetujuan admin.",
   "auth.registrationFailed": "Pendaftaran gagal",
   "auth.haveAccount": "Sudah punya akun?",
   "auth.phoneLabel": "Telepon (opsional)",
-  "auth.phoneHint":
-    "Hanya angka dengan kode negara, mis. 6281234567890. Digunakan untuk notifikasi WhatsApp.",
+  "auth.phoneHint": "Opsional. Nomor berawalan 0 akan disimpan dengan kode negara 62.",
+  "auth.passwordPolicyHint": "Gunakan 8–128 karakter.",
   "auth.pendingTitle": "Menunggu persetujuan",
   "auth.pendingSubtitle": "Akun Anda sedang ditinjau.",
   "auth.pendingDesc":
@@ -415,6 +424,13 @@ const id: Dict = {
   "auth.updatePhoneDesc": "Digunakan untuk notifikasi pemesanan.",
   "auth.phoneUpdated": "Nomor telepon diperbarui",
   "auth.phoneUpdateFailed": "Gagal memperbarui nomor telepon",
+  "auth.validatingSession": "Memeriksa sesi Anda",
+  "auth.pleaseWait": "Mohon tunggu saat kami memverifikasi akses SILAPET Anda.",
+  "auth.serviceUnavailable": "Layanan autentikasi tidak tersedia",
+  "auth.bootstrapUnavailable":
+    "Kami belum dapat memverifikasi sesi Anda. Sesi tersimpan tetap dipertahankan; silakan coba lagi.",
+  "auth.logoutServerWarning":
+    "Anda sudah keluar secara lokal, tetapi server belum dapat mengonfirmasi pencabutan sesi.",
 
   "home.title": "Kalender Pemesanan",
   "home.descAuth":

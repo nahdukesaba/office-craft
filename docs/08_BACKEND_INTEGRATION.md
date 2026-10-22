@@ -109,17 +109,23 @@ file; copy `.env.example` when creating a new local setup. Vercel and Lovable
 must define the same `VITE_*` values in their project environment settings for
 the relevant environment (Development, Preview, and Production).
 
-Required public variables:
+Required public variable:
 
 - `VITE_API_BASE_URL`
+
+`VITE_PROOF_CAMERA_ONLY` is optional and defaults to `true`.
+
+The following variables remain in the environment template only for the
+inactive legacy browser Supabase wrapper and are not required by the current
+backend-mediated auth or Storage runtime:
+
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_ANON_KEY`
 - `VITE_SUPABASE_PROOFS_BUCKET`
 - `VITE_SUPABASE_RESOURCES_BUCKET`
 
-`VITE_PROOF_CAMERA_ONLY` is optional and defaults to `true`. These variables
-are bundled into the browser, so private credentials must stay server-only and
-be read through `src/lib/config.server.ts`.
+All `VITE_*` variables are bundled into the browser, so private credentials
+must stay server-only and be read through `src/lib/config.server.ts`.
 
 ---
 

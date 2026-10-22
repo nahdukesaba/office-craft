@@ -79,18 +79,17 @@ value, otherwise React enters a maximum-update-depth render loop.
 
 ## Storage Upload Rule
 
-As of 2026-07-13, resource photos and booking proofs upload directly from the
-browser to Supabase Storage using the API-issued Supabase JWT. The proofs API
-accepts JSON metadata only: persist the object path (not a public URL) in
-`booking_proofs`, then resolve private proof paths to signed URLs for display.
+As of 2026-10-22, resource photos and booking proofs upload through
+`office-craft-api`; the browser does not call Supabase Storage directly. The
+backend owns Storage authorization, object paths, persistence, and signed proof
+URLs.
 
 ## Public Configuration Rule
 
-As of 2026-07-14, API and Supabase browser configuration lives in Vite
-`VITE_*` environment variables. Use `.env` locally, and configure the same
-variables in Lovable and Vercel; never restore deployment-specific defaults to
-`src/lib/env.ts`. Keep `env.ts` as the shared typed adapter rather than
-duplicating `import.meta.env` access across clients and components.
+As of 2026-10-22, `VITE_API_BASE_URL` is the required integration setting.
+Legacy Supabase browser variables remain in the template until a later cleanup,
+but the active auth and Storage paths do not consume them. Never place private
+credentials in any `VITE_*` value.
 
 ## Password Management Rule
 
@@ -99,3 +98,28 @@ As of 2026-07-16, password changes and administrator resets are represented by
 stays centralized. The current API payloads are `{ oldPassword, newPassword }`
 for `PUT /auth/password` and `{ userId }` for `PUT /auth/reset`; keep these
 contracts aligned with the backend when the endpoints are deployed.
+
+## Central Authentication Integration Rule
+
+As of 2026-10-22, SILAPET uses `office-craft-api` as its only authentication
+entry point. The `token` returned by login/refresh is a Supabase JWT, but the
+frontend must not decode it for business identity or role. A persisted
+`auth-storage` session is only a candidate until `GET /auth/me` succeeds.
+Protected and admin routes wait for that bootstrap; temporary service failures
+retain credentials and expose retry, while invalid or revoked sessions clear
+auth state.
+
+Existing Akun Balai users use the normal login form. Central SSO automatically
+creates or reopens a pending SILAPET `user` membership after valid credentials,
+then revokes the temporary session and returns no token. The frontend maps the
+pending response to `/auth/pending`; no public request-access UI is exposed.
+
+Public registration follows the Central SSO contract: full name, email, and an
+8–128 character password are required, while phone is optional. Successful
+registration returns no session, clears the form state, and routes directly to
+`/auth/pending`. The `/me` bootstrap already refreshes and retries automatically
+through the shared HTTP interceptor when an access token receives `401`.
+
+Resource photos and booking proofs are uploaded through backend endpoints.
+The legacy browser Supabase wrapper remains in the tree for later cleanup but
+has no active call site.

@@ -401,6 +401,66 @@ No
 
 ---
 
+## 2026-10-22 - Align Registration UX with Central Contract
+
+### Category
+
+Authentication UX
+
+### Summary
+
+Aligned the registration field order and inline validation with the active
+Central SSO contract. Registration success now clears form credentials and
+redirects to the pending-approval page. The existing automatic `/me` refresh
+and retry flow was audited and retained unchanged.
+
+### Reason
+
+The previous form hid most validation errors and imposed name and phone rules
+that were stricter than the backend contract.
+
+### Impact
+
+- Registration form and schema
+- Authentication documentation
+- No backend, login, membership, or refresh implementation changes
+
+### Breaking Change
+
+No
+
+---
+
+## 2026-10-22 - Replace Public Request Access with Login Auto-Enrollment
+
+### Category
+
+Authentication and authorization
+
+### Summary
+
+Removed the public request-access UI. A valid direct login without SILAPET
+membership is now auto-enrolled as pending by Central SSO and routed to the
+existing pending screen without storing a session.
+
+### Reason
+
+Membership is an implementation detail. Users should use the same email and
+password login flow whether their SILAPET membership is approved or still needs
+administrator approval.
+
+### Impact
+
+- Login pending/rejected/disabled routing
+- Public auth navigation
+- Centralized membership ownership remains unchanged
+
+### Breaking Change
+
+No
+
+---
+
 # Definition of Done
 
 A significant project change is not complete until:
@@ -410,3 +470,38 @@ A significant project change is not complete until:
 - Relevant architectural decisions are updated.
 - The changelog records the reason for the change.
 - Future AI assistants can understand why the decision was made.
+
+---
+
+## 2026-10-22
+
+### Version
+
+Unreleased
+
+### Category
+
+Authentication and authorization
+
+### Summary
+
+Made backend `/auth/me` validation mandatory before protected or admin UI can
+render from a persisted session, and added the public SILAPET request-access
+flow for existing Akun Balai identities.
+
+### Reason
+
+Supabase issues the session JWT, while the SILAPET backend remains authoritative
+for application membership, status, and business role. Cached browser identity
+must therefore not grant access by itself.
+
+### Impact
+
+- Frontend authentication bootstrap and route guards
+- Refresh and revocation error handling
+- Public request-access UI
+- Authentication and Storage documentation
+
+### Breaking Change
+
+No

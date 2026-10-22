@@ -14,7 +14,11 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Booking Calendar · SILAPET" },
-      { name: "description", content: "Browse the public booking calendar for rooms and cars. Sign in to request a booking or upload proofs." },
+      {
+        name: "description",
+        content:
+          "Browse the public booking calendar for rooms and cars. Sign in to request a booking or upload proofs.",
+      },
       { property: "og:title", content: "Booking Calendar · SILAPET" },
       { property: "og:description", content: "See who has booked which resource and when." },
     ],
@@ -49,18 +53,19 @@ function HomePage() {
         </div>
         {!isAuthed && (
           <div className="flex gap-2">
-            <Button asChild variant="outline"><Link to="/login">{t("action.signIn")}</Link></Button>
-            <Button asChild><Link to="/register">{t("action.createAccount")}</Link></Button>
+            <Button asChild variant="outline">
+              <Link to="/login">{t("action.signIn")}</Link>
+            </Button>
+            <Button asChild>
+              <Link to="/register">{t("action.createAccount")}</Link>
+            </Button>
           </div>
         )}
       </div>
       {isLoading ? (
         <LoadingSkeleton rows={6} />
       ) : (
-        <CalendarView
-          bookings={data ?? []}
-          onMonthChange={handleMonthChange}
-        />
+        <CalendarView bookings={data ?? []} onMonthChange={handleMonthChange} />
       )}
     </Layout>
   );

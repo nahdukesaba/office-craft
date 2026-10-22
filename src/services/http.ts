@@ -1,7 +1,7 @@
 import axios, { type InternalAxiosRequestConfig } from "axios";
 import { env } from "@/lib/env";
 import { syncAuthStoreFromStorage, useAuthStore } from "@/stores/authStore";
-import { toApiError } from "@/lib/errors";
+import { ApiError, toApiError } from "@/lib/errors";
 import type { AuthSession } from "@/types";
 
 export const http = axios.create({
@@ -23,16 +23,12 @@ let refreshPromise: Promise<string | null> | null = null;
 const unauthenticatedAuthPaths = [
   "/auth/login",
   "/auth/register",
-  "/auth/request-access",
   "/auth/forgot-password",
   "/auth/reset-password",
   "/auth/refresh",
 ];
 
-const nonRefreshableAuthPaths = [
-  ...unauthenticatedAuthPaths,
-  "/auth/logout",
-];
+const nonRefreshableAuthPaths = [...unauthenticatedAuthPaths, "/auth/logout"];
 
 const nonRefreshable401Codes = new Set([
   "AUTH_ERROR",
@@ -133,7 +129,7 @@ async function performSingleTabRefresh(sentToken?: string | null): Promise<strin
 
   if (!initialRefreshToken) {
     if (store.token || store.user) {
-      store.signOut();
+      store.invalidateSession("INVALID_REFRESH_TOKEN");
     }
     return null;
   }
@@ -156,15 +152,18 @@ async function performSingleTabRefresh(sentToken?: string | null): Promise<strin
     }
 
     if (!data || typeof data.token !== "string" || !data.token.trim() || !data.user) {
-      return null;
+      throw new ApiError({
+        status: 503,
+        code: "AUTH_UNAVAILABLE",
+        message: "Authentication service returned an invalid refresh response.",
+      });
     }
 
     current.setSession(data);
     return data.token;
   } catch (error) {
     const response =
-      axios.isAxiosError(error) ||
-      (error && typeof error === "object" && "response" in error)
+      axios.isAxiosError(error) || (error && typeof error === "object" && "response" in error)
         ? (error as { response?: { status?: number; data?: unknown } }).response
         : undefined;
 
@@ -180,14 +179,19 @@ async function performSingleTabRefresh(sentToken?: string | null): Promise<strin
 
     // Network errors and temporary SSO failures (e.g. 500/502/503/504/429)
     // must not erase the user's saved session.
-    if (
-      current.refreshToken === initialRefreshToken &&
-      (invalidRefreshToken || revokedAccess)
-    ) {
-      current.signOut();
+    if (current.refreshToken === initialRefreshToken && (invalidRefreshToken || revokedAccess)) {
+      current.invalidateSession(
+        revokedAccess && revokedAccessCodes.has(code)
+          ? (code as Parameters<typeof current.invalidateSession>[0])
+          : "INVALID_REFRESH_TOKEN",
+      );
+      return null;
     }
 
-    return null;
+    // Keep the persisted credential candidate for temporary network/5xx/503
+    // failures, but surface the real refresh failure instead of the original
+    // protected-request 401.
+    throw toApiError(error);
   }
 }
 
@@ -210,9 +214,7 @@ http.interceptors.request.use((config) => {
 
   if (token) {
     const url = config.url ?? "";
-    const isUnauthenticatedAuthRoute = unauthenticatedAuthPaths.some((path) =>
-      url.includes(path),
-    );
+    const isUnauthenticatedAuthRoute = unauthenticatedAuthPaths.some((path) => url.includes(path));
 
     if (!isUnauthenticatedAuthRoute) {
       setBearerTokenOnConfig(config, token);
@@ -245,7 +247,16 @@ http.interceptors.response.use(
         const current = useAuthStore.getState();
         const sentToken = getBearerTokenFromConfig(originalRequest);
         if (current.token && (!sentToken || current.token === sentToken)) {
-          current.signOut();
+          current.invalidateSession(code as Parameters<typeof current.invalidateSession>[0]);
+        }
+      } else if (!isPublicAuth && code === "FORBIDDEN") {
+        const current = useAuthStore.getState();
+        const sentToken = getBearerTokenFromConfig(originalRequest);
+        if (current.token && (!sentToken || current.token === sentToken)) {
+          // A role downgrade commonly first appears as a forbidden admin API
+          // response. Revalidate /me so route guards and navigation stop using
+          // the previously cached business role.
+          current.setBootstrapState("idle");
         }
       }
     }
@@ -276,6 +287,14 @@ http.interceptors.response.use(
       if (newToken) {
         setBearerTokenOnConfig(originalRequest, newToken);
         return http(originalRequest);
+      }
+    }
+
+    if (status === 401 && originalRequest?._authRetry) {
+      const current = useAuthStore.getState();
+      const sentToken = getBearerTokenFromConfig(originalRequest);
+      if (current.token && (!sentToken || current.token === sentToken)) {
+        current.invalidateSession("INVALID_TOKEN");
       }
     }
 

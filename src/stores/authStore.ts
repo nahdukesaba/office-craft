@@ -2,7 +2,18 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { AppUser, AuthSession, Role } from "@/types";
 
-interface AuthState {
+export type AuthBootstrapStatus = "idle" | "loading" | "ready" | "error";
+export type AuthIssue =
+  | "ACCOUNT_PENDING_APPROVAL"
+  | "ACCOUNT_REJECTED"
+  | "ACCOUNT_DISABLED"
+  | "ACCOUNT_UNAVAILABLE"
+  | "APPLICATION_ACCESS_UNAVAILABLE"
+  | "INVALID_REFRESH_TOKEN"
+  | "INVALID_TOKEN"
+  | null;
+
+export interface AuthState {
   user: AppUser | null;
   token: string | null;
   refreshToken: string | null;
@@ -11,7 +22,15 @@ interface AuthState {
   expiresAt: number | null;
   role: Role | null;
   status: "idle" | "loading" | "authenticated" | "unauthenticated";
+  hydrated: boolean;
+  bootstrapStatus: AuthBootstrapStatus;
+  bootstrapError: string | null;
+  authIssue: AuthIssue;
   setSession: (session: AuthSession) => void;
+  setAuthoritativeUser: (user: AppUser) => void;
+  setHydrated: (hydrated: boolean) => void;
+  setBootstrapState: (status: AuthBootstrapStatus, error?: string | null) => void;
+  invalidateSession: (issue: AuthIssue) => void;
   updateUser: (patch: Partial<AppUser>) => void;
   signOut: () => void;
 }
@@ -27,6 +46,10 @@ export const useAuthStore = create<AuthState>()(
       expiresAt: null,
       role: null,
       status: "idle",
+      hydrated: false,
+      bootstrapStatus: "idle",
+      bootstrapError: null,
+      authIssue: null,
 
       setSession: (session) =>
         set({
@@ -38,6 +61,39 @@ export const useAuthStore = create<AuthState>()(
           expiresAt: session.expiresAt,
           role: session.user.role,
           status: "authenticated",
+          bootstrapStatus: "ready",
+          bootstrapError: null,
+          authIssue: null,
+        }),
+
+      setAuthoritativeUser: (user) =>
+        set({
+          user,
+          role: user.role,
+          status: "authenticated",
+          bootstrapStatus: "ready",
+          bootstrapError: null,
+          authIssue: null,
+        }),
+
+      setHydrated: (hydrated) => set({ hydrated }),
+
+      setBootstrapState: (bootstrapStatus, bootstrapError = null) =>
+        set({ bootstrapStatus, bootstrapError }),
+
+      invalidateSession: (authIssue) =>
+        set({
+          user: null,
+          token: null,
+          refreshToken: null,
+          tokenType: null,
+          expiresIn: null,
+          expiresAt: null,
+          role: null,
+          status: "unauthenticated",
+          bootstrapStatus: "ready",
+          bootstrapError: null,
+          authIssue,
         }),
 
       updateUser: (patch) =>
@@ -63,14 +119,37 @@ export const useAuthStore = create<AuthState>()(
           expiresAt: null,
           role: null,
           status: "unauthenticated",
+          bootstrapStatus: "ready",
+          bootstrapError: null,
+          authIssue: null,
         }),
     }),
-    { name: "auth-storage" },
+    {
+      name: "auth-storage",
+      partialize: (state) => ({
+        user: state.user,
+        token: state.token,
+        refreshToken: state.refreshToken,
+        tokenType: state.tokenType,
+        expiresIn: state.expiresIn,
+        expiresAt: state.expiresAt,
+        role: state.role,
+        status: state.status,
+      }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHydrated(true);
+      },
+    },
   ),
 );
 
-export const selectIsAdmin = (state: AuthState) => state.role === "admin";
-export const selectIsAuthed = (state: AuthState) => !!state.token && !!state.user;
+export const selectIsAdmin = (state: AuthState) =>
+  state.bootstrapStatus === "ready" && state.role === "admin";
+export const selectIsAuthed = (state: AuthState) =>
+  state.bootstrapStatus === "ready" &&
+  !!state.token &&
+  !!state.user &&
+  state.user.status === "approved";
 export const selectIsPending = (state: AuthState) => state.user?.status === "pending";
 export const selectIsRejected = (state: AuthState) => state.user?.status === "rejected";
 
@@ -98,6 +177,9 @@ export function syncAuthStoreFromStorage(): void {
         expiresAt: stored.expiresAt ?? null,
         role: stored.role ?? null,
         status: stored.status ?? "idle",
+        bootstrapStatus: stored.token ? "idle" : "ready",
+        bootstrapError: null,
+        authIssue: null,
       });
     }
   } catch {

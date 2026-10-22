@@ -12,7 +12,7 @@ export type BookingStatus =
   | "cancelled";
 export type ProofKind = "before" | "after";
 
-export type UserStatus = "pending" | "approved" | "rejected";
+export type UserStatus = "pending" | "approved" | "rejected" | "disabled";
 
 export interface AppUser {
   id: string;
@@ -27,6 +27,9 @@ export interface AppUser {
   createdAt?: string;
   updatedAt?: string;
 }
+
+/** Business identity returned by the SILAPET backend. */
+export type AuthUser = AppUser;
 
 export interface ResourceBase {
   id: string;

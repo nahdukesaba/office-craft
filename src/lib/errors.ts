@@ -3,7 +3,13 @@ export class ApiError extends Error {
   code?: string;
   details?: unknown;
   fieldErrors?: Record<string, string>;
-  constructor(opts: { status: number; message: string; code?: string; details?: unknown; fieldErrors?: Record<string, string> }) {
+  constructor(opts: {
+    status: number;
+    message: string;
+    code?: string;
+    details?: unknown;
+    fieldErrors?: Record<string, string>;
+  }) {
     super(opts.message);
     this.status = opts.status;
     this.code = opts.code;
@@ -61,6 +67,15 @@ const FRIENDLY: Record<string, string> = {
   INVALID_IMAGE_SIZE: "Image size must be between 1 byte and 10 MiB.",
   STORAGE_UNAVAILABLE: "Image storage service is temporarily unavailable. Please try again.",
   AUTH_UNAVAILABLE: "Authentication service is temporarily unavailable. Please try again.",
+  AUTH_ERROR: "The email or password is incorrect.",
+  INVALID_CREDENTIALS: "The email or password is incorrect.",
+  INVALID_PASSWORD: "The current password is incorrect.",
+  INVALID_TOKEN: "Your session is invalid. Please sign in again.",
+  TOKEN_EXPIRED: "Your session has expired. Please sign in again.",
+  INVALID_REFRESH_TOKEN: "Your session has expired. Please sign in again.",
+  APPLICATION_ACCESS_EXISTS: "This account already has access to SILAPET. Please sign in.",
+  APPLICATION_ACCESS_BLOCKED:
+    "This account cannot request SILAPET access. Please contact an administrator.",
   NOTIFY_NOT_ALLOWED: "Notifications are not allowed for this booking state.",
   ACCOUNT_PENDING_APPROVAL: "Your account is awaiting admin approval.",
   ACCOUNT_REJECTED: "Your account has been declined.",

@@ -1,5 +1,5 @@
-import { createFileRoute, Link, useNavigate, redirect } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,18 +13,10 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useT } from "@/i18n/LanguageProvider";
 import { isApiCode } from "@/lib/errors";
+import { useAuthBootstrap } from "@/hooks/useAuthBootstrap";
 
 export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Sign in · SILAPET" }] }),
-  beforeLoad: () => {
-    const { token, role } = useAuthStore.getState();
-
-    if (token) {
-      throw redirect({
-        to: role === "admin" ? "/admin" : "/dashboard",
-      });
-    }
-  },
   component: LoginPage,
 });
 
@@ -33,6 +25,23 @@ function LoginPage() {
   const navigate = useNavigate();
   const t = useT();
   const [showPassword, setShowPassword] = useState(false);
+  const token = useAuthStore((state) => state.token);
+  const user = useAuthStore((state) => state.user);
+  const { status: bootstrapStatus, isLoading, retry } = useAuthBootstrap();
+
+  useEffect(() => {
+    if (bootstrapStatus !== "ready" || !token || !user) return;
+    if (user.status === "pending") {
+      void navigate({ to: "/auth/pending", replace: true });
+    } else if (user.status === "rejected" || user.status === "disabled") {
+      void navigate({ to: "/auth/rejected", replace: true });
+    } else if (user.status === "approved") {
+      void navigate({
+        to: user.role === "admin" ? "/admin" : "/dashboard",
+        replace: true,
+      });
+    }
+  }, [bootstrapStatus, navigate, token, user]);
 
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -56,13 +65,31 @@ function LoginPage() {
         return;
       }
 
-      if (isApiCode(e, "ACCOUNT_REJECTED")) {
+      if (isApiCode(e, "ACCOUNT_REJECTED") || isApiCode(e, "ACCOUNT_DISABLED")) {
         navigate({ to: "/auth/rejected" });
         return;
       }
 
       toast.error(e instanceof Error ? e.message : t("auth.signInFailed"));
     }
+  }
+
+  if (token && isLoading) {
+    return (
+      <AuthLayout title={t("auth.signInTitle")} subtitle={t("auth.validatingSession")}>
+        <p className="text-sm text-muted-foreground">{t("auth.pleaseWait")}</p>
+      </AuthLayout>
+    );
+  }
+
+  if (token && bootstrapStatus === "error") {
+    return (
+      <AuthLayout title={t("auth.serviceUnavailable")} subtitle={t("auth.bootstrapUnavailable")}>
+        <Button className="w-full" onClick={() => void retry()}>
+          {t("action.retry")}
+        </Button>
+      </AuthLayout>
+    );
   }
 
   return (

@@ -26,6 +26,9 @@ and architecture.
 
 Primary goals:
 
+- Validate persisted authentication through backend `/auth/me` before rendering protected UI.
+- Keep direct login auto-enrollment and pending approval behavior aligned with Central SSO.
+- Preserve backend-mediated Supabase Auth and Storage boundaries.
 - Continue developing Office Craft without architectural rewrites.
 - Expand business modules incrementally.
 - Preserve UI consistency across all new pages.
@@ -145,7 +148,7 @@ The repository remains the ultimate source of truth.
 
 # Last Updated
 
-2026-07-16
+2026-10-22
 
 Owner
 

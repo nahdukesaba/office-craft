@@ -106,13 +106,20 @@ export function UserMenu() {
           <DropdownMenuItem
             onClick={async () => {
               await qc.cancelQueries().catch(() => undefined);
+              let serverLogoutFailed = false;
 
               try {
                 await authApi.logout();
+              } catch {
+                serverLogoutFailed = true;
               } finally {
                 qc.clear();
                 signOut();
                 navigate({ to: "/", replace: true });
+              }
+
+              if (serverLogoutFailed) {
+                toast.warning(t("auth.logoutServerWarning"));
               }
             }}
           >

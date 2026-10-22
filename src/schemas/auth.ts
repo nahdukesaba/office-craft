@@ -2,27 +2,31 @@ import { z } from "zod";
 
 export const loginSchema = z.object({
   email: z.string().email("Invalid email"),
-  password: z.string().min(6, "Min 6 characters"),
+  password: z.string().min(1, "Password is required"),
 });
 export type LoginValues = z.infer<typeof loginSchema>;
 
 export const registerSchema = z.object({
-  fullName: z.string().min(2, "Required"),
-  email: z.string().email("Invalid email"),
-  password: z.string().min(6, "Min 6 characters"),
+  fullName: z.string().trim().min(1, "Full name is required"),
   phone: z
     .string()
     .trim()
-    .regex(/^\d{8,15}$/, "Digits only, e.g. 6281234567890")
     .optional()
-    .or(z.literal("").transform(() => undefined)),
+    .transform((value) => value || undefined),
+  email: z.string().trim().min(1, "Email is required").email("Enter a valid email"),
+  password: z
+    .string()
+    .min(1, "Password is required")
+    .min(8, "Password must be 8–128 characters")
+    .max(128, "Password must be 8–128 characters")
+    .refine((value) => value.trim().length > 0, "Password cannot contain only spaces"),
 });
 export type RegisterValues = z.infer<typeof registerSchema>;
 
 export const changePasswordSchema = z
   .object({
-    oldPassword: z.string().min(6, "Min 6 characters"),
-    newPassword: z.string().min(6, "Min 6 characters"),
+    oldPassword: z.string().min(1, "Current password is required"),
+    newPassword: z.string().min(8, "Min 8 characters").max(128, "Max 128 characters"),
     confirmPassword: z.string().min(1, "Confirm your new password"),
   })
   .refine((values) => values.newPassword === values.confirmPassword, {
