@@ -29,7 +29,7 @@ const unauthenticatedAuthPaths = [
   "/auth/refresh",
   "/auth/sso/exchange",
 ];
-const nonRefreshableAuthPaths = [...unauthenticatedAuthPaths, "/auth/logout"];
+const nonRefreshableAuthPaths = [...unauthenticatedAuthPaths, "/auth/me", "/auth/logout"];
 const revokedAccessCodes = new Set([
   "APPLICATION_ACCESS_UNAVAILABLE",
   "ACCOUNT_UNAVAILABLE",
