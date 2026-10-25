@@ -113,7 +113,11 @@ export function UserMenu() {
                 const result = await authApi.logout();
                 centralLogoutRequired = result.centralLogoutRequired;
                 if (centralLogoutRequired) {
-                  window.location.assign(logoutDestination(result, env.apiBaseUrl));
+                  const currentPath =
+                    typeof window !== "undefined"
+                      ? window.location.pathname + window.location.search
+                      : "";
+                  window.location.assign(logoutDestination(result, env.apiBaseUrl, currentPath));
                   return;
                 }
               } catch {

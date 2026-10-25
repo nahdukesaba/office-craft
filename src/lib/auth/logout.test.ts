@@ -8,11 +8,23 @@ test("Browser SSO logout enters the Central logout flow", () => {
     logoutDestination({ centralLogoutRequired: true }, "http://localhost:8080/api"),
     "http://localhost:8080/api/auth/sso/logout",
   );
+  assert.equal(
+    logoutDestination({ centralLogoutRequired: true }, "http://localhost:8080/api", "/bookings/123?page=2"),
+    "http://localhost:8080/api/auth/sso/logout?cancel_return=%2Fbookings%2F123%3Fpage%3D2",
+  );
+  assert.equal(
+    logoutDestination({ centralLogoutRequired: true }, "http://localhost:8080/api", "https://evil.example"),
+    "http://localhost:8080/api/auth/sso/logout",
+  );
 });
 
 test("direct logout returns to login without entering Central logout", () => {
   assert.equal(
     logoutDestination({ centralLogoutRequired: false }, "http://localhost:8080/api"),
+    "/login",
+  );
+  assert.equal(
+    logoutDestination({ centralLogoutRequired: false }, "http://localhost:8080/api", "/bookings/123"),
     "/login",
   );
 });
@@ -28,9 +40,9 @@ test("user menu keeps one logout action and does not infer login source in the b
   );
 
   assert.equal(source.match(/t\("action\.signOut"\)/g)?.length, 1);
-  assert.doesNotMatch(source, /document\.referrer|localStorage|location\.search/);
+  assert.doesNotMatch(source, /document\.referrer|localStorage/);
   assert.ok(source.indexOf("authApi.logout()") < source.indexOf("signOut()"));
-  assert.match(source, /if \(centralLogoutRequired\)\s*\{\s*window\.location\.assign\(logoutDestination\(result, env\.apiBaseUrl\)\);\s*return;/);
+  assert.match(source, /if \(centralLogoutRequired\)\s*\{\s*const currentPath[\s\S]*?window\.location\.assign\(logoutDestination\(result, env\.apiBaseUrl, currentPath\)\);\s*return;/);
   assert.doesNotMatch(source, /finally\s*\{/);
   assert.ok(source.indexOf("return;", source.indexOf("if (centralLogoutRequired)")) < source.indexOf("signOut()"));
 });

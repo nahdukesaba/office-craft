@@ -75,7 +75,7 @@ function LoginPage() {
     }
   }
 
-  if (authenticated && isLoading) {
+  if (isLoading || (authenticated && bootstrapStatus !== "ready")) {
     return (
       <AuthLayout title={t("auth.signInTitle")} subtitle={t("auth.validatingSession")}>
         <p className="text-sm text-muted-foreground">{t("auth.pleaseWait")}</p>
