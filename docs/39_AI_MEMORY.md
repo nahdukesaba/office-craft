@@ -134,10 +134,17 @@ localStorage. The callback exchanges through `office-craft-api`, which creates
 the HttpOnly application session, and reuses the existing pending/rejected
 routes.
 
-The only user-facing logout action is **Keluar**. It performs best-effort app
-logout and always clears SILAPET in-memory state. The backend derives the source
-from the authenticated application session and returns `centralLogoutRequired`.
-Direct sessions go straight to `/login`; Browser SSO sessions navigate to the
-backend-owned Central logout start URL. Do not infer the source from URL,
-referrer, or localStorage, add separate application/SSO logout buttons, or
-replace the Central CSRF-protected browser navigation with cross-origin XHR.
+The only user-facing logout action is **Keluar**. DIRECT logout clears only
+its app session immediately. SSO logout initiation preserves the app cookie,
+upstream credentials, and in-memory auth/query state until Central's decision.
+The backend derives the source from the authenticated application session and
+returns `centralLogoutRequired`. Both Central outcomes return to the registered
+frontend `/login`: existing `/auth/me` bootstrap restores the role route after
+Cancel, or rejects the revoked SID after Confirm. Other SSO apps invalidate on
+their next introspection; DIRECT sessions remain independent.
+
+Do not infer the source from URL, referrer, or browser storage, add separate
+application/SSO logout buttons, or replace Central's CSRF-protected navigation
+with cross-origin XHR. Local app URLs use `silapet.test` for host-only cookie
+isolation. The portal launch URL is the API's `/api/auth/sso/start` endpoint,
+not the public calendar root.

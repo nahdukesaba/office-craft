@@ -30,5 +30,17 @@ test("user menu keeps one logout action and does not infer login source in the b
   assert.equal(source.match(/t\("action\.signOut"\)/g)?.length, 1);
   assert.doesNotMatch(source, /document\.referrer|localStorage|location\.search/);
   assert.ok(source.indexOf("authApi.logout()") < source.indexOf("signOut()"));
-  assert.ok(source.indexOf("signOut()") < source.indexOf("logoutDestination("));
+  assert.match(source, /if \(centralLogoutRequired\)\s*\{\s*window\.location\.assign\(logoutDestination\(result, env\.apiBaseUrl\)\);\s*return;/);
+  assert.doesNotMatch(source, /finally\s*\{/);
+  assert.ok(source.indexOf("return;", source.indexOf("if (centralLogoutRequired)")) < source.indexOf("signOut()"));
+});
+
+test("Central return revalidates the preserved cookie and restores the app-owned role route", async () => {
+  const login = await readFile(new URL("../../routes/login.tsx", import.meta.url), "utf8");
+  const bootstrap = await readFile(new URL("../../services/auth-bootstrap.ts", import.meta.url), "utf8");
+  assert.match(login, /useAuthBootstrap\(\)/);
+  assert.match(login, /bootstrapStatus !== "ready"/);
+  assert.match(login, /user\.role === "admin" \? "\/admin" : "\/dashboard"/);
+  assert.match(bootstrap, /authApi\s*\.me\(\)/);
+  assert.match(bootstrap, /current\.invalidateSession\("INVALID_TOKEN"\)/);
 });

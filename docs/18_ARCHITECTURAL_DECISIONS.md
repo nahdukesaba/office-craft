@@ -149,7 +149,9 @@ and it revalidates SILAPET membership role and status on protected requests.
 
 Zustand holds presentation state only. Page reload bootstrap uses `/auth/me`,
 refresh uses the cookie without a browser credential body, and logout expires
-the cookie after server-side revocation.
+the cookie after server-side revocation. For SSO, initiation must preserve the
+cookie until Central confirms; Cancel reuses the current cookie and Confirm
+is enforced by SID introspection on return. DIRECT logout remains immediate.
 
 Status
 

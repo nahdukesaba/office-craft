@@ -1,5 +1,19 @@
 # Changelog Guidelines
 
+## 2026-10-25 - Preserve SSO Session Until Central Logout Decision
+
+Version: Unreleased. Category: Authentication. Breaking change: No.
+
+SSO logout initiation now preserves the app cookie, upstream credentials, and
+presentation state. Clearing them before Central confirmation made Cancel
+unable to restore the originating app. The registered frontend `/login` route
+already bootstraps `/auth/me` and chooses the validated role's landing page.
+Cancel reuses that session; Confirm revokes the SID and normal introspection
+rejects it. DIRECT logout stays immediate and independent.
+
+Updated `docs/10_AUTHENTICATION.md`, `docs/18_ARCHITECTURAL_DECISIONS.md`, and
+`docs/39_AI_MEMORY.md`. No new session store, cookie domain, or database schema.
+
 > This document defines **how architectural and project changes are recorded**.
 >
 > It is intended for developers and AI assistants, not end users.

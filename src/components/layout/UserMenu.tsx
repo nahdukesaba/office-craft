@@ -112,12 +112,16 @@ export function UserMenu() {
               try {
                 const result = await authApi.logout();
                 centralLogoutRequired = result.centralLogoutRequired;
+                if (centralLogoutRequired) {
+                  window.location.assign(logoutDestination(result, env.apiBaseUrl));
+                  return;
+                }
               } catch {
                 serverLogoutFailed = true;
-              } finally {
-                qc.clear();
-                signOut();
               }
+
+              qc.clear();
+              signOut();
 
               if (serverLogoutFailed) {
                 toast.warning(t("auth.logoutServerWarning"));

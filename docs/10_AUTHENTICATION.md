@@ -160,22 +160,34 @@ navigation state if required
 
 The application should return to a clean unauthenticated state.
 
-The frontend calls cookie-authenticated `POST /auth/logout` before local
-cleanup so the backend can revoke the Central session and expire the SILAPET
-cookie. In-memory auth presentation and query state are still cleared if that
-request fails, with a non-sensitive warning to the user.
+The single visible **Keluar** action calls cookie-authenticated
+`POST /auth/logout`. The backend derives the source from the encrypted app
+session and returns `centralLogoutRequired`; the frontend never guesses it.
 
-The single visible **Keluar** action first asks the backend to revoke the
-SILAPET session. The backend derives the login source from the encrypted
-application session and returns `centralLogoutRequired`; the frontend never
-guesses from URL, referrer, or browser storage.
+DIRECT logout immediately revokes only its upstream token session and expires
+the SILAPET cookie. The frontend clears auth/query state and goes to `/login`.
+It never revokes the Central browser SID or another app's session.
 
-For direct password login, local auth/query state is cleared and the browser
-goes directly to `/login`. Any unrelated Central browser cookie remains. For a
-Browser SSO session, the browser instead continues through
-`GET /auth/sso/logout`; Central confirms and revokes only the current Central
-browser session before returning to the registered SILAPET `/login` URI.
-Sessions in other applications are not revoked by either flow.
+SSO logout initiation preserves the app cookie, upstream credentials, and
+in-memory auth/query state. The browser navigates through
+`GET /auth/sso/logout` to Central's confirmation page. Both Cancel and Confirm
+return to the exact registered SILAPET frontend `/login` URL. On this full-page
+return, the existing bootstrap validates `/auth/me` with the preserved cookie:
+
+- Cancel leaves the SID active, so the existing login page selects `/admin` or
+  `/dashboard` from the validated SILAPET role without asking for credentials.
+- Confirm revokes the Central SID. Backend introspection rejects the app
+  session and expires its cookie; bootstrap clears presentation state. Other
+  SSO apps reject the same family on their next validation. DIRECT sessions
+  in other apps are unaffected.
+
+Central never deletes application cookies. Keep the application cookie
+host-only and HttpOnly. Do not add unconditional cleanup before confirmation.
+
+In local development Central uses `http://sso-balai.test:18082`, SILAPET FE
+uses `http://silapet.test:8080`, and its API uses `http://silapet.test:8081`.
+An approved Central portal card starts SILAPET through
+`http://silapet.test:8081/api/auth/sso/start`; SILAPET owns the final role route.
 
 ---
 
