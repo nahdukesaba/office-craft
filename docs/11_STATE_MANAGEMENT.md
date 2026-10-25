@@ -34,6 +34,12 @@ dialog visibility
 
 draft forms
 
+in-memory authentication presentation (`user`, application `role`, bootstrap
+and issue state)
+
+Authentication credentials, Central `sid`, and durable session authority are
+not client state. They remain in the backend-managed HttpOnly session cookie.
+
 ---
 
 ## Server State

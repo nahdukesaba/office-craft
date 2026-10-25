@@ -26,12 +26,12 @@ function LoginPage() {
   const navigate = useNavigate();
   const t = useT();
   const [showPassword, setShowPassword] = useState(false);
-  const token = useAuthStore((state) => state.token);
+  const authenticated = useAuthStore((state) => state.authenticated);
   const user = useAuthStore((state) => state.user);
   const { status: bootstrapStatus, isLoading, retry } = useAuthBootstrap();
 
   useEffect(() => {
-    if (bootstrapStatus !== "ready" || !token || !user) return;
+    if (bootstrapStatus !== "ready" || !authenticated || !user) return;
     if (user.status === "pending") {
       void navigate({ to: "/auth/pending", replace: true });
     } else if (user.status === "rejected" || user.status === "disabled") {
@@ -42,7 +42,7 @@ function LoginPage() {
         replace: true,
       });
     }
-  }, [bootstrapStatus, navigate, token, user]);
+  }, [authenticated, bootstrapStatus, navigate, user]);
 
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -75,7 +75,7 @@ function LoginPage() {
     }
   }
 
-  if (token && isLoading) {
+  if (authenticated && isLoading) {
     return (
       <AuthLayout title={t("auth.signInTitle")} subtitle={t("auth.validatingSession")}>
         <p className="text-sm text-muted-foreground">{t("auth.pleaseWait")}</p>
@@ -83,7 +83,7 @@ function LoginPage() {
     );
   }
 
-  if (token && bootstrapStatus === "error") {
+  if (authenticated && bootstrapStatus === "error") {
     return (
       <AuthLayout title={t("auth.serviceUnavailable")} subtitle={t("auth.bootstrapUnavailable")}>
         <Button className="w-full" onClick={() => void retry()}>

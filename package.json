@@ -10,6 +10,8 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
+    "test": "node --test src/lib/auth/*.test.ts",
+    "test:auth": "node --test src/lib/auth/*.test.ts",
     "test:logout": "node --test src/lib/auth/logout.test.ts",
     "format": "prettier --write ."
   },

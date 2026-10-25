@@ -15,7 +15,7 @@ import { friendlyError, toApiError } from "@/lib/errors";
 export const Route = createFileRoute("/register")({
   head: () => ({ meta: [{ title: "Create account · SILAPET" }] }),
   beforeLoad: () => {
-    if (useAuthStore.getState().token) throw redirect({ to: "/dashboard" });
+    if (useAuthStore.getState().authenticated) throw redirect({ to: "/dashboard" });
   },
   component: RegisterPage,
 });

@@ -1,6 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { env } from "@/lib/env";
-import { useAuthStore } from "@/stores/authStore";
 
 let cached: SupabaseClient | null = null;
 
@@ -14,7 +13,6 @@ export function getSupabaseClient(): SupabaseClient | null {
 
   cached = createClient(env.supabaseUrl, env.supabaseAnonKey, {
     auth: { persistSession: false, autoRefreshToken: false },
-    accessToken: async () => useAuthStore.getState().token,
   });
   return cached;
 }

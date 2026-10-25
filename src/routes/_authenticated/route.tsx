@@ -20,7 +20,7 @@ function redirectForAuthState(state: AuthState, returnTo: string): void {
   ) {
     throw redirect({ to: "/auth/rejected" });
   }
-  if (!state.token || !state.user || state.user.status !== "approved") {
+  if (!state.authenticated || !state.user || state.user.status !== "approved") {
     throw redirect({ to: "/login", search: { redirect: returnTo } });
   }
 }
@@ -44,7 +44,7 @@ export const Route = createFileRoute("/_authenticated")({
 function AuthenticatedLayout() {
   const navigate = useNavigate();
   const t = useT();
-  const token = useAuthStore((state) => state.token);
+  const authenticated = useAuthStore((state) => state.authenticated);
   const user = useAuthStore((state) => state.user);
   const authIssue = useAuthStore((state) => state.authIssue);
   const { status, isLoading, retry } = useAuthBootstrap();
@@ -57,7 +57,7 @@ function AuthenticatedLayout() {
           user?.status === "rejected" ||
           user?.status === "disabled"
         ? "/auth/rejected"
-        : !token || !user || user.status !== "approved"
+        : !authenticated || !user || user.status !== "approved"
           ? "/login"
           : null;
 

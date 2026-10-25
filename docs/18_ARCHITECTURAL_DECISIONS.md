@@ -132,3 +132,25 @@ single client-side adapter so existing consumers keep one consistent API.
 Status
 
 Accepted.
+
+---
+
+## ADR-010
+
+SILAPET browser authentication uses a backend-managed encrypted HttpOnly
+application session.
+
+Reason
+
+Central access tokens, refresh tokens, and trusted Browser SSO `sid` must not
+be readable or writable by frontend JavaScript. The backend is the only trust
+boundary that may translate the application cookie into Central verification,
+and it revalidates SILAPET membership role and status on protected requests.
+
+Zustand holds presentation state only. Page reload bootstrap uses `/auth/me`,
+refresh uses the cookie without a browser credential body, and logout expires
+the cookie after server-side revocation.
+
+Status
+
+Accepted.

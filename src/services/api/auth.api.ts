@@ -25,8 +25,8 @@ export const authApi = {
     const { data } = await http.get<AppUser>("/auth/me");
     return data;
   },
-  async refresh(refreshToken: string): Promise<AuthSession> {
-    const { data } = await sessionHttp.post<AuthSession>("/auth/refresh", { refreshToken });
+  async refresh(): Promise<AuthSession> {
+    const { data } = await sessionHttp.post<AuthSession>("/auth/refresh");
     return data;
   },
   async exchangeBrowserSSO(input: BrowserSSOExchangeInput): Promise<BrowserSSOExchangeResponse> {

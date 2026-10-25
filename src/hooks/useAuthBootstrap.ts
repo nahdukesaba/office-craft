@@ -6,13 +6,12 @@ export function useAuthBootstrap() {
   const hydrated = useAuthStore((state) => state.hydrated);
   const status = useAuthStore((state) => state.bootstrapStatus);
   const error = useAuthStore((state) => state.bootstrapError);
-  const token = useAuthStore((state) => state.token);
 
   useEffect(() => {
     if (hydrated && status === "idle") {
       void ensureAuthBootstrap().catch(() => undefined);
     }
-  }, [hydrated, status, token]);
+  }, [hydrated, status]);
 
   const retry = useCallback(() => ensureAuthBootstrap(true), []);
 

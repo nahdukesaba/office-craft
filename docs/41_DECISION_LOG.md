@@ -401,6 +401,37 @@ No
 
 ---
 
+## 2026-10-25 - Move SILAPET Session Authority Behind HttpOnly Cookie
+
+### Category
+
+Authentication and authorization
+
+### Summary
+
+Removed browser-readable access and refresh credentials from SILAPET. The
+backend now owns an encrypted HttpOnly application session for direct and
+Browser SSO login, refresh, protected API access, and logout.
+
+### Reason
+
+Browser JavaScript must not become a credential or trusted `sid` boundary.
+SILAPET application role and status must continue to be verified from its own
+membership data on every protected request.
+
+### Impact
+
+- Login, SSO exchange, refresh, `/auth/me`, and logout contracts
+- Cookie-aware Axios clients and in-memory Zustand presentation state
+- Protected backend routing, trusted-origin checks, and session validation
+- New `APP_SESSION_KEY`, `APP_SESSION_TTL`, and `APP_SESSION_COOKIE_SECURE` settings
+
+### Breaking Change
+
+Yes. Existing browser-persisted sessions must sign in again.
+
+---
+
 ## 2026-10-22 - Align Registration UX with Central Contract
 
 ### Category

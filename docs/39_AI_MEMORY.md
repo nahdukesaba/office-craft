@@ -94,20 +94,20 @@ credentials in any `VITE_*` value.
 ## Password Management Rule
 
 As of 2026-07-16, password changes and administrator resets are represented by
-`authApi` methods and always use the shared HTTP client so bearer-token handling
-stays centralized. The current API payloads are `{ oldPassword, newPassword }`
+`authApi` methods and always use the shared cookie-aware HTTP client. The
+current API payloads are `{ oldPassword, newPassword }`
 for `PUT /auth/password` and `{ userId }` for `PUT /auth/reset`; keep these
 contracts aligned with the backend when the endpoints are deployed.
 
 ## Central Authentication Integration Rule
 
-As of 2026-10-22, SILAPET uses `office-craft-api` as its only authentication
-entry point. The `token` returned by login/refresh is a Supabase JWT, but the
-frontend must not decode it for business identity or role. A persisted
-`auth-storage` session is only a candidate until `GET /auth/me` succeeds.
-Protected and admin routes wait for that bootstrap; temporary service failures
-retain credentials and expose retry, while invalid or revoked sessions clear
-auth state.
+As of 2026-10-25, SILAPET uses `office-craft-api` as its only authentication
+entry point. Login, SSO exchange, and refresh expose only the business user;
+Central access tokens, refresh tokens, and trusted Browser SSO `sid` stay in an
+encrypted HttpOnly SILAPET cookie. Do not persist auth state in localStorage or
+attach browser bearer headers. Protected and admin routes bootstrap through
+cookie-authenticated `GET /auth/me`; temporary service failures expose retry,
+while invalid or revoked sessions clear in-memory presentation state.
 
 Existing Akun Balai users use the normal login form. Central SSO automatically
 creates or reopens a pending SILAPET `user` membership after valid credentials,
@@ -117,8 +117,8 @@ pending response to `/auth/pending`; no public request-access UI is exposed.
 Public registration follows the Central SSO contract: full name, email, and an
 8–128 character password are required, while phone is optional. Successful
 registration returns no session, clears the form state, and routes directly to
-`/auth/pending`. The `/me` bootstrap already refreshes and retries automatically
-through the shared HTTP interceptor when an access token receives `401`.
+`/auth/pending`. The `/me` bootstrap refreshes without a browser credential body
+and retries automatically through the shared HTTP interceptor after `401`.
 
 Resource photos and booking proofs are uploaded through backend endpoints.
 The legacy browser Supabase wrapper remains in the tree for later cleanup but
@@ -130,12 +130,13 @@ As of 2026-10-22, browser SSO is an optional login path in addition to direct
 login. The frontend starts it through `GET /auth/sso/start` and handles only
 `code`, `state`, or a safe membership status at `/auth/sso/callback`. Never add
 Supabase tokens to callback URLs or share auth state across applications via
-localStorage. The callback exchanges through `office-craft-api`, stores the
-normal `AuthSession`, and reuses the existing pending/rejected routes.
+localStorage. The callback exchanges through `office-craft-api`, which creates
+the HttpOnly application session, and reuses the existing pending/rejected
+routes.
 
 The only user-facing logout action is **Keluar**. It performs best-effort app
-logout and always clears SILAPET local state. The backend derives the source
-from the verified Supabase `amr` claim and returns `centralLogoutRequired`.
+logout and always clears SILAPET in-memory state. The backend derives the source
+from the authenticated application session and returns `centralLogoutRequired`.
 Direct sessions go straight to `/login`; Browser SSO sessions navigate to the
 backend-owned Central logout start URL. Do not infer the source from URL,
 referrer, or localStorage, add separate application/SSO logout buttons, or

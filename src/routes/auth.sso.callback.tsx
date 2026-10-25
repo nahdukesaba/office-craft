@@ -25,13 +25,7 @@ export const Route = createFileRoute("/auth/sso/callback")({
 });
 
 function isAuthSession(value: unknown): value is AuthSession {
-  return (
-    !!value &&
-    typeof value === "object" &&
-    "token" in value &&
-    "refreshToken" in value &&
-    "user" in value
-  );
+  return !!value && typeof value === "object" && "user" in value;
 }
 
 function BrowserSSOCallbackPage() {
