@@ -112,9 +112,6 @@ function RegisterPage() {
               {form.formState.errors.phone.message}
             </p>
           )}
-          <p id="register-phone-hint" className="text-xs text-muted-foreground">
-            {t("auth.phoneHint")}
-          </p>
         </div>
 
         <div className="space-y-2">
@@ -151,9 +148,6 @@ function RegisterPage() {
               {form.formState.errors.password.message}
             </p>
           )}
-          <p id="register-password-hint" className="text-xs text-muted-foreground">
-            {t("auth.passwordPolicyHint")}
-          </p>
         </div>
 
         <Button type="submit" disabled={signUp.isPending} className="w-full">

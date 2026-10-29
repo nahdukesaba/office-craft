@@ -74,13 +74,12 @@ const en: Dict = {
   "auth.passwordUpdateFailed": "Failed to update password",
   "auth.forgotPassword": "Forgot password?",
   "auth.forgotPasswordTitle": "Reset your password",
-  "auth.forgotPasswordDesc":
-    "Enter your account email and we will send password reset instructions if the account is eligible.",
-  "auth.sendResetLink": "Send reset instructions",
+  "auth.forgotPasswordDesc": "Enter your email",
+  "auth.sendResetLink": "Submit",
   "auth.sendingResetLink": "Sending...",
   "auth.recoveryEmailSent": "Check your email",
   "auth.recoveryEmailSentDesc":
-    "If the email is registered and has access to SILAPET, password reset instructions have been sent.",
+    "If the email is registered and has access, password reset instructions will be sent.",
   "auth.backToSignIn": "Back to sign in",
   "auth.resetPasswordTitle": "Create a new password",
   "auth.resetPasswordDesc": "Enter a new password for your Akun Balai.",
@@ -94,7 +93,7 @@ const en: Dict = {
   "auth.invalidRecoveryLink": "This password reset link is invalid or incomplete.",
   "auth.invalidRecoveryToken": "This password reset link is invalid or has expired.",
   "auth.requestNewRecoveryLink": "Request a new reset link",
-  "auth.fullNameLabel": "Full name",
+  "auth.fullNameLabel": "Name",
   "auth.signInTitle": "Sign in",
   "auth.signInSubtitle":
     "Use your email and password to login. Contact your admin for mor information.",
@@ -112,9 +111,7 @@ const en: Dict = {
   "auth.accountCreated": "Account created. Awaiting administrator approval.",
   "auth.registrationFailed": "Registration failed",
   "auth.haveAccount": "Already have an account?",
-  "auth.phoneLabel": "Phone (optional)",
-  "auth.phoneHint": "Optional. A number starting with 0 is stored with the 62 country code.",
-  "auth.passwordPolicyHint": "Use 8–128 characters.",
+  "auth.phoneLabel": "Phone",
   "auth.pendingTitle": "Awaiting approval",
   "auth.pendingSubtitle": "Your account is under review.",
   "auth.pendingDesc":
@@ -374,13 +371,12 @@ const id: Dict = {
   "auth.passwordUpdateFailed": "Gagal memperbarui kata sandi",
   "auth.forgotPassword": "Lupa kata sandi?",
   "auth.forgotPasswordTitle": "Atur ulang kata sandi",
-  "auth.forgotPasswordDesc":
-    "Masukkan email akun Anda. Jika akun memenuhi syarat, instruksi reset kata sandi akan dikirim.",
-  "auth.sendResetLink": "Kirim instruksi reset",
+  "auth.forgotPasswordDesc": "Masukkan email Anda",
+  "auth.sendResetLink": "Kirim",
   "auth.sendingResetLink": "Mengirim...",
   "auth.recoveryEmailSent": "Periksa email Anda",
   "auth.recoveryEmailSentDesc":
-    "Jika email terdaftar dan memiliki akses SILAPET, instruksi reset kata sandi telah dikirim.",
+    "Jika email terdaftar dan memiliki akses, instruksi reset kata sandi akan dikirim.",
   "auth.backToSignIn": "Kembali ke halaman masuk",
   "auth.resetPasswordTitle": "Buat kata sandi baru",
   "auth.resetPasswordDesc": "Masukkan kata sandi baru untuk Akun Balai Anda.",
@@ -394,7 +390,7 @@ const id: Dict = {
   "auth.invalidRecoveryLink": "Tautan reset kata sandi tidak valid atau tidak lengkap.",
   "auth.invalidRecoveryToken": "Tautan reset kata sandi tidak valid atau sudah kedaluwarsa.",
   "auth.requestNewRecoveryLink": "Minta tautan reset baru",
-  "auth.fullNameLabel": "Nama lengkap",
+  "auth.fullNameLabel": "Nama",
   "auth.signInTitle": "Masuk",
   "auth.signInSubtitle":
     "Gunakan email dan password anda untuk masuk. Hubungi admin anda untuk keterangan lebih lanjut.",
@@ -412,9 +408,7 @@ const id: Dict = {
   "auth.accountCreated": "Akun berhasil dibuat. Menunggu persetujuan admin.",
   "auth.registrationFailed": "Pendaftaran gagal",
   "auth.haveAccount": "Sudah punya akun?",
-  "auth.phoneLabel": "Telepon (opsional)",
-  "auth.phoneHint": "Opsional. Nomor berawalan 0 akan disimpan dengan kode negara 62.",
-  "auth.passwordPolicyHint": "Gunakan 8–128 karakter.",
+  "auth.phoneLabel": "Telepon",
   "auth.pendingTitle": "Menunggu persetujuan",
   "auth.pendingSubtitle": "Akun Anda sedang ditinjau.",
   "auth.pendingDesc":
