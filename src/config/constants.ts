@@ -1,7 +1,6 @@
 import type { BookingStatus } from "@/types";
 
 export const BOOKING_TIME_STEP_MIN = 30;
-export const BOOKING_MAX_DURATION_MIN = 240;
 
 export const STATUS_COLOR: Record<BookingStatus, string> = {
   pending: "bg-chart-5/15 text-chart-5 border-chart-5/30",

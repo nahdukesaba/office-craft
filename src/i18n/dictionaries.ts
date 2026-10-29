@@ -1,11 +1,6 @@
 export const LANGUAGES = ["en", "id"] as const;
 export type Language = (typeof LANGUAGES)[number];
 
-export const LANGUAGE_LABEL: Record<Language, string> = {
-  en: "English",
-  id: "Bahasa Indonesia",
-};
-
 type Dict = Record<string, string>;
 
 const en: Dict = {

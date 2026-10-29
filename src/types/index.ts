@@ -28,9 +28,6 @@ export interface AppUser {
   updatedAt?: string;
 }
 
-/** Business identity returned by the SILAPET backend. */
-export type AuthUser = AppUser;
-
 export interface ResourceBase {
   id: string;
   name: string;
@@ -204,14 +201,6 @@ export interface ApiBooking {
 export interface BookingWithDetails extends ApiBooking {
   resource?: Resource;
   user?: AppUser;
-}
-
-export interface PaginatedBookings {
-  data: BookingWithDetails[];
-  page: number;
-  pageSize: number;
-  total: number;
-  totalPages: number;
 }
 
 export interface PublicBooking {

@@ -115,17 +115,9 @@ Required public variable:
 
 `VITE_PROOF_CAMERA_ONLY` is optional and defaults to `true`.
 
-The following variables remain in the environment template only for the
-inactive legacy browser Supabase wrapper and are not required by the current
-backend-mediated auth or Storage runtime:
-
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
-- `VITE_SUPABASE_PROOFS_BUCKET`
-- `VITE_SUPABASE_RESOURCES_BUCKET`
-
 All `VITE_*` variables are bundled into the browser, so private credentials
-must stay server-only and be read through `src/lib/config.server.ts`.
+must stay in the backend environment. The frontend has no Supabase client or
+browser-visible Supabase configuration.
 
 ---
 

@@ -86,10 +86,10 @@ URLs.
 
 ## Public Configuration Rule
 
-As of 2026-10-22, `VITE_API_BASE_URL` is the required integration setting.
-Legacy Supabase browser variables remain in the template until a later cleanup,
-but the active auth and Storage paths do not consume them. Never place private
-credentials in any `VITE_*` value.
+As of 2026-10-29, `VITE_API_BASE_URL` is the only required integration setting.
+`VITE_PROOF_CAMERA_ONLY` remains optional. Browser Supabase variables and the
+unused Supabase client have been removed. Never place private credentials in
+any `VITE_*` value.
 
 ## Password Management Rule
 
@@ -121,8 +121,7 @@ registration returns no session, clears the form state, and routes directly to
 and retries automatically through the shared HTTP interceptor after `401`.
 
 Resource photos and booking proofs are uploaded through backend endpoints.
-The legacy browser Supabase wrapper remains in the tree for later cleanup but
-has no active call site.
+There is no browser Supabase client or direct Storage path.
 
 ## Browser SSO Rule
 

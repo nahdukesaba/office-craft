@@ -4,7 +4,6 @@ import type { BookingStatus, Proof } from "@/types";
 
 export const fmtDate = (iso: string) => format(parseISO(iso), "MMM d, yyyy");
 export const fmtDateTime = (iso: string) => format(parseISO(iso), "MMM d, yyyy HH:mm");
-export const fmtTime = (hhmm: string) => hhmm;
 
 export function diffMinutes(start: string, end: string) {
   const [sh, sm] = start.split(":").map(Number);

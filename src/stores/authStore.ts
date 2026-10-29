@@ -103,5 +103,3 @@ export const selectIsAuthed = (state: AuthState) =>
   state.authenticated &&
   !!state.user &&
   state.user.status === "approved";
-export const selectIsPending = (state: AuthState) => state.user?.status === "pending";
-export const selectIsRejected = (state: AuthState) => state.user?.status === "rejected";
