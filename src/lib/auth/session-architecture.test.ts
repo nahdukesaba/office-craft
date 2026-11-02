@@ -30,6 +30,8 @@ test("browser bootstrap and SSO callback accept only public user data", async ()
   ]);
 
   assert.match(bootstrap, /authApi\s*\.me\(\)/);
+  assert.match(bootstrap, /if \(!user\)/);
+  assert.match(bootstrap, /current\.invalidateSession\(null\)/);
   assert.doesNotMatch(callback, /accessToken|refreshToken|\bsid\b/);
   assert.doesNotMatch(types, /refreshToken|accessToken|\bsid\??:/);
 });

@@ -108,6 +108,9 @@ encrypted HttpOnly SILAPET cookie. Do not persist auth state in localStorage or
 attach browser bearer headers. Protected and admin routes bootstrap through
 cookie-authenticated `GET /auth/me`; temporary service failures expose retry,
 while invalid or revoked sessions clear in-memory presentation state.
+For a browser without a `silapet-session` cookie, `/auth/me` returns `204 No
+Content` and bootstrap resolves as signed out without an expected `401`. A
+present cookie still goes through full backend validation.
 
 Existing Akun Balai users use the normal login form. Central SSO automatically
 creates or reopens a pending SILAPET `user` membership after valid credentials,
@@ -117,8 +120,7 @@ pending response to `/auth/pending`; no public request-access UI is exposed.
 Public registration follows the Central SSO contract: full name, email, and an
 8–128 character password are required, while phone is optional. Successful
 registration returns no session, clears the form state, and routes directly to
-`/auth/pending`. The `/me` bootstrap refreshes without a browser credential body
-and retries automatically through the shared HTTP interceptor after `401`.
+`/auth/pending`. The `/me` bootstrap sends no browser credential body.
 
 Resource photos and booking proofs are uploaded through backend endpoints.
 There is no browser Supabase client or direct Storage path.

@@ -21,9 +21,9 @@ export const authApi = {
     const { data } = await http.post<{ user: AppUser }>("/auth/register", input);
     return data;
   },
-  async me(): Promise<AppUser> {
-    const { data } = await http.get<AppUser>("/auth/me");
-    return data;
+  async me(): Promise<AppUser | null> {
+    const { data, status } = await http.get<AppUser>("/auth/me");
+    return status === 204 ? null : data;
   },
   async refresh(): Promise<AuthSession> {
     const { data } = await sessionHttp.post<AuthSession>("/auth/refresh");

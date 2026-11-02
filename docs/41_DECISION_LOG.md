@@ -1,5 +1,17 @@
 # Changelog Guidelines
 
+## 2026-11-02 - Make Signed-Out Login Bootstrap a Quiet Session Probe
+
+Version: Unreleased. Category: Authentication. Breaking change: No.
+
+The public login page still checks `/auth/me` so a valid HttpOnly session can
+restore the correct role landing after reload or Central logout cancellation.
+When no SILAPET session cookie exists, the backend now returns `204 No Content`
+and the frontend resolves bootstrap as signed out. This removes the expected
+`401 Unauthorized` on every fresh login-page visit without weakening validation:
+a present cookie still passes through session decoding, SSO introspection,
+token verification, and SILAPET membership checks.
+
 ## 2026-10-25 - Preserve SSO Session Until Central Logout Decision
 
 Version: Unreleased. Category: Authentication. Breaking change: No.

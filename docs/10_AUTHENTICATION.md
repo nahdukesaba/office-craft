@@ -63,6 +63,10 @@ The `/auth/me` response establishes the in-memory business user and role used
 for presentation. Temporary network or service failures expose a retry state.
 Invalid, expired, corrupt, or revoked sessions clear in-memory presentation
 state; the backend rejects the cookie and clears it when appropriate.
+When the browser has no SILAPET session cookie, `/auth/me` is a quiet session
+probe and returns `204 No Content`; the login page renders without generating
+an expected `401`. If a cookie is present, the backend still performs the full
+session, SSO introspection, token, and membership validation chain.
 
 Business role and application status must come from backend response data.
 Never decode the Supabase JWT to determine UI authorization.
@@ -79,10 +83,9 @@ once. A successful refresh replaces the cookie and updates only the in-memory
 business user. A rejected refresh clears presentation state; network and `5xx`
 failures surface a retryable service error.
 
-Bootstrap uses this same interceptor path. If the first `GET /auth/me` receives
-`401`, a valid HttpOnly session rotates the session and the original `/auth/me`
-request is retried automatically before bootstrap resolves; a second browser
-refresh is not required.
+Bootstrap treats `204 No Content` as a signed-out browser. A `401` from
+`GET /auth/me` is reserved for a cookie that was present but failed validation;
+the client then clears its in-memory presentation state.
 
 ---
 

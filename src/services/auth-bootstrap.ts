@@ -24,6 +24,10 @@ export async function ensureAuthBootstrap(force = false): Promise<AppUser | null
     .me()
     .then((user) => {
       const current = useAuthStore.getState();
+      if (!user) {
+        current.invalidateSession(null);
+        return null;
+      }
       current.setAuthoritativeUser(user);
       return user;
     })
