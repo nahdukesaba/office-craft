@@ -1,17 +1,32 @@
-import { useEffect, useMemo, useState } from "react";
 import {
-  addDays, addMonths, addWeeks, endOfMonth, endOfWeek, format, isSameDay, parseISO,
-  isSameMonth, isToday, startOfMonth, startOfWeek, subMonths, subWeeks,
+  addDays,
+  addMonths,
+  addWeeks,
+  endOfMonth,
+  endOfWeek,
+  format,
+  isSameMonth,
+  startOfMonth,
+  startOfWeek,
+  subMonths,
+  subWeeks,
 } from "date-fns";
+import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import type { Booking, Resource  } from "@/types";
+import type { Booking, Resource } from "@/types";
 import { cn } from "@/lib/utils";
 import { colorForResource } from "@/lib/colors";
+import {
+  calendarDateKey,
+  isJakartaCalendarToday,
+  jakartaCalendarToday,
+  MONDAY_WEEK_OPTIONS,
+  parseCalendarDate,
+} from "@/lib/calendarDate";
 import { useResources } from "@/hooks/queries/useResources";
 import { BookingDetailsDialog } from "./BookingDetailsDialog";
-
 
 type View = "month" | "week";
 
@@ -34,14 +49,12 @@ export function CalendarView({
   onMonthChange?: (year: number, month: number) => void;
 }) {
   const [view, setView] = useState<View>("month");
-  const [cursor, setCursor] = useState(() => new Date());
+  const [cursor, setCursor] = useState(jakartaCalendarToday);
   const [selected, setSelected] = useState<Booking | null>(null);
 
   useEffect(() => {
     onMonthChange?.(cursor.getFullYear(), cursor.getMonth() + 1);
   }, [cursor, onMonthChange]);
-
-
 
   const { data: allResources } = useResources({});
   const resources = useMemo(() => {
@@ -61,7 +74,7 @@ export function CalendarView({
   const title =
     view === "month"
       ? format(cursor, "MMMM yyyy")
-      : `Week of ${format(startOfWeek(cursor), "MMM d, yyyy")}`;
+      : `Week of ${format(startOfWeek(cursor, MONDAY_WEEK_OPTIONS), "MMM d, yyyy")}`;
 
   return (
     <div className="space-y-3">
@@ -74,7 +87,7 @@ export function CalendarView({
           <Button size="icon" variant="ghost" onClick={() => shift(1)}>
             <ChevronRight className="size-4" />
           </Button>
-          <Button size="sm" variant="outline" onClick={() => setCursor(new Date())}>
+          <Button size="sm" variant="outline" onClick={() => setCursor(jakartaCalendarToday())}>
             Today
           </Button>
         </div>
@@ -85,7 +98,9 @@ export function CalendarView({
               onClick={() => setView(v)}
               className={cn(
                 "rounded px-3 py-1 text-xs font-medium capitalize transition-colors",
-                view === v ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+                view === v
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               {v}
@@ -112,11 +127,17 @@ export function CalendarView({
 }
 
 function MonthGrid({
-  cursor, bookings, onSelect,
-}: { cursor: Date; bookings: Booking[]; onSelect: (b: Booking) => void }) {
+  cursor,
+  bookings,
+  onSelect,
+}: {
+  cursor: Date;
+  bookings: Booking[];
+  onSelect: (b: Booking) => void;
+}) {
   const days = useMemo(() => {
-    const start = startOfWeek(startOfMonth(cursor));
-    const end = endOfWeek(endOfMonth(cursor));
+    const start = startOfWeek(startOfMonth(cursor), MONDAY_WEEK_OPTIONS);
+    const end = endOfWeek(endOfMonth(cursor), MONDAY_WEEK_OPTIONS);
     const out: Date[] = [];
     for (let d = start; d <= end; d = addDays(d, 1)) out.push(d);
     return out;
@@ -125,10 +146,10 @@ function MonthGrid({
   const eventsByDay = useMemo(() => {
     const map = new Map<string, Booking[]>();
     bookings.forEach((b) => {
-      const start = parseISO(b.date);
-      const end = b.endDate ? parseISO(b.endDate) : start;
+      const start = parseCalendarDate(b.date);
+      const end = b.endDate ? parseCalendarDate(b.endDate) : start;
       for (let d = start; d <= end; d = addDays(d, 1)) {
-        const key = format(d, "yyyy-MM-dd");
+        const key = calendarDateKey(d);
         const list = map.get(key) ?? [];
         list.push(b);
         map.set(key, list);
@@ -141,13 +162,15 @@ function MonthGrid({
   return (
     <div className="overflow-hidden rounded-lg border border-border">
       <div className="grid grid-cols-7 border-b border-border bg-muted text-center text-xs font-medium text-muted-foreground">
-        {["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map((d) => (
-          <div key={d} className="p-2">{d}</div>
+        {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
+          <div key={d} className="p-2">
+            {d}
+          </div>
         ))}
       </div>
       <div className="grid grid-cols-7">
         {days.map((d) => {
-          const key = format(d, "yyyy-MM-dd");
+          const key = calendarDateKey(d);
           const events = eventsByDay.get(key) ?? [];
           const muted = !isSameMonth(d, cursor);
           return (
@@ -158,10 +181,12 @@ function MonthGrid({
                 muted && "bg-muted/30 text-muted-foreground",
               )}
             >
-              <div className={cn(
-                "mb-1 flex h-5 w-5 items-center justify-center rounded-full text-[11px]",
-                isToday(d) && "bg-primary text-primary-foreground font-semibold",
-              )}>
+              <div
+                className={cn(
+                  "mb-1 flex h-5 w-5 items-center justify-center rounded-full text-[11px]",
+                  isJakartaCalendarToday(d) && "bg-primary text-primary-foreground font-semibold",
+                )}
+              >
                 {format(d, "d")}
               </div>
               <div className="space-y-1">
@@ -204,15 +229,21 @@ function MonthGrid({
 }
 
 function WeekGrid({
-  cursor, bookings, onSelect,
-}: { cursor: Date; bookings: Booking[]; onSelect: (b: Booking) => void }) {
+  cursor,
+  bookings,
+  onSelect,
+}: {
+  cursor: Date;
+  bookings: Booking[];
+  onSelect: (b: Booking) => void;
+}) {
   const HOUR_HEIGHT = 48;
   const START_HOUR = 7;
   const END_HOUR = 21;
   const hours = Array.from({ length: END_HOUR - START_HOUR }, (_, i) => START_HOUR + i);
 
   const days = useMemo(() => {
-    const start = startOfWeek(cursor);
+    const start = startOfWeek(cursor, MONDAY_WEEK_OPTIONS);
     return Array.from({ length: 7 }, (_, i) => addDays(start, i));
   }, [cursor]);
 
@@ -222,10 +253,13 @@ function WeekGrid({
         <div className="grid" style={{ gridTemplateColumns: "60px repeat(7, minmax(0,1fr))" }}>
           <div className="border-b border-r border-border bg-muted" />
           {days.map((d) => (
-            <div key={d.toISOString()} className={cn(
-              "border-b border-r border-border bg-muted p-2 text-center text-xs",
-              isToday(d) && "bg-primary/10 font-semibold text-primary",
-            )}>
+            <div
+              key={calendarDateKey(d)}
+              className={cn(
+                "border-b border-r border-border bg-muted p-2 text-center text-xs",
+                isJakartaCalendarToday(d) && "bg-primary/10 font-semibold text-primary",
+              )}
+            >
               <div>{format(d, "EEE")}</div>
               <div className="text-sm">{format(d, "d")}</div>
             </div>
@@ -244,7 +278,7 @@ function WeekGrid({
             ))}
           </div>
           {days.map((d) => {
-            const key = format(d, "yyyy-MM-dd");
+            const key = calendarDateKey(d);
             const dayEvents = bookings.filter((b) => {
               const end = b.endDate ?? b.date;
               return b.date <= key && key <= end;
@@ -280,12 +314,16 @@ function WeekGrid({
                       title={`${e.resource?.name ?? ""} · ${e.startTime}-${e.endTime}`}
                     >
                       <div className="font-medium">{e.resource?.name ?? "Booking"}</div>
-                      <div className="opacity-90">{e.startTime}–{e.endTime}</div>
+                      <div className="opacity-90">
+                        {e.startTime}–{e.endTime}
+                      </div>
                       {e.user?.fullName && <div className="opacity-80">{e.user.fullName}</div>}
                     </button>
                   );
                 })}
-                {isSameDay(d, new Date()) && <div className="pointer-events-none absolute inset-0 bg-primary/[0.03]" />}
+                {isJakartaCalendarToday(d) && (
+                  <div className="pointer-events-none absolute inset-0 bg-primary/[0.03]" />
+                )}
               </div>
             );
           })}
@@ -297,15 +335,18 @@ function WeekGrid({
 
 function Legend({ resources }: { resources: Resource[] }) {
   return (
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-lg border border-border bg-card p-3 text-xs">
-        <div className="font-medium text-muted-foreground">Resources:</div>
-        {resources.length === 0 && <span className="text-muted-foreground">No resources yet</span>}
-        {resources.map((r) => (
-            <div key={r.id} className="flex items-center gap-1.5">
-              <span className="inline-block size-3 rounded-sm" style={{ background: colorForResource(r.id, r) }} />
-              <span>{r.name}</span>
-            </div>
-        ))}
+    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-lg border border-border bg-card p-3 text-xs">
+      <div className="font-medium text-muted-foreground">Resources:</div>
+      {resources.length === 0 && <span className="text-muted-foreground">No resources yet</span>}
+      {resources.map((r) => (
+        <div key={r.id} className="flex items-center gap-1.5">
+          <span
+            className="inline-block size-3 rounded-sm"
+            style={{ background: colorForResource(r.id, r) }}
+          />
+          <span>{r.name}</span>
+        </div>
+      ))}
       <div className="ml-auto flex items-center gap-4">
         <div className="flex items-center gap-1.5">
           <span className="inline-block h-3 w-5 rounded-sm border-2 border-foreground/60" />

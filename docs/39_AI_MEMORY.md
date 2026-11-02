@@ -77,6 +77,13 @@ and resource detail UI aligned with this response shape.
 stable callback and must not replace the current month state with an equivalent
 value, otherwise React enters a maximum-update-depth render loop.
 
+Calendar dates follow `Asia/Jakarta` and weeks run Monday through Sunday. Parse
+date-only booking values with `parseCalendarDate`, compare them with
+`calendarDateKey`, and derive the current date with `jakartaCalendarToday` so
+the browser's host timezone cannot move the active day. Public month queries
+retain their previous data while the next key loads; otherwise the calendar is
+unmounted and its navigation cursor resets to the current month.
+
 ## Storage Upload Rule
 
 As of 2026-10-22, resource photos and booking proofs upload through

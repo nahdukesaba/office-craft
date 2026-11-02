@@ -9,6 +9,7 @@ import { LoadingSkeleton } from "@/components/common/LoadingSkeleton";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useT } from "@/i18n/LanguageProvider";
+import { jakartaCalendarToday } from "@/lib/calendarDate";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -28,7 +29,7 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   const { isAuthed } = useAuth();
-  const now = new Date();
+  const now = jakartaCalendarToday();
   const [ym, setYm] = useState<{ year: number; month: number }>({
     year: now.getFullYear(),
     month: now.getMonth() + 1,

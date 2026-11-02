@@ -21,6 +21,7 @@ export const publicBookingsQueryOptions = (filters: PublicBookingFilters = {}) =
   queryOptions({
     queryKey: qk.public.bookings(filters),
     queryFn: () => publicApi.allBookings(filters),
+    placeholderData: (previousData) => previousData,
   });
 
 export const bookingHistoryQueryOptions = (id: string) =>

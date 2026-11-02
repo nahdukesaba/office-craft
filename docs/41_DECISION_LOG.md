@@ -1,5 +1,16 @@
 # Changelog Guidelines
 
+## 2026-11-02 - Use WIB Calendar Dates and Stable Month Navigation
+
+Version: Unreleased. Category: Calendar. Breaking change: No.
+
+The booking calendar now derives its current date from `Asia/Jakarta`, starts
+weeks on Monday, and parses booking date-only values without UTC conversion.
+Public booking queries retain the previous month while the next month loads so
+the calendar component and its cursor are not reset. This keeps sequential
+November, December, January, and February navigation stable while new data is
+fetched.
+
 ## 2026-11-02 - Stabilize Development Hydration Metadata
 
 Version: Unreleased. Category: Development tooling. Breaking change: No.
