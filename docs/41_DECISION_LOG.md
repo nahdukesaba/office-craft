@@ -1,5 +1,16 @@
 # Changelog Guidelines
 
+## 2026-11-02 - Stabilize Development Hydration Metadata
+
+Version: Unreleased. Category: Development tooling. Breaking change: No.
+
+TanStack Devtools source injection assigned different `data-tsd-source` line
+numbers to the SSR and client versions of `src/routes/__root.tsx`, producing a
+React hydration warning on every development-page load. A local Vite plugin now
+removes only that unstable debug attribute from the document shell while
+retaining source inspection elsewhere. Application hydration warnings remain
+enabled and are not globally suppressed.
+
 ## 2026-11-02 - Make Signed-Out Login Bootstrap a Quiet Session Probe
 
 Version: Unreleased. Category: Authentication. Breaking change: No.

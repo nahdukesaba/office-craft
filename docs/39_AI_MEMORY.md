@@ -149,3 +149,13 @@ application/SSO logout buttons, or replace Central's CSRF-protected navigation
 with cross-origin XHR. Local app URLs use `silapet.test` for host-only cookie
 isolation. The portal launch URL is the API's `/api/auth/sso/start` endpoint,
 not the public calendar root.
+
+## Development Hydration Diagnostics
+
+TanStack Devtools injects `data-tsd-source` attributes in development. Its SSR
+and client transforms can assign different line offsets to the document shell
+in `src/routes/__root.tsx`, which creates a debug-only hydration warning even
+when application markup matches. `vite.config.ts` removes that attribute only
+from the root shell during `vite serve`; source inspection remains enabled for
+normal components. Do not use `suppressHydrationWarning` to hide unrelated
+application mismatches.
