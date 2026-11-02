@@ -22,6 +22,7 @@ import { useT } from "@/i18n/LanguageProvider";
 
 import type { AppUser, UserStatus } from "@/types";
 import { fmtDate } from "@/lib/format";
+import { getUserStatusActions } from "@/lib/userStatusTransitions";
 
 export const Route = createFileRoute("/_authenticated/_admin/admin/users")({
   head: () => ({ meta: [{ title: "Users · SILAPET" }] }),
@@ -63,6 +64,8 @@ function UsersTable({ status }: { status: UserStatus }) {
   const [confirm, setConfirm] = useState<{ action: "approve" | "reject"; user: AppUser } | null>(
     null,
   );
+  const actions = getUserStatusActions(status);
+  const isSubmitting = approve.isPending || reject.isPending;
 
   if (isLoading) return <LoadingSkeleton />;
   if (error) return <p className="text-sm text-destructive">{(error as Error).message}</p>;
@@ -115,15 +118,20 @@ function UsersTable({ status }: { status: UserStatus }) {
                 </TableCell>
                 <TableCell>{u.createdAt ? fmtDate(u.createdAt) : "—"}</TableCell>
                 <TableCell className="text-right space-x-2">
-                  {status !== "approved" && (
-                    <Button size="sm" onClick={() => setConfirm({ action: "approve", user: u })}>
+                  {actions.includes("approve") && (
+                    <Button
+                      size="sm"
+                      disabled={isSubmitting}
+                      onClick={() => setConfirm({ action: "approve", user: u })}
+                    >
                       {t("action.approve")}
                     </Button>
                   )}
-                  {status === "pending" && (
+                  {actions.includes("reject") && (
                     <Button
                       size="sm"
                       variant="outline"
+                      disabled={isSubmitting}
                       onClick={() => setConfirm({ action: "reject", user: u })}
                     >
                       {t("action.reject")}
@@ -137,10 +145,11 @@ function UsersTable({ status }: { status: UserStatus }) {
       </div>
       <ConfirmDialog
         open={!!confirm}
-        onOpenChange={(o) => !o && setConfirm(null)}
+        onOpenChange={(o) => !o && !isSubmitting && setConfirm(null)}
         title={confirm?.action === "approve" ? t("adminUsers.approveQ") : t("adminUsers.rejectQ")}
         description={confirm ? `${confirm.user.fullName} · ${confirm.user.email}` : undefined}
         confirmLabel={confirm?.action === "approve" ? t("action.approve") : t("action.reject")}
+        pending={isSubmitting}
         onConfirm={run}
       />
     </>

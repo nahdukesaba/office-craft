@@ -1,5 +1,16 @@
 # Changelog Guidelines
 
+## 2026-11-02 - Align Manage User Status Transitions
+
+Version: Unreleased. Category: Authorization. Breaking change: No.
+
+Manage Users now exposes actions for each supported membership transition:
+Pending users can be approved or rejected, Approved users can be rejected, and
+Rejected users can be approved again. The API remains authoritative for these
+transitions, while the confirmation dialog blocks duplicate submissions. This
+restores the missing Approved-tab action and makes re-approval consistent with
+the existing three-tab moderation design.
+
 ## 2026-11-02 - Use WIB Calendar Dates and Stable Month Navigation
 
 Version: Unreleased. Category: Calendar. Breaking change: No.

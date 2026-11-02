@@ -166,3 +166,12 @@ when application markup matches. `vite.config.ts` removes that attribute only
 from the root shell during `vite serve`; source inspection remains enabled for
 normal components. Do not use `suppressHydrationWarning` to hide unrelated
 application mismatches.
+
+## Manage User Status Rule
+
+As of 2026-11-02, Manage Users exposes only transitions accepted by the API:
+pending memberships can be approved or rejected, approved memberships can be
+rejected to revoke SILAPET access, and rejected memberships can be approved
+again. Disabled memberships remain outside this moderation screen. Keep the
+frontend actions and backend transition guard aligned, and disable moderation
+controls while a request is running to avoid duplicate submissions.
