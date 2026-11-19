@@ -113,6 +113,8 @@ export function UserMenu() {
                 const result = await authApi.logout();
                 centralLogoutRequired = result.centralLogoutRequired;
                 if (centralLogoutRequired) {
+                  qc.clear();
+                  signOut();
                   const currentPath =
                     typeof window !== "undefined"
                       ? window.location.pathname + window.location.search
