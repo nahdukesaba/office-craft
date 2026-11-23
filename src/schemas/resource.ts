@@ -3,10 +3,14 @@ import { z } from "zod";
 export const resourceSchema = z.object({
   name: z.string().min(2),
   description: z.string().min(2),
-  type: z.enum(["room", "car", "bike"]),
+  type: z.enum(["room", "car", "bike", "equipment"]),
   photoUrl: z.string().url().optional().or(z.literal("")),
   isAvailable: z.boolean(),
-  color: z.string().regex(/^#([0-9a-fA-F]{6})$/).optional().or(z.literal("")),
+  color: z
+    .string()
+    .regex(/^#([0-9a-fA-F]{6})$/)
+    .optional()
+    .or(z.literal("")),
   location: z.string().optional(),
   capacity: z.coerce.number().int().min(1).optional(),
   licensePlate: z.string().optional(),

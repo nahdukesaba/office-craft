@@ -9,6 +9,7 @@ import {
   useStartBooking,
 } from "@/hooks/mutations/useBookingMutations";
 import { LoadingSkeleton } from "@/components/common/LoadingSkeleton";
+import { QueryError } from "@/components/common/QueryError";
 import { PageHeader } from "@/components/common/PageHeader";
 import { ResourceColorDot } from "@/components/common/ResourceColorDot";
 import { StatusBadge } from "@/components/common/StatusBadge";
@@ -38,7 +39,7 @@ export const Route = createFileRoute("/_authenticated/my-bookings/$id")({
 function BookingDetail() {
   const { id } = Route.useParams();
   const { user } = useAuth();
-  const { data: booking, isLoading } = useBooking(id);
+  const { data: booking, isLoading, isError, refetch } = useBooking(id);
   const { data: proofs } = useProofs(id);
   const cancel = useCancelBooking();
   const start = useStartBooking();
@@ -47,6 +48,7 @@ function BookingDetail() {
   const [captureAction, setCaptureAction] = useState<"start" | "finish" | null>(null);
   const [revisionUploaded, setRevisionUploaded] = useState(false);
 
+  if (isError && !booking) return <QueryError onRetry={() => void refetch()} />;
   if (isLoading || !booking) return <LoadingSkeleton rows={4} />;
 
   const isOwner = Boolean(user?.id && booking.userId === user.id);
@@ -65,7 +67,6 @@ function BookingDetail() {
   } = getBookingProofLifecycle({
     status: booking.status,
     date: booking.date,
-    endDate: booking.endDate,
     proofs: proofs ?? [],
     isOwner,
     updatedAt: booking.updatedAt,
@@ -180,7 +181,7 @@ function BookingDetail() {
       </div>
 
       {needRevision && (
-        <div className="flex items-start gap-2 rounded-md border border-chart-5/30 bg-chart-5/10 p-3 text-sm text-chart-5">
+        <div className="flex items-start gap-2 rounded-md border border-chart-5/30 bg-chart-5/10 p-3 text-sm text-chart-5-text">
           <AlertTriangle className="mt-0.5 size-4 shrink-0" />
           <span>{t("bookingDetail.needsRevisionNotice")}</span>
         </div>

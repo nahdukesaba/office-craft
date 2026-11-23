@@ -11,13 +11,18 @@ export const qk = {
     mine: (filters?: unknown) => ["bookings", "mine", filters ?? {}] as const,
     detail: (id: string) => ["bookings", "detail", id] as const,
     history: (id: string) => ["bookings", "history", id] as const,
+    overdue: ["bookings", "overdue"] as const,
+  },
+  settings: {
+    bookingRules: ["settings", "bookingRules"] as const,
   },
   proofs: {
     list: (bookingId: string) => ["proofs", "list", bookingId] as const,
   },
   public: {
     bookings: (filters?: unknown) => ["public", "bookings", filters ?? {}] as const,
-    resourceBookings: (resourceId: string) => ["public", "bookings", "resource", resourceId] as const,
+    resourceBookings: (resourceId: string) =>
+      ["public", "bookings", "resource", resourceId] as const,
   },
   stats: {
     overview: ["stats", "overview"] as const,

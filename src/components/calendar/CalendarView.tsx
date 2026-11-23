@@ -79,12 +79,17 @@ export function CalendarView({
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-card p-3">
-        <div className="flex items-center gap-2">
-          <Button size="icon" variant="ghost" onClick={() => shift(-1)}>
+        <div className="flex w-full items-center gap-2 sm:w-auto">
+          <Button size="icon" variant="ghost" aria-label="Previous" onClick={() => shift(-1)}>
             <ChevronLeft className="size-4" />
           </Button>
-          <h3 className="min-w-44 text-center font-semibold">{title}</h3>
-          <Button size="icon" variant="ghost" onClick={() => shift(1)}>
+          <h2
+            aria-live="polite"
+            className="min-w-0 flex-1 truncate text-center font-semibold sm:min-w-44 sm:flex-none"
+          >
+            {title}
+          </h2>
+          <Button size="icon" variant="ghost" aria-label="Next" onClick={() => shift(1)}>
             <ChevronRight className="size-4" />
           </Button>
           <Button size="sm" variant="outline" onClick={() => setCursor(jakartaCalendarToday())}>
@@ -95,6 +100,8 @@ export function CalendarView({
           {(["month", "week"] as View[]).map((v) => (
             <button
               key={v}
+              type="button"
+              aria-pressed={view === v}
               onClick={() => setView(v)}
               className={cn(
                 "rounded px-3 py-1 text-xs font-medium capitalize transition-colors",
@@ -201,17 +208,24 @@ function MonthGrid({
                       style={{
                         background: e.status === "pending" ? "transparent" : color,
                         borderColor: color,
-                        color: e.status === "pending" ? color : "#fff",
+                        color: e.status === "pending" ? "var(--foreground)" : "#fff",
                         borderStyle: s.borderStyle,
                         opacity: s.opacity,
                       }}
-                      className="block w-full truncate rounded border px-1 py-0.5 text-left text-[10px] transition-[filter] hover:brightness-110"
+                      className="block min-h-6 w-full truncate rounded border px-0.5 text-left sm:px-1 text-[10px] leading-[22px] transition-[filter] hover:brightness-110"
                       title={`${e.resource?.name ?? ""} · ${e.startTime}-${e.endTime} · ${e.user?.fullName ?? ""}`}
                     >
-                      <span className="font-medium">{e.startTime}</span>{" "}
-                      <span>{e.resource?.name ?? "Booking"}</span>
+                      <span className="font-medium tabular-nums">{e.startTime}</span>
+                      {/* Phone cells only fit the time; color still identifies the resource. */}
+                      <span className="sr-only sm:not-sr-only">
+                        {" "}
+                        {e.resource?.name ?? "Booking"}
+                      </span>
                       {e.user?.fullName && (
-                        <span className="opacity-80"> · {e.user.fullName.split(" ")[0]}</span>
+                        <span className="sr-only opacity-80 sm:not-sr-only">
+                          {" "}
+                          · {e.user.fullName.split(" ")[0]}
+                        </span>
                       )}
                     </button>
                   );
@@ -306,7 +320,7 @@ function WeekGrid({
                         top,
                         height,
                         background: e.status === "pending" ? "transparent" : color,
-                        color: e.status === "pending" ? color : "#fff",
+                        color: e.status === "pending" ? "var(--foreground)" : "#fff",
                         borderColor: color,
                         borderStyle: s.borderStyle,
                         opacity: s.opacity,

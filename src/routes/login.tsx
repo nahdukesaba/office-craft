@@ -15,8 +15,12 @@ import { useT } from "@/i18n/LanguageProvider";
 import { isApiCode } from "@/lib/errors";
 import { useAuthBootstrap } from "@/hooks/useAuthBootstrap";
 import { env } from "@/lib/env";
+import { rememberSsoReturn, safeReturnPath } from "@/lib/auth/returnPath";
 
 export const Route = createFileRoute("/login")({
+  validateSearch: (search: Record<string, unknown>): { redirect?: string } => ({
+    redirect: safeReturnPath(search.redirect),
+  }),
   head: () => ({ meta: [{ title: "Sign in · SILAPET" }] }),
   component: LoginPage,
 });
@@ -24,6 +28,7 @@ export const Route = createFileRoute("/login")({
 function LoginPage() {
   const signIn = useSignIn();
   const navigate = useNavigate();
+  const { redirect: returnTo } = Route.useSearch();
   const t = useT();
   const [showPassword, setShowPassword] = useState(false);
   const authenticated = useAuthStore((state) => state.authenticated);
@@ -38,11 +43,11 @@ function LoginPage() {
       void navigate({ to: "/auth/rejected", replace: true });
     } else if (user.status === "approved") {
       void navigate({
-        to: user.role === "admin" ? "/admin" : "/dashboard",
+        href: returnTo ?? (user.role === "admin" ? "/admin" : "/dashboard"),
         replace: true,
       });
     }
-  }, [authenticated, bootstrapStatus, navigate, user]);
+  }, [authenticated, bootstrapStatus, navigate, returnTo, user]);
 
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -58,7 +63,7 @@ function LoginPage() {
       toast.success(t("auth.welcomeBack"));
 
       navigate({
-        to: session.user.role === "admin" ? "/admin" : "/dashboard",
+        href: returnTo ?? (session.user.role === "admin" ? "/admin" : "/dashboard"),
       });
     } catch (e: unknown) {
       if (isApiCode(e, "ACCOUNT_PENDING_APPROVAL")) {
@@ -97,24 +102,35 @@ function LoginPage() {
     <AuthLayout title={t("auth.signInTitle")} subtitle={t("auth.signInSubtitle")}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2">
-          <Label>{t("auth.emailLabel")}</Label>
+          <Label htmlFor="login-email">{t("auth.emailLabel")}</Label>
           <Input
+            id="login-email"
             type="email"
             placeholder="user@example.com"
             autoComplete="email"
+            aria-invalid={!!form.formState.errors.email}
+            aria-describedby={form.formState.errors.email ? "login-email-error" : undefined}
             {...form.register("email")}
           />
+          {form.formState.errors.email && (
+            <p id="login-email-error" role="alert" className="text-xs text-destructive-text">
+              {form.formState.errors.email.message}
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
-          <Label>{t("auth.passwordLabel")}</Label>
+          <Label htmlFor="login-password">{t("auth.passwordLabel")}</Label>
 
           <div className="relative">
             <Input
+              id="login-password"
               type={showPassword ? "text" : "password"}
               placeholder="password"
               autoComplete="current-password"
               className="pr-10"
+              aria-invalid={!!form.formState.errors.password}
+              aria-describedby={form.formState.errors.password ? "login-password-error" : undefined}
               {...form.register("password")}
             />
 
@@ -128,6 +144,11 @@ function LoginPage() {
               {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
             </button>
           </div>
+          {form.formState.errors.password && (
+            <p id="login-password-error" role="alert" className="text-xs text-destructive-text">
+              {form.formState.errors.password.message}
+            </p>
+          )}
         </div>
 
         <div className="text-right">
@@ -151,6 +172,7 @@ function LoginPage() {
           variant="outline"
           className="w-full"
           onClick={() => {
+            rememberSsoReturn(returnTo);
             window.location.assign(`${env.apiBaseUrl.replace(/\/$/, "")}/auth/sso/start`);
           }}
         >

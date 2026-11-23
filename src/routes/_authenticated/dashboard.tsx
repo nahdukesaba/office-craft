@@ -6,9 +6,13 @@ import { useResources } from "@/hooks/queries/useResources";
 import { useAuth } from "@/hooks/useAuth";
 import { BookingTable } from "@/components/bookings/BookingTable";
 import { LoadingSkeleton } from "@/components/common/LoadingSkeleton";
+import { EmptyState } from "@/components/common/EmptyState";
+import { QueryError } from "@/components/common/QueryError";
+import { PaginatedList } from "@/components/common/PaginatedList";
 import { Boxes, Clock, CheckCircle2, ClipboardList } from "lucide-react";
 import { useT } from "@/i18n/LanguageProvider";
 import { NewBookingDialog } from "@/components/bookings/NewBookingDialog";
+import { useBookingStore } from "@/stores/bookingStore";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard · SILAPET" }] }),
@@ -18,28 +22,38 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 function Dashboard() {
   const { user } = useAuth();
   const t = useT();
+  const page = useBookingStore((s) => s.pages.dashboard ?? 1);
+  const setPage = useBookingStore((s) => s.setPage);
 
   const { data: resources } = useResources();
 
+  // Stat cards only read `total`, so one row per status is enough.
   const { data: pending } = useMyBookings(user?.id ?? "", {
     status: "pending",
+    pageSize: 1,
   });
 
   const { data: approved } = useMyBookings(user?.id ?? "", {
     status: "approved",
+    pageSize: 1,
   });
 
   const { data: finished } = useMyBookings(user?.id ?? "", {
     status: "finished",
+    pageSize: 1,
   });
 
   const { data: closed } = useMyBookings(user?.id ?? "", {
     status: "closed",
+    pageSize: 1,
   });
 
-  const { data: mine, isLoading } = useMyBookings(user?.id ?? "");
+  const { data: mine, isLoading, isError, isPlaceholderData, refetch } = useMyBookings(
+    user?.id ?? "",
+    { page },
+  );
 
-  const completedCount = (finished?.total ?? 0) + (closed?.total ?? 0);
+  const completedCount = finished && closed ? finished.total + closed.total : "—";
 
   return (
     <div className="space-y-6">
@@ -74,7 +88,24 @@ function Dashboard() {
       <section>
         <h2 className="mb-3 text-lg font-semibold">{t("dashboard.yourBookings")}</h2>
 
-        {isLoading ? <LoadingSkeleton /> : <BookingTable bookings={mine?.items ?? []} />}
+        {isLoading ? (
+          <LoadingSkeleton />
+        ) : isError ? (
+          <QueryError onRetry={() => void refetch()} />
+        ) : (
+          <PaginatedList
+            page={page}
+            data={mine}
+            busy={isPlaceholderData}
+            onPageChange={(p) => setPage("dashboard", p)}
+          >
+            {mine?.items.length ? (
+              <BookingTable bookings={mine.items} />
+            ) : (
+              <EmptyState title={t("myBookings.emptyTitle")} description={t("myBookings.emptyDesc")} />
+            )}
+          </PaginatedList>
+        )}
       </section>
     </div>
   );

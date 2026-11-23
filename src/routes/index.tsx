@@ -6,6 +6,7 @@ import { MainLayout } from "@/layouts/MainLayout";
 import { CalendarView } from "@/components/calendar/CalendarView";
 import { usePublicBookings } from "@/hooks/queries/useBookings";
 import { LoadingSkeleton } from "@/components/common/LoadingSkeleton";
+import { QueryError } from "@/components/common/QueryError";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useT } from "@/i18n/LanguageProvider";
@@ -34,7 +35,7 @@ function HomePage() {
     year: now.getFullYear(),
     month: now.getMonth() + 1,
   });
-  const { data, isLoading } = usePublicBookings({ year: ym.year, month: ym.month });
+  const { data, isLoading, isError, refetch } = usePublicBookings({ year: ym.year, month: ym.month });
   const t = useT();
   const Layout = isAuthed ? MainLayout : PublicLayout;
   const handleMonthChange = useCallback((year: number, month: number) => {
@@ -65,6 +66,8 @@ function HomePage() {
       </div>
       {isLoading ? (
         <LoadingSkeleton rows={6} />
+      ) : isError && !data ? (
+        <QueryError onRetry={() => void refetch()} />
       ) : (
         <CalendarView bookings={data ?? []} onMonthChange={handleMonthChange} />
       )}

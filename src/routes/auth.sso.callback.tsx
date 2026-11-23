@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/i18n/LanguageProvider";
 import { AuthLayout } from "@/layouts/AuthLayout";
+import { takeSsoReturn } from "@/lib/auth/returnPath";
 import { isApiCode } from "@/lib/errors";
 import { authApi } from "@/services/api/auth.api";
 import { useAuthStore } from "@/stores/authStore";
@@ -58,7 +59,7 @@ function BrowserSSOCallbackPage() {
 
         setSession(result);
         void navigate({
-          to: result.user.role === "admin" ? "/admin" : "/dashboard",
+          href: takeSsoReturn() ?? (result.user.role === "admin" ? "/admin" : "/dashboard"),
           replace: true,
         });
       })

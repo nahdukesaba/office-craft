@@ -106,7 +106,7 @@ export function UsageActionDialog({
         {!submitting && <CameraCapture onFile={addFile} />}
 
         {files.length > 0 && !submitting && (
-          <p className="rounded-md border border-chart-5/30 bg-chart-5/10 p-2 text-xs text-chart-5">
+          <p className="rounded-md border border-chart-5/30 bg-chart-5/10 p-2 text-xs text-chart-5-text">
             {t("bookingDetail.proofsLockedNotice")}
           </p>
         )}
@@ -137,6 +137,7 @@ function FileThumb({
   onRemove: () => void;
   disabled?: boolean;
 }) {
+  const t = useT();
   const [url, setUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -152,7 +153,8 @@ function FileThumb({
         type="button"
         onClick={onRemove}
         disabled={disabled}
-        className="absolute right-1 top-1 flex size-5 items-center justify-center rounded-full bg-background/90 text-foreground shadow disabled:opacity-50"
+        aria-label={`${t("action.delete")} ${file.name}`}
+        className="absolute right-1 top-1 flex size-6 items-center justify-center rounded-full bg-background/90 text-foreground shadow transition-colors after:absolute after:-inset-1.5 hover:bg-background disabled:opacity-50"
       >
         <X className="size-3.5" />
       </button>

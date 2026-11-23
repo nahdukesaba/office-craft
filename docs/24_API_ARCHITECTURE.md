@@ -146,6 +146,21 @@ These belong inside the API layer.
 
 ---
 
+## Booking Rule and Reminder Endpoints
+
+All require an admin session.
+
+| Method | Path | Purpose |
+|---|---|---|
+| `GET` | `/api/settings/booking-rules` | Read both rule toggles |
+| `PUT` | `/api/settings/booking-rules` | Save `blockResourceOpenUsage` and `blockUserUnfinished` |
+| `GET` | `/api/bookings/overdue/summary` | Count overdue bookings, users, and users without a phone |
+| `POST` | `/api/bookings/overdue/remind` | Queue reminders, returns `202` |
+
+Booking create and approve can return `409` with `USER_HAS_UNFINISHED_BOOKING` or `RESOURCE_IN_USE`. `details` holds `isSelf`, `userFullName`, and `resourceNames`.
+
+---
+
 ## Password Endpoints
 
 Authentication mutations belong to `authApi`, including `PUT /auth/password`

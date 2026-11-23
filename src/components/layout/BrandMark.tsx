@@ -24,11 +24,11 @@ export function BrandMark({ size = "sm" }: { size?: "sm" | "lg" }) {
       </span>
       <span className="flex min-w-0 flex-col leading-tight">
         <span
-          className={cn("truncate font-display font-semibold tracking-tight text-foreground", name)}
+          className={cn("truncate font-display font-semibold tracking-tight", name)}
         >
           {t("app.name")}
         </span>
-        <span className="hidden truncate text-[10px] uppercase tracking-wide text-muted-foreground sm:block">
+        <span className="hidden truncate text-[10px] uppercase tracking-wide opacity-75 sm:block">
           {t("app.fullName")}
         </span>
       </span>

@@ -114,6 +114,18 @@ These side effects belong to backend services.
 
 ---
 
+## Booking Notification Links
+
+`PUBLIC_APP_URL` is the site root for links in WhatsApp and email.
+
+- New request to admins: `/admin/bookings/<id>` to approve or reject.
+- Approved or rejected result to the owner: `/my-bookings/<id>`.
+- Overdue reminder to the owner: `/my-bookings/<id>` for each booking.
+
+Login keeps the requested page through `?redirect=`, including the SSO flow. Only same-site paths are accepted.
+
+---
+
 ## Future Workflows
 
 New modules should integrate into the same lifecycle instead of inventing new

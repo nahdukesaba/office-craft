@@ -2,11 +2,18 @@ import { useState } from "react";
 import { Download } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useT } from "@/i18n/LanguageProvider";
 import { bookingsApi } from "@/services/api/bookings.api";
+import { composeJakartaISO } from "@/lib/bookingTime";
 import { downloadCsv, toCsv } from "@/lib/csv";
 import { toast } from "sonner";
 
@@ -21,7 +28,11 @@ export function ExportBookingsDialog() {
   async function handleExport() {
     setBusy(true);
     try {
-      const { items } = await bookingsApi.list({ from, to });
+      // Whole Jakarta days: the API reads a bare date as UTC midnight, which drops most of the last day.
+      const items = await bookingsApi.listAll({
+        from: composeJakartaISO(from, "00:00"),
+        to: composeJakartaISO(to, "23:59"),
+      });
       const csv = toCsv(
         items.map((b) => ({
           id: b.id,
@@ -74,7 +85,12 @@ export function ExportBookingsDialog() {
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1">
             <Label htmlFor="export-from">{t("admin.exportFrom")}</Label>
-            <Input id="export-from" type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
+            <Input
+              id="export-from"
+              type="date"
+              value={from}
+              onChange={(e) => setFrom(e.target.value)}
+            />
           </div>
           <div className="space-y-1">
             <Label htmlFor="export-to">{t("admin.exportTo")}</Label>

@@ -59,9 +59,12 @@ const FRIENDLY: Record<string, string> = {
   VALIDATION_ERROR: "Some fields are invalid. Please review and try again.",
   BOOKING_CONFLICT: "This time slot overlaps with another booking.",
   PAST_BOOKING: "Bookings cannot be made or edited in the past.",
-  NOT_START_DAY: "This booking can only be started on its scheduled day.",
+  NOT_START_DAY: "This booking can be started from its start date.",
+  REMINDER_RUNNING: "Reminders are already being sent. Please wait until they finish.",
+  APP_URL_NOT_CONFIGURED: "Booking links are not configured on the server.",
   PHOTO_REQUIRED: "Please upload the required proof photo first.",
-  PROOF_NOT_ALLOWED: "Proof upload is not allowed in the current booking status or date window.",
+  PROOF_NOT_ALLOWED:
+    "Proof upload is not allowed for the current booking status or before its start date.",
   IMAGE_REQUIRED: "Please select an image file to upload.",
   INVALID_IMAGE: "Please upload a valid JPEG, PNG, WebP, or GIF image.",
   INVALID_IMAGE_SIZE: "Image size must be between 1 byte and 10 MiB.",
@@ -87,6 +90,22 @@ const FRIENDLY: Record<string, string> = {
   UNAUTHORIZED: "Please sign in again to continue.",
   NOT_FOUND: "The requested item was not found.",
 };
+
+/** Warning text for a borrowing-rule rejection, or null for any other error. */
+export function bookingRuleMessage(e: unknown, t: (key: string) => string): string | null {
+  const err = toApiError(e);
+  if (err.code !== "RESOURCE_IN_USE" && err.code !== "USER_HAS_UNFINISHED_BOOKING") return null;
+  const d = (err.details ?? {}) as {
+    isSelf?: boolean;
+    userFullName?: string;
+    resourceNames?: string[];
+  };
+  const rule = err.code === "RESOURCE_IN_USE" ? "assetInUse" : "unfinished";
+  const assets = d.resourceNames?.join(", ") || t("bookingRule.anotherAsset");
+  return t(`bookingRule.${rule}${d.isSelf ? "Self" : ""}`)
+    .replace("{name}", () => d.userFullName ?? "")
+    .replace("{assets}", () => assets);
+}
 
 export function friendlyError(e: unknown, fallback = "Something went wrong"): string {
   const err = toApiError(e);

@@ -14,7 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { LanguageProvider } from "@/i18n/LanguageProvider";
-import { ThemeProvider } from "@/theme/ThemeProvider";
+import { ThemeProvider, THEME_INIT_SCRIPT } from "@/theme/ThemeProvider";
 
 function NotFoundComponent() {
   return (
@@ -89,13 +89,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "SILAPET — Sistem Informasi Laporan Pemakaian Aset. Kelola peminjaman ruangan, mobil, dan motor kantor.",
+          "SILAPET — Sistem Informasi Laporan Pemakaian Aset. Kelola peminjaman ruangan, kendaraan, dan peralatan kantor.",
       },
       { name: "author", content: "Lovable" },
       { property: "og:title", content: "SILAPET · Sistem Informasi Laporan Pemakaian Aset" },
       {
         property: "og:description",
-        content: "Kelola peminjaman ruangan, mobil, dan motor kantor dalam satu sistem.",
+        content: "Kelola peminjaman ruangan, kendaraan, dan peralatan kantor dalam satu sistem.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -103,7 +103,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:title", content: "SILAPET · Sistem Informasi Laporan Pemakaian Aset" },
       {
         name: "twitter:description",
-        content: "Kelola peminjaman ruangan, mobil, dan motor kantor dalam satu sistem.",
+        content: "Kelola peminjaman ruangan, kendaraan, dan peralatan kantor dalam satu sistem.",
       },
       {
         property: "og:image",
@@ -128,6 +128,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
     ],
+    scripts: [{ children: THEME_INIT_SCRIPT }],
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -137,7 +138,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>

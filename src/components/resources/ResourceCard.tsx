@@ -2,54 +2,64 @@ import { Link } from "@tanstack/react-router";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { Resource } from "@/types";
-import { Car as CarIcon, DoorOpen, Bike as BikeIcon } from "lucide-react";
+import { Car as CarIcon, DoorOpen, Bike as BikeIcon, Projector } from "lucide-react";
 import { useT } from "@/i18n/LanguageProvider";
 import { ResourceColorDot } from "@/components/common/ResourceColorDot";
 
 export function ResourceCard({ resource }: { resource: Resource }) {
   const t = useT();
-  const Icon = resource.type === "car" ? CarIcon : resource.type === "bike" ? BikeIcon : DoorOpen;
+  const Icon =
+    resource.type === "car"
+      ? CarIcon
+      : resource.type === "bike"
+        ? BikeIcon
+        : resource.type === "equipment"
+          ? Projector
+          : DoorOpen;
   const meta =
-      resource.type === "room"
-          ? `${t("resource.type.room")} · ${resource.location}`
-          : resource.type === "car"
-              ? `${t("resource.type.car")} · ${resource.licensePlate}`
-              : `${t("resource.type.bike")} · ${resource.licensePlate}`;
+    resource.type === "room"
+      ? `${t("resource.type.room")} · ${resource.location}`
+      : resource.type === "equipment"
+        ? [t("resource.type.equipment"), resource.location].filter(Boolean).join(" · ")
+        : resource.type === "car"
+          ? `${t("resource.type.car")} · ${resource.licensePlate}`
+          : `${t("resource.type.bike")} · ${resource.licensePlate}`;
   return (
-      <Link
-          to="/resources/$id"
-          params={{ id: resource.id }}
-          className="group block rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-      >
-        <Card className="overflow-hidden transition-shadow group-hover:shadow-md">
-          <div className="aspect-video w-full overflow-hidden bg-muted">
-            {resource.photoUrl ? (
-                <img
-                    src={resource.photoUrl}
-                    alt={resource.name}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform group-hover:scale-[1.02]"
-                />
-            ) : (
-                <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                  <Icon className="size-8" />
-                </div>
-            )}
-          </div>
-          <CardContent className="space-y-2 p-4">
-            <div className="flex items-start justify-between gap-2">
-              <h3 className="flex items-center gap-1.5 font-semibold leading-tight">
-                <ResourceColorDot resourceId={resource.id} resource={resource} />
-                {resource.name}
-              </h3>
-              <Badge variant={resource.isAvailable ? "default" : "secondary"}>
-                {resource.isAvailable ? t("resource.available") : t("resource.unavailable")}
-              </Badge>
+    <Link
+      to="/resources/$id"
+      params={{ id: resource.id }}
+      className="group block rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+    >
+      <Card className="overflow-hidden transition-shadow group-hover:shadow-md">
+        <div className="aspect-video w-full overflow-hidden bg-muted">
+          {resource.photoUrl ? (
+            <img
+              src={resource.photoUrl}
+              alt={resource.name}
+              loading="lazy"
+              decoding="async"
+              className="h-full w-full object-cover transition-transform duration-300 motion-safe:group-hover:scale-[1.02]"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+              <Icon className="size-8" />
             </div>
-            <p className="line-clamp-2 text-sm text-muted-foreground">{resource.description}</p>
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">{meta}</p>
-          </CardContent>
-        </Card>
-      </Link>
+          )}
+        </div>
+        <CardContent className="space-y-2 p-4">
+          <div className="flex items-start justify-between gap-2">
+            <h2 className="flex items-center gap-1.5 font-semibold leading-tight">
+              <ResourceColorDot resourceId={resource.id} resource={resource} />
+              {resource.name}
+            </h2>
+            <Badge variant={resource.isAvailable ? "default" : "secondary"}>
+              {resource.isAvailable ? t("resource.available") : t("resource.unavailable")}
+            </Badge>
+          </div>
+          <p className="line-clamp-2 text-sm text-muted-foreground">{resource.description}</p>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">{meta}</p>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }

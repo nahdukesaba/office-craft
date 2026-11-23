@@ -1,6 +1,7 @@
 import { http } from "@/services/http";
 import { composeJakartaISO, isoToJakartaHHmm, isoToJakartaYMD } from "@/lib/bookingTime";
-import type { NotifyResult, TimelineEntry } from "@/types";
+import { fetchAllPages } from "@/lib/pagination";
+import type { NotifyResult, OverdueSummary, TimelineEntry } from "@/types";
 import type {
   Booking,
   BookingFilters,
@@ -72,6 +73,7 @@ function toListParams(
   if (filters.userId) p.userId = filters.userId;
   if (filters.from) p.from = filters.from;
   if (filters.to) p.to = filters.to;
+  if (filters.search) p.search = filters.search;
   if (filters.page) p.page = filters.page;
   if (filters.pageSize) p.pageSize = filters.pageSize;
   return p;
@@ -96,6 +98,10 @@ export const bookingsApi = {
       total: data.total ?? data.data?.length ?? 0,
       totalPages: data.totalPages ?? 1,
     };
+  },
+  /** Every matching booking across all pages, for exports. */
+  async listAll(filters: BookingFilters = {}): Promise<Booking[]> {
+    return fetchAllPages((page) => bookingsApi.list({ ...filters, page, pageSize: 100 }));
   },
   async get(id: string): Promise<Booking> {
     const { data } = await http.get<ApiBookingRaw | { data: ApiBookingRaw }>(`/bookings/${id}`);
@@ -151,6 +157,14 @@ export const bookingsApi = {
   },
   async notify(id: string, message?: string): Promise<NotifyResult> {
     const { data } = await http.post<NotifyResult>(`/bookings/${id}/notify`, { message });
+    return data;
+  },
+  async overdueSummary(): Promise<OverdueSummary> {
+    const { data } = await http.get<OverdueSummary>("/bookings/overdue/summary");
+    return data;
+  },
+  async remindOverdue(): Promise<OverdueSummary> {
+    const { data } = await http.post<OverdueSummary>("/bookings/overdue/remind");
     return data;
   },
   async requestRevision(id: string, adminNotes?: string): Promise<Booking> {
