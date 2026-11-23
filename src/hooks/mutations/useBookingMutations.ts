@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { bookingsApi } from "@/services/api/bookings.api";
+import { settingsApi } from "@/services/api/settings.api";
 import { qk } from "@/lib/queryKeys";
 import type { CreateBookingInput } from "@/types";
 
@@ -79,15 +80,33 @@ export const useFinishBooking = () => {
 export const useNotifyBooking = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, message }: { id: string; message?: string }) => bookingsApi.notify(id, message),
+    mutationFn: ({ id, message }: { id: string; message?: string }) =>
+      bookingsApi.notify(id, message),
     onSuccess: (_r, vars) => invalidateAll(qc, vars.id),
+  });
+};
+
+export const useRemindOverdue = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => bookingsApi.remindOverdue(),
+    onSuccess: () => qc.invalidateQueries({ queryKey: qk.bookings.overdue }),
+  });
+};
+
+export const useUpdateBookingRules = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: settingsApi.updateBookingRules,
+    onSuccess: (rules) => qc.setQueryData(qk.settings.bookingRules, rules),
   });
 };
 
 export const useRequestRevisionBooking = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, notes }: { id: string; notes?: string }) => bookingsApi.requestRevision(id, notes),
+    mutationFn: ({ id, notes }: { id: string; notes?: string }) =>
+      bookingsApi.requestRevision(id, notes),
     onSuccess: (b) => invalidateAll(qc, b.id),
   });
 };

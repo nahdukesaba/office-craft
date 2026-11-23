@@ -8,6 +8,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useBookingStore } from "@/stores/bookingStore";
 import { LoadingSkeleton } from "@/components/common/LoadingSkeleton";
 import { EmptyState } from "@/components/common/EmptyState";
+import { QueryError } from "@/components/common/QueryError";
+import { PaginatedList } from "@/components/common/PaginatedList";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -22,8 +24,9 @@ export const Route = createFileRoute("/_authenticated/my-bookings/")({
 
 function MyBookingsPage() {
   const { user } = useAuth();
-  const { filters, setFilter } = useBookingStore();
-  const { data, isLoading } = useMyBookings(user?.id ?? "", { status: filters.status });
+  const { filters, setFilter, pages, setPage } = useBookingStore();
+  const page = pages.mine ?? 1;
+  const { data, isLoading, isError, isPlaceholderData, refetch } = useMyBookings(user?.id ?? "", { status: filters.status, page });
   const items = data?.items ?? [];
   const [addOpen, setAddOpen] = useState(false);
   const t = useT();
@@ -60,9 +63,13 @@ function MyBookingsPage() {
           </div>
         }
       />
-      {isLoading ? <LoadingSkeleton /> : items.length === 0 ? (
-        <EmptyState title={t("myBookings.emptyTitle")} description={t("myBookings.emptyDesc")} />
-      ) : <BookingTable bookings={items} />}
+      {isLoading ? <LoadingSkeleton /> : isError ? <QueryError onRetry={() => void refetch()} /> : (
+        <PaginatedList page={page} data={data} busy={isPlaceholderData} onPageChange={(p) => setPage("mine", p)}>
+          {items.length === 0 ? (
+            <EmptyState title={t("myBookings.emptyTitle")} description={t("myBookings.emptyDesc")} />
+          ) : <BookingTable bookings={items} />}
+        </PaginatedList>
+      )}
     </div>
   );
 }

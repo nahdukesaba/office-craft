@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { BookingForm } from "@/components/bookings/BookingForm";
 import { CalendarView } from "@/components/calendar/CalendarView";
 import { LoadingSkeleton } from "@/components/common/LoadingSkeleton";
+import { QueryError } from "@/components/common/QueryError";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -17,33 +18,58 @@ export const Route = createFileRoute("/_authenticated/resources/$id")({
 
 function ResourceDetailPage() {
   const { id } = Route.useParams();
-  const { data: resource, isLoading } = useResource(id);
+  const { data: resource, isLoading, isError, refetch } = useResource(id);
   const { data: bookings } = usePublicBookings({ resourceId: id });
   const t = useT();
 
+  if (isError && !resource) return <QueryError onRetry={() => void refetch()} />;
   if (isLoading || !resource) return <LoadingSkeleton rows={5} />;
 
   return (
     <div className="space-y-6">
       <Button asChild variant="ghost" size="sm" className="w-fit">
-        <Link to="/resources"><ArrowLeft className="mr-1 size-4" />{t("action.back")}</Link>
+        <Link to="/resources">
+          <ArrowLeft className="mr-1 size-4" />
+          {t("action.back")}
+        </Link>
       </Button>
       <PageHeader title={resource.name} description={resource.description} />
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2 overflow-hidden">
           {resource.photoUrl && (
-            <img src={resource.photoUrl} alt={resource.name} className="aspect-video w-full object-cover" />
+            <img
+              src={resource.photoUrl}
+              alt={resource.name}
+              className="aspect-video w-full object-cover"
+            />
           )}
           <CardContent className="space-y-2 p-4 text-sm">
             {resource.type === "room" ? (
               <>
-                <p><span className="text-muted-foreground">{t("resource.location")}:</span> {resource.location}</p>
-                <p><span className="text-muted-foreground">{t("resource.capacity")}:</span> {resource.capacity}</p>
+                <p>
+                  <span className="text-muted-foreground">{t("resource.location")}:</span>{" "}
+                  {resource.location}
+                </p>
+                <p>
+                  <span className="text-muted-foreground">{t("resource.capacity")}:</span>{" "}
+                  {resource.capacity}
+                </p>
               </>
+            ) : resource.type === "equipment" ? (
+              <p>
+                <span className="text-muted-foreground">{t("resource.location")}:</span>{" "}
+                {resource.location || "—"}
+              </p>
             ) : (
               <>
-                <p><span className="text-muted-foreground">{t("resource.license")}:</span> {resource.licensePlate}</p>
-                <p><span className="text-muted-foreground">{t("resource.fuel")}:</span> {resource.fuelType}</p>
+                <p>
+                  <span className="text-muted-foreground">{t("resource.license")}:</span>{" "}
+                  {resource.licensePlate}
+                </p>
+                <p>
+                  <span className="text-muted-foreground">{t("resource.fuel")}:</span>{" "}
+                  {resource.fuelType}
+                </p>
               </>
             )}
           </CardContent>

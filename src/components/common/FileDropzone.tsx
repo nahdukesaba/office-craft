@@ -27,10 +27,18 @@ export function FileDropzone({
   return (
     <div
       className={cn(
-        "flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-border p-6 text-sm transition-colors",
+        "flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-border p-6 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         dragOver && "border-primary bg-accent",
       )}
+      role="button"
+      tabIndex={0}
       onClick={() => inputRef.current?.click()}
+      onKeyDown={(e) => {
+        if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault();
+          inputRef.current?.click();
+        }
+      }}
       onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
       onDragLeave={() => setDragOver(false)}
       onDrop={(e) => {
@@ -50,6 +58,7 @@ export function FileDropzone({
         accept={accept}
         capture="environment"
         className="hidden"
+        onClick={(e) => e.stopPropagation()}
         onChange={(e) => {
           const f = e.target.files?.[0];
           if (f) handle(f);

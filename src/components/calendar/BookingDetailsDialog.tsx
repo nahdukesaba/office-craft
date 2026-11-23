@@ -59,10 +59,10 @@ export function BookingDetailsDialog({
             <span>{booking.purpose ?? "—"}</span>
           </div>
 
-          {booking.resource?.type === "room" && (
+          {(booking.resource?.type === "room" || booking.resource?.type === "equipment") && (
             <div className="flex justify-between">
               <span className="text-muted-foreground">{t("resource.location")}</span>
-              <span>{booking.resource.location}</span>
+              <span>{booking.resource.location || "—"}</span>
             </div>
           )}
           {(booking.resource?.type === "car" || booking.resource?.type === "bike") && (

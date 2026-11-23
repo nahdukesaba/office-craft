@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { GroupedBookingTable } from "@/components/bookings/GroupedBookingTable";
 import { ExportBookingsDialog } from "@/components/admin/ExportBookingsDialog";
 import { useBookings } from "@/hooks/queries/useBookings";
 import { LoadingSkeleton } from "@/components/common/LoadingSkeleton";
+import { QueryError } from "@/components/common/QueryError";
+import { PaginatedList } from "@/components/common/PaginatedList";
 import { useBookingStore } from "@/stores/bookingStore";
 import {
   Select,
@@ -24,21 +26,27 @@ export const Route = createFileRoute("/_authenticated/_admin/admin/bookings/")({
 });
 
 function AdminBookings() {
-  const { filters, setFilter } = useBookingStore();
-  const { data, isLoading } = useBookings({ status: filters.status });
+  const { filters, setFilter, pages, setPage } = useBookingStore();
+  const page = pages.admin ?? 1;
   const [search, setSearch] = useState("");
+  const [appliedSearch, setAppliedSearch] = useState("");
+  const { data, isLoading, isError, isPlaceholderData, refetch } = useBookings({
+    status: filters.status,
+    search: appliedSearch || undefined,
+    page,
+  });
   const t = useT();
 
-  const filteredItems = useMemo(() => {
-    const items = data?.items ?? [];
-    const q = search.trim().toLowerCase();
-    if (!q) return items;
-    return items.filter((b) => {
-      const name = b.user?.fullName?.toLowerCase() ?? "";
-      const email = b.user?.email?.toLowerCase() ?? "";
-      return name.includes(q) || email.includes(q);
-    });
-  }, [data, search]);
+  // Search runs on the server so it covers every page, not only the rows loaded now.
+  useEffect(() => {
+    const q = search.trim();
+    if (q === appliedSearch) return;
+    const timer = setTimeout(() => {
+      setAppliedSearch(q);
+      setPage("admin", 1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search, appliedSearch, setPage]);
 
   return (
     <div className="space-y-4">
@@ -52,6 +60,7 @@ function AdminBookings() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={t("adminBookings.searchUser")}
+                aria-label={t("adminBookings.searchUser")}
                 className="w-56 pl-8"
               />
             </div>
@@ -80,8 +89,16 @@ function AdminBookings() {
       />
       {isLoading ? (
         <LoadingSkeleton />
+      ) : isError ? (
+        <QueryError onRetry={() => void refetch()} />
       ) : (
-        <GroupedBookingTable bookings={filteredItems} detailHrefBase="/admin/bookings" />
+        <PaginatedList page={page} data={data} busy={isPlaceholderData} onPageChange={(p) => setPage("admin", p)}>
+          <GroupedBookingTable
+            bookings={data?.items ?? []}
+            detailHrefBase="/admin/bookings"
+            partial={(data?.totalPages ?? 1) > 1}
+          />
+        </PaginatedList>
       )}
     </div>
   );

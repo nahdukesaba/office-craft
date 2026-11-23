@@ -100,6 +100,8 @@ Pagination belongs to backend.
 
 Frontend displays it.
 
+Booking lists use `PaginatedList` with `page` from `bookingStore`. Search on paginated lists must run on the server (`GET /bookings?search=`), so it covers every page.
+
 Avoid downloading unnecessary records.
 
 ---

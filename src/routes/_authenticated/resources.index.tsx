@@ -6,6 +6,7 @@ import { useResources } from "@/hooks/queries/useResources";
 import { useResourceStore } from "@/stores/resourceStore";
 import { LoadingSkeleton } from "@/components/common/LoadingSkeleton";
 import { EmptyState } from "@/components/common/EmptyState";
+import { QueryError } from "@/components/common/QueryError";
 import { useT } from "@/i18n/LanguageProvider";
 
 export const Route = createFileRoute("/_authenticated/resources/")({
@@ -15,7 +16,7 @@ export const Route = createFileRoute("/_authenticated/resources/")({
 
 function ResourcesPage() {
   const filters = useResourceStore((s) => s.filters);
-  const { data, isLoading } = useResources(filters);
+  const { data, isLoading, isError, refetch } = useResources(filters);
   const t = useT();
   return (
     <div className="space-y-4">
@@ -23,6 +24,8 @@ function ResourcesPage() {
       <ResourceFilters />
       {isLoading ? (
         <LoadingSkeleton rows={4} />
+      ) : isError ? (
+        <QueryError onRetry={() => void refetch()} />
       ) : (data ?? []).length === 0 ? (
         <EmptyState title={t("resources.emptyTitle")} description={t("resources.emptyDesc")} />
       ) : (

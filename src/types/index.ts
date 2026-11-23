@@ -1,5 +1,5 @@
 export type Role = "user" | "admin";
-export type ResourceType = "room" | "car" | "bike";
+export type ResourceType = "room" | "car" | "bike" | "equipment";
 export type BookingStatus =
   | "pending"
   | "approved"
@@ -63,7 +63,22 @@ export interface Bike extends ResourceBase {
   fuelType: "gasoline" | "electric";
 }
 
-export type Resource = Room | Car | Bike;
+export interface Equipment extends ResourceBase {
+  type: "equipment";
+}
+
+export type Resource = Room | Car | Bike | Equipment;
+
+export interface BookingRules {
+  blockResourceOpenUsage: boolean;
+  blockUserUnfinished: boolean;
+}
+
+export interface OverdueSummary {
+  bookings: number;
+  users: number;
+  withoutPhone: number;
+}
 
 export interface BookingUserRef {
   id: string;
@@ -118,6 +133,7 @@ export interface BookingFilters {
   resourceId?: string;
   from?: string;
   to?: string;
+  search?: string;
 }
 
 export interface LoginInput {

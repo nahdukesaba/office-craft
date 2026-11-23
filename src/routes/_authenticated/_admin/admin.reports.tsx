@@ -11,6 +11,7 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { StatCard } from "@/components/common/StatCard";
 import { LoadingSkeleton } from "@/components/common/LoadingSkeleton";
 import { EmptyState } from "@/components/common/EmptyState";
+import { QueryError } from "@/components/common/QueryError";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +25,14 @@ export const Route = createFileRoute("/_authenticated/_admin/admin/reports")({
   head: () => ({ meta: [{ title: "Reports · SILAPET" }] }),
   component: ReportsPage,
 });
+
+const AXIS_TICK = { fill: "var(--muted-foreground)", fontSize: 12 };
+const TOOLTIP_STYLE = {
+  background: "var(--popover)",
+  border: "1px solid var(--border)",
+  borderRadius: 6,
+  color: "var(--popover-foreground)",
+};
 
 function ReportsPage() {
   const t = useT();
@@ -94,7 +103,9 @@ function ReportsPage() {
 
       {isLoading ? (
         <LoadingSkeleton rows={6} />
-      ) : isError || !data ? (
+      ) : isError ? (
+        <QueryError onRetry={() => void refetch()} />
+      ) : !data ? (
         <EmptyState title={t("reports.emptyTitle")} description={t("reports.emptyDesc")} />
       ) : (
         <>
@@ -102,7 +113,7 @@ function ReportsPage() {
             <StatCard label={t("reports.total")} value={data.totalBookings} />
             <StatCard label={t("reports.avgDuration")} value={`${Math.round(data.averageDurationMinutes)}m`} />
             <StatCard label={t("reports.autoRejected")} value={`${data.autoRejectedCount} (${autoRejectedPct}%)`} />
-            <StatCard label={t("reports.range")} value={`${from} → ${to}`} />
+            <StatCard label={t("reports.range")} value={`${from} → ${to}`} valueClassName="text-base" />
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
@@ -114,13 +125,13 @@ function ReportsPage() {
                 ) : (
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                      <Pie data={statusRows} dataKey="count" nameKey="status" innerRadius={50} outerRadius={90}>
+                      <Pie data={statusRows} dataKey="count" nameKey="status" innerRadius={50} outerRadius={90} isAnimationActive={false}>
                         {statusRows.map((r, i) => (
                           <Cell key={r.status} fill={colorForResource(`status-${i}`)} />
                         ))}
                       </Pie>
-                      <Tooltip />
-                      <Legend />
+                      <Tooltip contentStyle={TOOLTIP_STYLE} />
+                      <Legend formatter={(value) => <span className="text-foreground">{value}</span>} />
                     </PieChart>
                   </ResponsiveContainer>
                 )}
@@ -135,11 +146,11 @@ function ReportsPage() {
                 ) : (
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={typeRows}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="type" />
-                      <YAxis allowDecimals={false} />
-                      <Tooltip />
-                      <Bar dataKey="count" fill="hsl(var(--primary))" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                      <XAxis dataKey="type" tick={AXIS_TICK} />
+                      <YAxis allowDecimals={false} tick={AXIS_TICK} />
+                      <Tooltip contentStyle={TOOLTIP_STYLE} />
+                      <Bar dataKey="count" fill="var(--primary)" isAnimationActive={false} />
                     </BarChart>
                   </ResponsiveContainer>
                 )}
@@ -154,11 +165,11 @@ function ReportsPage() {
                 ) : (
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={data.byDay}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis allowDecimals={false} />
-                      <Tooltip />
-                      <Line type="monotone" dataKey="count" stroke="hsl(var(--primary))" strokeWidth={2} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                      <XAxis dataKey="date" tick={AXIS_TICK} />
+                      <YAxis allowDecimals={false} tick={AXIS_TICK} />
+                      <Tooltip contentStyle={TOOLTIP_STYLE} />
+                      <Line type="monotone" dataKey="count" stroke="var(--primary)" strokeWidth={2} isAnimationActive={false} />
                     </LineChart>
                   </ResponsiveContainer>
                 )}
@@ -173,11 +184,11 @@ function ReportsPage() {
                 ) : (
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={data.byResource} layout="vertical" margin={{ left: 40 }}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis type="number" allowDecimals={false} />
-                      <YAxis type="category" dataKey="resourceName" width={120} />
-                      <Tooltip />
-                      <Bar dataKey="count" fill="hsl(var(--primary))" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                      <XAxis type="number" allowDecimals={false} tick={AXIS_TICK} />
+                      <YAxis type="category" dataKey="resourceName" width={120} tick={AXIS_TICK} />
+                      <Tooltip contentStyle={TOOLTIP_STYLE} />
+                      <Bar dataKey="count" fill="var(--primary)" isAnimationActive={false} />
                     </BarChart>
                   </ResponsiveContainer>
                 )}
@@ -201,7 +212,7 @@ function ReportsPage() {
                       {data.topUsers.map((u) => (
                         <tr key={u.userId} className="border-b border-border/50">
                           <td className="py-2">{u.fullName}</td>
-                          <td className="py-2 text-right">{u.count}</td>
+                          <td className="py-2 text-right tabular-nums">{u.count}</td>
                         </tr>
                       ))}
                     </tbody>

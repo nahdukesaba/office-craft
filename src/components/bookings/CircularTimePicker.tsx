@@ -29,8 +29,11 @@ export function CircularTimePicker({
     return [isNaN(hh) ? 9 : hh, isNaN(mm) ? 0 : mm];
   }, [value]);
 
-  function setHour(nh: number) {
+  function stepHour(nh: number) {
     onChange(`${String(nh).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+  }
+  function setHour(nh: number) {
+    stepHour(nh);
     setMode("minute");
   }
   function setMinute(nm: number) {
@@ -50,6 +53,8 @@ export function CircularTimePicker({
         <div className="mb-3 flex items-center justify-center gap-1 text-2xl font-semibold">
           <button
             type="button"
+            aria-label="Hour"
+            aria-pressed={mode === "hour"}
             onClick={() => setMode("hour")}
             className={cn("rounded px-2 py-0.5 transition-colors", mode === "hour" ? "bg-primary text-primary-foreground" : "text-muted-foreground")}
           >
@@ -58,6 +63,8 @@ export function CircularTimePicker({
           <span>:</span>
           <button
             type="button"
+            aria-label="Minute"
+            aria-pressed={mode === "minute"}
             onClick={() => setMode("minute")}
             className={cn("rounded px-2 py-0.5 transition-colors", mode === "minute" ? "bg-primary text-primary-foreground" : "text-muted-foreground")}
           >
@@ -66,17 +73,21 @@ export function CircularTimePicker({
         </div>
         {mode === "hour" ? (
           <ClockDial
+            label="Hour"
             outer={Array.from({ length: 12 }, (_, i) => i)}
             inner={Array.from({ length: 12 }, (_, i) => i + 12)}
             selected={h}
             onSelect={setHour}
+            onStep={stepHour}
             format={(n) => String(n).padStart(2, "0")}
           />
         ) : (
           <ClockDial
+            label="Minute"
             outer={[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]}
             selected={m}
             onSelect={setMinute}
+            onStep={setMinute}
             format={(n) => String(n).padStart(2, "0")}
           />
         )}
@@ -89,16 +100,20 @@ export function CircularTimePicker({
 }
 
 function ClockDial({
+  label,
   outer,
   inner,
   selected,
   onSelect,
+  onStep,
   format,
 }: {
+  label: string;
   outer: number[];
   inner?: number[];
   selected: number;
   onSelect: (n: number) => void;
+  onStep: (n: number) => void;
   format: (n: number) => string;
 }) {
   const size = 220;
@@ -133,28 +148,67 @@ function ClockDial({
     if (!dragging) return;
     const up = () => setDragging(false);
     window.addEventListener("pointerup", up);
-    return () => window.removeEventListener("pointerup", up);
+    window.addEventListener("pointercancel", up);
+    return () => {
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", up);
+    };
   }, [dragging]);
 
   const selectedOnOuter = outer.includes(selected);
   const list = selectedOnOuter ? outer : inner ?? outer;
   const idx = list.indexOf(selected);
   const r = selectedOnOuter ? rOuter : rInner;
-  const handPos = idx >= 0 ? pos(r, idx, list.length) : { x: cx, y: cy };
+  const handLength = idx >= 0 ? r : 0;
+  const targetAngle = idx >= 0 ? (idx / list.length) * 360 : 0;
+  const angleRef = useRef(targetAngle);
+  // Sweep the short way round, so 55 to 00 moves forward instead of unwinding the dial.
+  const turn = (((targetAngle - angleRef.current) % 360) + 540) % 360 - 180;
+  const angle = angleRef.current + turn;
+  useEffect(() => {
+    angleRef.current = angle;
+  }, [angle]);
+
+  function onKeyDown(e: React.KeyboardEvent) {
+    const values = inner ? [...outer, ...inner] : outer;
+    const dir = e.key === "ArrowRight" || e.key === "ArrowUp" ? 1 : e.key === "ArrowLeft" || e.key === "ArrowDown" ? -1 : 0;
+    if (dir) {
+      e.preventDefault();
+      const at = Math.max(values.indexOf(selected), 0);
+      onStep(values[(at + dir + values.length) % values.length]);
+    } else if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onSelect(selected);
+    }
+  }
 
   return (
     <svg
       ref={ringRef}
       width={size}
       height={size}
-      className="mx-auto touch-none select-none"
-      onPointerDown={(e) => { setDragging(true); fromPointer(e); }}
+      role="slider"
+      tabIndex={0}
+      aria-label={label}
+      aria-valuemin={Math.min(...outer, ...(inner ?? []))}
+      aria-valuemax={Math.max(...outer, ...(inner ?? []))}
+      aria-valuenow={selected}
+      aria-valuetext={format(selected)}
+      className="mx-auto touch-none select-none rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+      onKeyDown={onKeyDown}
+      // The hour dial advances to minutes on first pick, so a held pointer must not carry over and change the minute.
+      onPointerDown={(e) => { setDragging(!inner); fromPointer(e); }}
       onPointerMove={(e) => dragging && fromPointer(e)}
     >
       <circle cx={cx} cy={cy} r={rOuter + 12} className="fill-muted" />
-      <line x1={cx} y1={cy} x2={handPos.x} y2={handPos.y} className="stroke-primary transition-all duration-150 ease-out" strokeWidth={2} />
       <circle cx={cx} cy={cy} r={3} className="fill-primary" />
-      <circle cx={handPos.x} cy={handPos.y} r={14} className="fill-primary transition-all duration-150 ease-out" />
+      <g
+        className={cn(!dragging && "motion-safe:transition-transform motion-safe:duration-200 motion-safe:ease-[cubic-bezier(0.16,1,0.3,1)]")}
+        style={{ transform: `rotate(${angle}deg)`, transformOrigin: `${cx}px ${cy}px` }}
+      >
+        <line x1={cx} y1={cy} x2={cx} y2={cy - handLength} className="stroke-primary" strokeWidth={2} />
+        <circle cx={cx} cy={cy - handLength} r={14} className="fill-primary" />
+      </g>
       {outer.map((n, i) => {
         const p = pos(rOuter, i, outer.length);
         const isSel = n === selected;

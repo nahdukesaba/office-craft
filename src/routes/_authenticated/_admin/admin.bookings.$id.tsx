@@ -12,6 +12,7 @@ import {
 } from "@/hooks/mutations/useBookingMutations";
 import { useT } from "@/i18n/LanguageProvider";
 import { LoadingSkeleton } from "@/components/common/LoadingSkeleton";
+import { QueryError } from "@/components/common/QueryError";
 import { PageHeader } from "@/components/common/PageHeader";
 import { ResourceColorDot } from "@/components/common/ResourceColorDot";
 import { StatusBadge } from "@/components/common/StatusBadge";
@@ -23,7 +24,7 @@ import { BookingTimeline } from "@/components/bookings/BookingTimeline";
 import { fmtDateTime, fmtBookingRange, daysBetweenInclusive } from "@/lib/format";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
-import { friendlyError } from "@/lib/errors";
+import { bookingRuleMessage, friendlyError } from "@/lib/errors";
 
 export const Route = createFileRoute("/_authenticated/_admin/admin/bookings/$id")({
   head: () => ({ meta: [{ title: "Review Booking · Admin" }] }),
@@ -32,7 +33,7 @@ export const Route = createFileRoute("/_authenticated/_admin/admin/bookings/$id"
 
 function AdminBookingReview() {
   const { id } = Route.useParams();
-  const { data: booking, isLoading } = useBooking(id);
+  const { data: booking, isLoading, isError, refetch } = useBooking(id);
   const { data: proofs } = useProofs(id);
   const approve = useApproveBooking();
   const reject = useRejectBooking();
@@ -43,6 +44,7 @@ function AdminBookingReview() {
   const t = useT();
   const [notes, setNotes] = useState("");
 
+  if (isError && !booking) return <QueryError onRetry={() => void refetch()} />;
   if (isLoading || !booking) return <LoadingSkeleton rows={4} />;
 
   const act = async (fn: () => Promise<unknown>, msg: string) => {
@@ -106,6 +108,7 @@ function AdminBookingReview() {
           <CardContent className="space-y-3 p-4">
             <p className="text-sm font-semibold">{t("bookingDetail.adminNotes")}</p>
             <Textarea
+              aria-label={t("bookingDetail.adminNotes")}
               placeholder={t("adminBookingDetail.notesPlaceholder")}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -123,7 +126,7 @@ function AdminBookingReview() {
                         : t("adminBookingDetail.approved"),
                     );
                   } catch (e: unknown) {
-                    toast.error(friendlyError(e));
+                    toast.error(bookingRuleMessage(e, t) ?? friendlyError(e));
                   }
                 }}
               >

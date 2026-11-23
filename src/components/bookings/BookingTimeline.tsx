@@ -2,6 +2,7 @@ import { useBookingHistory } from "@/hooks/queries/useBookings";
 import { fmtDateTime } from "@/lib/format";
 import { EmptyState } from "@/components/common/EmptyState";
 import { LoadingSkeleton } from "@/components/common/LoadingSkeleton";
+import { QueryError } from "@/components/common/QueryError";
 import type { TimelineEntry } from "@/types";
 import {
   CheckCircle2,
@@ -62,8 +63,9 @@ function labelFor(e: TimelineEntry): string {
 }
 
 export function BookingTimeline({ bookingId }: { bookingId: string }) {
-  const { data, isLoading } = useBookingHistory(bookingId);
+  const { data, isLoading, isError, refetch } = useBookingHistory(bookingId);
   if (isLoading) return <LoadingSkeleton rows={3} />;
+  if (isError) return <QueryError onRetry={() => void refetch()} />;
   const entries = data ?? [];
   if (entries.length === 0) {
     return <EmptyState title="No history yet" description="Actions on this booking will appear here." />;

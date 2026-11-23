@@ -31,20 +31,20 @@ export function BookingTable({
                 <TableRow key={b.id}>
                   <TableCell className="font-medium">
                     {detailHrefBase === "/admin/bookings" ? (
-                        <Link to="/admin/bookings/$id" params={{ id: b.id }} className="flex items-center gap-1.5 hover:underline">
+                        <Link to="/admin/bookings/$id" params={{ id: b.id }} className="flex min-h-6 items-center gap-1.5 hover:underline">
                           <ResourceColorDot resourceId={b.resourceId} resource={b.resource} />
                           {b.resource?.name ?? b.resourceId}
                         </Link>
                     ) : (
-                        <Link to="/my-bookings/$id" params={{ id: b.id }} className="flex items-center gap-1.5 hover:underline">
+                        <Link to="/my-bookings/$id" params={{ id: b.id }} className="flex min-h-6 items-center gap-1.5 hover:underline">
                           <ResourceColorDot resourceId={b.resourceId} resource={b.resource} />
                           {b.resource?.name ?? b.resourceId}
                         </Link>
                     )}
                   </TableCell>
                   <TableCell className="hidden sm:table-cell">{b.user?.fullName ?? "-"}</TableCell>
-                  <TableCell>{fmtDate(b.date)}</TableCell>
-                  <TableCell className="hidden md:table-cell">{b.startTime} – {b.endTime}</TableCell>
+                  <TableCell className="tabular-nums">{fmtDate(b.date)}</TableCell>
+                  <TableCell className="hidden tabular-nums md:table-cell">{b.startTime} – {b.endTime}</TableCell>
                   <TableCell><StatusBadge status={b.status} /></TableCell>
                   <TableCell className="text-right">
                     <Button asChild size="sm" variant="ghost">

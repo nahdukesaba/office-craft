@@ -1,5 +1,5 @@
 import { format, parseISO } from "date-fns";
-import { isoToJakartaYMD } from "@/lib/bookingTime";
+import { hasBookingDateArrived } from "@/lib/bookingTime";
 import type { BookingStatus, Proof } from "@/types";
 
 export const fmtDate = (iso: string) => format(parseISO(iso), "MMM d, yyyy");
@@ -37,20 +37,9 @@ export function daysBetweenInclusive(startDate: string, endDate?: string): numbe
   return Math.max(1, Math.round((b - a) / 86400000) + 1);
 }
 
-export function isTodayInRange(
-  startDate: string,
-  endDate?: string,
-  now: Date = new Date(),
-): boolean {
-  const today = isoToJakartaYMD(now.toISOString());
-  const end = endDate ?? startDate;
-  return today >= startDate && today <= end;
-}
-
 export interface BookingProofLifecycleInput {
   status: BookingStatus;
   date: string;
-  endDate?: string;
   proofs: Pick<Proof, "kind" | "uploadedAt">[];
   isOwner?: boolean;
   updatedAt?: string;
@@ -74,13 +63,12 @@ export interface BookingProofLifecycleState {
 export function getBookingProofLifecycle({
   status,
   date,
-  endDate,
   proofs,
   isOwner = true,
   updatedAt,
   now = new Date(),
 }: BookingProofLifecycleInput): BookingProofLifecycleState {
-  const inWindow = isTodayInRange(date, endDate, now);
+  const inWindow = hasBookingDateArrived(date, now);
   const hasBefore = proofs.some((p) => p.kind === "before");
   const hasAfter = proofs.some((p) => p.kind === "after");
   const needRevision = status === "needs_revision";
@@ -96,13 +84,11 @@ export function getBookingProofLifecycle({
     });
 
   const showBeforeUploader = isOwner && status === "approved" && inWindow;
-  const showAfterUploader =
-    isOwner && (status === "in_use" || status === "needs_revision");
+  const showAfterUploader = isOwner && (status === "in_use" || status === "needs_revision");
   const showWindowHint = status === "approved" && !inWindow;
 
   const canStart = isOwner && status === "approved" && inWindow && hasBefore;
-  const canFinish =
-    isOwner && ((status === "in_use" && hasAfter) || status === "needs_revision");
+  const canFinish = isOwner && ((status === "in_use" && hasAfter) || status === "needs_revision");
   const canCancel = isOwner && (status === "pending" || status === "approved");
 
   return {

@@ -143,6 +143,12 @@ Future workflow modules should integrate here.
 
 ---
 
+## Bookable Resources
+
+`resources.type` is `room`, `car`, `bike`, or `equipment`. Equipment covers items such as projectors, projector screens, and DSLR cameras. It uses `location` and has no capacity, license plate, or fuel type.
+
+---
+
 ## Reporting Domain
 
 Responsible for

@@ -8,12 +8,12 @@ import { useT } from "@/i18n/LanguageProvider";
 export function AuthLayout({ children, title, subtitle }: { children: ReactNode; title: string; subtitle?: string }) {
     const t = useT();
     return (
-        <div className="relative flex min-h-screen items-center justify-center bg-muted px-4 py-10">
+        <main className="relative flex min-h-screen items-center justify-center bg-muted px-4 py-10">
             <div className="absolute right-4 top-4"><HeaderControls /></div>
             <div className="w-full max-w-md">
                 <Link
                     to="/"
-                    className="mb-4 inline-flex items-center text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="mb-4 inline-flex min-h-6 items-center text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
                     <ArrowLeft className="mr-1 size-4" />
                     {t("action.goHome")}
@@ -29,6 +29,6 @@ export function AuthLayout({ children, title, subtitle }: { children: ReactNode;
                     <div className="mt-6">{children}</div>
                 </div>
             </div>
-        </div>
+        </main>
     );
 }

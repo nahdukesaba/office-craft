@@ -26,6 +26,11 @@ export function isoToJakartaYMD(iso: string): string {
   return new Date(iso).toLocaleDateString("en-CA", { timeZone: "Asia/Jakarta" });
 }
 
+/** True from the booking's start date onward (Asia/Jakarta), with no end limit. */
+export function hasBookingDateArrived(startDateYMD: string, now: Date = new Date()): boolean {
+  return isoToJakartaYMD(now.toISOString()) >= startDateYMD;
+}
+
 export function roundUpToStep(hhmm: string, stepMin: number): string {
   const [h, m] = hhmm.split(":").map(Number);
   const rounded = Math.ceil((h * 60 + m) / stepMin) * stepMin;
@@ -38,8 +43,8 @@ export function roundUpToStep(hhmm: string, stepMin: number): string {
  * repeating until it lands in a free slot (handles back-to-back approvals).
  */
 export function nextAvailableStart(
-    candidateStart: string,
-    approvedBookings: { startTime: string; endTime: string }[],
+  candidateStart: string,
+  approvedBookings: { startTime: string; endTime: string }[],
 ): string {
   let start = candidateStart;
   const sorted = [...approvedBookings].sort((a, b) => a.startTime.localeCompare(b.startTime));
@@ -63,8 +68,8 @@ export function nextAvailableStart(
  * only use this when the selected date is today.
  */
 export function defaultBookingStart(
-    todaysApprovedBookings: { startTime: string; endTime: string }[],
-    stepMin: number,
+  todaysApprovedBookings: { startTime: string; endTime: string }[],
+  stepMin: number,
 ): string {
   const nowJakarta = isoToJakartaHHmm(new Date().toISOString());
   const oneHourFromNow = addMinutesHHmm(nowJakarta, 60);

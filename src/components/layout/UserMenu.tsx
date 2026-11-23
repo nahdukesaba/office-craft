@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useForm, type UseFormRegisterReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -41,6 +41,7 @@ export function UserMenu() {
   const t = useT();
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [phoneOpen, setPhoneOpen] = useState(false);
+  const phoneId = useId();
   const form = useForm<ChangePasswordValues>({
     resolver: zodResolver(changePasswordSchema),
     defaultValues: { oldPassword: "", newPassword: "", confirmPassword: "" },
@@ -85,7 +86,10 @@ export function UserMenu() {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger className="flex items-center gap-2 rounded-full p-1 hover:bg-accent">
+        <DropdownMenuTrigger
+          aria-label={user.fullName}
+          className="flex items-center gap-2 rounded-full p-1 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
           <Avatar className="size-8">
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
@@ -177,8 +181,8 @@ export function UserMenu() {
           </DialogHeader>
           <form className="space-y-4" onSubmit={phoneForm.handleSubmit(updatePhone)}>
             <div className="space-y-2">
-              <Label>{t("auth.phoneLabel")}</Label>
-              <Input type="tel" placeholder="6281234567890" {...phoneForm.register("phone")} />
+              <Label htmlFor={phoneId}>{t("auth.phoneLabel")}</Label>
+              <Input id={phoneId} type="tel" placeholder="6281234567890" {...phoneForm.register("phone")} />
               {phoneForm.formState.errors.phone && (
                 <p className="text-xs text-destructive">
                   {phoneForm.formState.errors.phone.message}
@@ -206,10 +210,11 @@ function PasswordField({
   error?: string;
   input: UseFormRegisterReturn;
 }) {
+  const id = useId();
   return (
     <div className="space-y-2">
-      <Label>{label}</Label>
-      <Input type="password" autoComplete={autoComplete} {...input} />
+      <Label htmlFor={id}>{label}</Label>
+      <Input id={id} type="password" autoComplete={autoComplete} {...input} />
       {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );
