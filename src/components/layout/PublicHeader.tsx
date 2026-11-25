@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { UserMenu } from "./UserMenu";
+import { AppLauncher } from "./AppLauncher";
 import { HeaderControls } from "@/components/common/HeaderControls";
 import { BrandMark } from "@/components/layout/BrandMark";
 import { useT } from "@/i18n/LanguageProvider";
@@ -37,6 +38,7 @@ export function PublicHeader() {
                   <Link to="/resources">{t("nav.resources")}</Link>
                 </Button>
 
+                <AppLauncher />
                 <UserMenu />
               </>
             ) : (

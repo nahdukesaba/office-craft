@@ -2,6 +2,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
+import { AppLauncher } from "@/components/layout/AppLauncher";
 import { UserMenu } from "@/components/layout/UserMenu";
 import { HeaderControls } from "@/components/common/HeaderControls";
 import { SkipLink } from "@/components/common/SkipLink";
@@ -28,6 +29,7 @@ export function MainLayout({ children }: { children: ReactNode }) {
             <SidebarTrigger />
             <div className="flex items-center gap-2">
               <HeaderControls />
+              <AppLauncher />
               <UserMenu />
             </div>
           </header>
